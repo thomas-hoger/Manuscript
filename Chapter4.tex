@@ -1,0 +1,38 @@
+\ifdefined\included
+\else
+\documentclass[a4paper,11pt,twoside]{StyleThese}
+\include{formatAndDefs}
+\sloppy
+\begin{document}
+\setcounter{chapter}{3} %% Numéro du chapitre précédent ;)
+\dominitoc
+\faketableofcontents
+\fi
+
+\chapter{From theory to practice: A more generalizable and applicable implementation with Open Source MANO}\label{chap:transition}
+\minitoc
+
+\section{Challenges in Adapting Theoretical Models to Existing Standards}
+\subsection{Multi-cluster orchestration}
+\subsection{Abstraction gaps: containerized vs. virtualized Resources}
+\subsection{The overlooked role of energy in NFV orchestrators}
+
+\section{CNF placement and migration with OSM}
+\subsection{Architectural overview of our system}
+\subsection{OSM as a NFV MANO orchestrator}
+\subsection{Deploying CNFs: Kubernetes, Helm \& OSM Integration}
+\subsection{Monitoring \& optimization}
+
+\section{Experimental validation}
+\subsection{Experimental setup}
+\subsection{Service placement experiments}
+\subsection{Service migration experiments}
+
+\section{Conclusion}
+
+\ifdefined\included
+\else
+\bibliographystyle{acm}
+\bibliography{These}
+\end{document}
+\fi

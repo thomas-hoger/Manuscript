@@ -1,0 +1,111 @@
+% Choose the language of your thesis passing 'french' or 'english' as
+% \documentclass option.
+% Note1: The 'page de garde' will always be written in French.
+% Note2: You will have an error if you change the language of the document and
+%        compile it without cleaning the auxiliary files. Compiling it again
+%        should solve the problem.
+\documentclass[french,a4paper,11pt,twoside]{StyleThese}
+\newcommand{\included}{}
+
+\include{formatAndDefs}
+\sloppy
+\begin{document}
+
+\include{page_de_garde}
+
+\makeflyleaf
+
+ \cleardoublepage
+
+\dominitoc
+
+\pagenumbering{roman}
+
+ \cleardoublepage
+
+% Here you can see an example of how to create text conditioned by the language
+% variable. The \iftoggle command:
+%
+%   \iftoggle{ThesisInEnglish}{%
+%   <your-text-in-english>
+%   }{%
+%   <your-text-in-french>
+%   }
+%
+% will compile only one of the two blocks, depending on the variable you set at
+% the beginning of this document. Language selection is managed this way in the
+% formatAndDefs.tex file. You too can create sections of your thesis that is
+% language dependend this way, although you probably won't need it. Another use
+% of \iftoggle can be found at the end of this file.
+\iftoggle{ThesisInEnglish}{%
+\section*{Acknowledgments}
+}{%
+\section*{Remerciements}
+}
+A faire en dernier :-) 
+
+\cleardoublepage
+
+\section*{Abstract}
+
+The Cloud-Edge continuum has become a central paradigm for delivering digital services, combining the scalability of centralized Cloud infrastructures with the low-latency benefits of distributed Edge resources. However, orchestrating services across this continuum is increasingly complex, as it must balance multiple and often conflicting objectives. Among these, sustainability considerations, such as the integration of renewable energy sources, are gaining importance, yet they introduce new challenges traditionally absent from energy minimization approaches. Indeed, the growing integration of renewable energy sources brings variability and uncertainty that must be managed alongside service-level requirements such as stability and robustness. This variability complicates orchestration decisions, especially in dynamic and heterogeneous environments where both voluntary and involuntary node departures may occur. Orchestration represents both a challenge and a lever for the energy management of future systems of this type that will be deployed on a global scale. Faced with current environmental concerns and the growing and plethora of heterogeneous and scattered resources involved in these systems, it is imperative to rethink the design of orchestration methods from the additional perspective of sustainability and efficiency.
+
+In this thesis, we present an in-depth investigation of service orchestration in renewable energy-enabled edge computing environments. First, we introduce a comprehensive classification framework specifically designed for sustainable Edge service orchestration across traditional and renewable energy contexts. This review strengthens the critical importance of addressing sustainability concerns and demonstrates how virtualization and service orchestration constitute fundamental foundations for future energy-efficient, distributed ICT infrastructures. Then, we propose a system model that captures the interactions among renewable energy generation, Edge infrastructures, and service robustness. Building on this model, we design an algorithm for service placement and placement reconfiguration, using predictions of energy availability and workload demand to enable more efficient and sustainable orchestration decisions. Finally, we introduce an architecture that instantiates the proposed theoretical models into a practical, standards-compliant solution. Collectively, these contributions provide novel and effective approaches to the challenge of service orchestration in renewable energy-enabled Edge computing settings.
+
+\textbf{Keywords:} Edge computing, Service orchestration, Sustainability, Energy efficiency, Renewable energy
+
+\cleardoublepage
+
+\section*{Résumé}
+
+\tableofcontents
+
+\printnomenclature
+% Use \mtcfixnomenclature below if you have a glossary (added with
+% \printnomenclature above) and you're see a shift in the mini-table of
+% contents at the begining of each chapter (example: no mini-toc in chapter 1;
+% mini-toc of chapter 1 appearing in chapter 2; and so on).
+%
+% You should not use \mtcfixnomenclature if you have no glossary (that means,
+% if you don't use \printnomenclature or if your glossary is empty).
+\mtcfixnomenclature
+
+\mainmatter
+
+\include{Introduction}
+\include{Chapter1}
+\include{Chapter2}
+\include{Chapter3}
+\include{Chapter4}
+\include{Conclusion}
+
+
+\appendix
+
+\include{Annexe1}
+
+\bibliographystyle{StyleThese}
+%\bibliographystyle{plain}
+\bibliography{These}
+
+% \cleardoublepage
+% \begin{vcenterpage}
+% \noindent\rule[2pt]{\textwidth}{0.5pt}
+% \\
+% \iftoggle{ThesisInEnglish}{%
+% {\large\textbf{Abstract:}}
+% }{%
+% {\large\textbf{Résumé :}}
+% }
+% resume
+% \iftoggle{ThesisInEnglish}{%
+% {\large\textbf{Keywords:}}
+% }{%
+% {\large\textbf{Mots clés :}}
+% }
+% mots, clefs
+% \\
+% \noindent\rule[2pt]{\textwidth}{0.5pt}
+% \end{vcenterpage}
+
+\end{document}
