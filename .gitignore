@@ -1,0 +1,13 @@
+*.aux
+*.mtc*
+*.nlo
+*.out
+*.synctex.gz
+*.toc
+*.log
+*.fls
+*.fdb_latexmk
+*.bbl
+*.blg
+*.brf
+*.maf
