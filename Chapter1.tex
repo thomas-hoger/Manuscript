@@ -2,6 +2,12 @@
 \else
 \documentclass[a4paper,11pt,twoside]{StyleThese}
 \include{formatAndDefs}
+% fallback si compilation standalone
+\providecommand{\acs}[1]{#1}
+\providecommand{\minitoc}{}
+\providecommand{\dominitoc}{}
+\providecommand{\faketableofcontents}{}
+\hbadness=10000
 \sloppy
 \begin{document}
 \setcounter{chapter}{0} %% Numéro du chapitre précédent ;)
@@ -12,14 +18,67 @@
 \chapter{Définitions des surfaces d'attaques de la 5G}
 \minitoc
 
-Les réseaux 5G sont conçus pour répondre à des exigences plus strictes en termes de débit amélioré (eMBB), de latence ultra faible (URLLC) et de communication massive d'appareils connectés (mMTC), permettant l’émergence de nombreux services innovants\cite{Gupta2015,Zaame2020}. Pour assurer la mise en œuvre et le fonctionnement efficace de ces différents cas d’usage, la 5G change profondément de paradigme et intègre plusieurs nouveaux concepts pour les réseaux mobiles, de nouveaux composants dans son architecture et de nouvelles méthodes de communications entre les entitées qui la compose. 
+Les réseaux 5G sont conçus pour répondre à des exigences plus strictes en termes de débit amélioré (eMBB), de latence ultra faible (URLLC) et de communication massive d'appareils connectés (mMTC), permettant l’émergence de nombreux services innovants\cite{Gupta2015,Zaame2020}. Pour assurer la mise en œuvre et le fonctionnement efficace de ces différents cas d’usage, la 5G change profondément de paradigme et intègre plusieurs nouveaux concepts aux réseaux mobiles, de nouveaux composants dans son architecture et de nouvelles méthodes de communications entre les entitées qui la compose. 
 
-Ces évolutons rendent les réseaux mobiles plus flexibles et plus dynamiques mais au prix d'une complexification du système et d'une augmentation de la surface d'attaque. Dans ce contexte, les besoins en matière de détection d’anomalies évoluent également et il devient alors nécessaire de concevoir de nouveaux mécanismes de détection, capables de s’adapter aux spécificités et à la complexité des architectures 5G.
+Ces évolutons rendent les réseaux mobiles plus flexibles et plus dynamiques mais au prix d'une complexification du système et d'une augmentation de la surface d'attaque. Dans ce contexte, les besoins en matière de détection d’anomalies évoluent également et il devient alors nécessaire de concevoir de nouveaux mécanismes de détection capables de s’adapter aux spécificités et à la complexité des architectures 5G.
+
+
+\section{Changements de la 5G en regard de versions précédentes}
+
+\subsection{Virtualisation des fonctions réseaux et changement de paradigme}
+La virtualisation constitue la base technologique qui permet des fonctions avancées telles que le network slicing. Elle repose sur deux concepts clés, \acs{NFV} et \acs{SDN}, qui permettent de déployer des services à la demande sur tout type de matériel. Grâce à ces approches, les réseaux 5G s’éloignent de la conception traditionnelle des systèmes mobiles, historiquement construits sous forme d’architectures monolithiques où chaque fonction s’exécutait sur un matériel dédié et communiquait via des canaux fixes et des piles de protocoles rigides. À la place, l’architecture 5G adopte une approche plus proche des microservices du cloud, où les fonctions réseau sont softwarisées, découplées et conteneurisées.
+
+Cependant, malgré les avantages significatifs de la virtualisation, celle-ci hérite également d’un nombre important de nouvelles vulnérabilités propres à cette technologie. En effet, qu’elle repose sur des technologies de machines virtuelles ou sur la conteneurisation, la virtualisation représente une couche supplémentaire qui peut elle-même être vulnérable à des attaques spécifiques tel que l'empoisonnement d'image \cite{docker_poisonning} ou l'évasion de VM/Docker \cite{vm_escape, docker_escape}. %Parmi les exemples les plus marquants, on peut citer :
+
+% \begin{itemize}
+%     \item \textbf{Évasion de VM/Docker :} Sortir de la couche de virtualisation afin d’obtenir un accès à l’hôte depuis l’environnement invité \cite{vm_escape, docker_escape}, comme illustré dans la Figure~\ref{fig:5G_AttackSurface} (attaque 1).
+%     \item \textbf{Images empoisonnées :} Empoisonnement d’une image \acs{VNF} avant son déploiement afin d’y introduire une porte dérobée \cite{docker_poisonning}.
+% \end{itemize}
+
+\subsection{Evolution des interfaces et piles protocolaires}
+Certains protocoles et interfaces hérités de la 4G sont conservés en 5G, ce qui implique que cette dernière hérite de la surface d'attaque et de certaines vulnérabilités des générations précédentes. On retrouve par exemple des attaques d’injection de messages de contrôle dans le flux utilisateur géré par le protocole GTP-U~\cite{gtp1,gtp_encap}, des attaques par inondation ciblant la gestion des ressources radio via le protocole RRC~\cite{ettiane2021toward}, ainsi que des attaques par rejeu affectant les messages de signalisation du protocole NAS~\cite{salazar2023network}.
+
+%Par exemple, le protocole GTP-U, utilisé pour l’encapsulation et la tunnelisation des paquets de données utilisateur entre les fonctions réseau, peut être exploité pour rediriger des messages ou injecter du trafic malveillant dans le cœur de réseau, permettant potentiellement d’accéder à des fonctions internes~\cite{gtp1,gtp_encap}. De manière similaire, le protocole RRC, qui assure la gestion des ressources radio, reste vulnérable à des attaques par inondation de requêtes de connexion~\cite{ettiane2021toward}. Les protocoles de signalisation NAS-5G, responsables notamment de l’authentification des utilisateurs et de la gestion des sessions, conservent également certaines, telles que des attaques par rejeu sur des messages critiques~\cite{salazar2023network}.
+
+Mais la transition vers une architecture inspirée des microservices introduit aussi de nouvelles interfaces et de nouveaux protocoles, élargissant par conséquent la surface d’attaque. L’adoption des Service-Based Interfaces (SBI), basées sur des API REST, expose notamment le cœur de réseau à des attaques de type fuzzing~\cite{CTD5G}. De nouveaux protocoles comme NGAP peuvent être ciblés par des injections de messages malformés~\cite{salazar2023network}, tandis que PFCP introduit de nouvelles surfaces d’attaque liées à la gestion des sessions et des flux~\cite{amponis20235g}.
+
+%Comme expliqué précédemment, la transition vers une architecture inspirée des microservices modifie également une partie des interfaces et introduit de nouveaux protocoles qui élargissent la surface d’attaque. Le changement le plus notable est l’adoption des Service-Based Interfaces, qui permettent aux fonctions réseau de communiquer via des API REST plutôt qu’au moyen de protocoles spécifiques aux réseaux mobiles, ouvrant notamment la voie à des attaques de type fuzzing~\cite{CTD5G}. Parmi les nouveaux protocoles, NGAP est utilisé pour la communication entre le gNB et le cœur de réseau et peut être ciblé par des attaques par injection de messages malformés~\cite{salazar2023network}. Enfin, le protocole PFCP, introduit pour la gestion des sessions de données et des politiques de trafic entre fonctions du plan de contrôle et du plan utilisateur, peut être visé par des attaques par inondation cherchant à épuiser les identifiants de session ou à manipuler les règles de routage, perturbant ainsi la connectivité des utilisateurs~\cite{amponis20235g}.
+
+\subsection{Développement des réseaux privés}
+Les évolutions introduites par la 5G permettent désormais le déploiement et l’exploitation de réseaux mobiles privés. Cette approche offre à certaines organisations, telles que les universités, les hôpitaux ou encore les bases militaires, la possibilité de gérer leur propre infrastructure. Elles peuvent ainsi, entre autre, bénéficier d’un contrôle complet de leur couverture réseau, ainsi que de la gestion de sa sécurité. \cite{priv5G}
+
+Cette dynamique est facilité par la disponibilité croissante d’implémentations open source permettant de construire des réseaux 5G de manière autonome. Toutefois, ces solutions présentent encore des limites importantes. Leur niveau de maturité reste relativement faible et certains mécanismes de sécurité fondamentaux peuvent être encore absents. Malgré ces lacunes, ces technologies open source sont déjà utilisées dans des contextes réels, parfois après adaptation par des acteurs industriels. C'est par exemple le cas de Firecell\cite{firecell} qui réutilise une version consolidée de l'implémentation open source d'Open Air Interface (OAI).\cite{oai} 
+
+À l’heure actuelle, la 5G privée demeure un marché de niche, en partie en raison du manque de maturité des solutions disponibles. Néanmoins, les perspectives de croissance sont importantes et une adoption plus large est attendue dans les années à venir. Dans ce contexte, le recours massif à des implémentations open source ou à leurs dérivés commerciaux pourrait engendrer des risques significatifs en matière de sécurité, notamment si les insuffisances actuelles ne sont pas pleinement corrigées.
+
+\subsection{Ecosystème élargi et nouveaux vecteurs d'intrusions}
+
+% Intro 
+La softwarisation de la 5G et l'introduction de nouveaux mécanismes aux réseaux mobiles ajoute de nouvelles problématiques de sécurité et introduit de nouveaux vecteurs d'intrusion. Parmi les nombreuses nouveautés que la 5G apporte, voici quelques exemples notables qui contribuent à l'élargissement de la surface d'attaque.
+
+\begin{itemize}
+
+    \item \textbf{Slicing} : Afin de gérer efficacement plusieurs services et cas d’usage, la 5G introduit le concept de network slicing qui consiste à créer plusieurs réseaux virtuels au sein d’une même infrastructure physique partagée. Le concept de slicing impacte l’architecture 5G à tous les niveaux, depuis la couche physique, où il implique la gestion de la grille de ressources temps/fréquence \cite{Sexton2019}, jusqu’à la couche applicative, où il garantit la continuité et l’isolation des services. Bien que les spécifications du \acs{3GPP} relatives aux slices intègrent des mécanismes de sécurité robustes \cite{3gpp_tr_33_813, 3gpp_tr_33_811}, les implémentations actuelles, en particulier open source, restent encore immatures. Cette situation soulève des préoccupations de sécurité et introduit de nouveaux vecteurs d’attaque, notamment liés à une isolation imparfaite et au partage de ressources physique.
+
+    \item \textbf{Orchestrations} : Dans un déploiement à grande échelle, il est n'est pas réaliste de gérer l'entiereté de l'infrastructure des réseaux 5G manuellement. La virutalisation des fonctions réseaux permet cependant d'automatiser l'orchestration et la gestion des services \cite{etsi_network_2024} pour pouvoir moduler, en fonction des besoins, l'architecture et les capacités du réseaux. Cette gestion automatisée est généralement réalisée par des logiciels comme Kubernetes ou Openstack qui rajoutent des couches de complexité et de vulnérabiltiés.
+    
+    \item \textbf{Chaîne d'approvisionnement} : L’intégration logicielle était historiquement gérée par un acteur unique : le fournisseur d’équipements réseau. Cependant, les réseaux 5G reposent maintenant sur un bien plus grand panel de logiciels pour leur fonctionnement. Comme c’est généralement le cas dans le développement logiciel moderne, ces logiciels reposent largement sur du code tiers, dont une grande partie est open source. Cela introduit des risques liés à la méconnaissances de l'inventaire détaillé des composants logicielle (Software Bill of Materials) ainsi qu’aux attaques de la chaîne d’approvisionnement ~\cite{williams2025research, sammak2023developers, zimmermann_small_nodate, kula_developers_2018, log4shell}. % ajouter Small world with high risk et les papiers de zotero
+    
+\end{itemize}
 
 \section{Infrastructure et Composants Physiques}
 
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\linewidth]{figures/chapter1/cn_ran_5G.png}
+\caption{Illustration simplifiée des principaux composants de l’architecture 5G}
+\label{fig:5G_architecture}
+\end{figure}
+
+L’architecture 5G repose sur un ensemble distribué de composants interconnectés, organisés en plusieurs sous-systèmes coopérant pour assurer la connectivité et la gestion des communications. Bien que de nombreux autres éléments existent, les composants présentés ci-dessous comptent parmi ceux absoluments essentiels au fonctionnement du réseau 5G. La Figure~\ref{fig:5G_architecture} en propose une illustration simplifiée.
+
 \subsection{Equipements Utilisateurs (UE)}
-Les \acs{UE} désignent les dispositifs qui se connectent au réseau 5G, tels que les smartphones, les objets connectés et, plus généralement, tout équipement disposant d’une interface radio par laquelle ils peuvent communiquer avec le réseaux 5G. Ils constituent la grande majorité des entités actives du réseau et représentent, par nature, les composants les plus exposés de l’infrastructure. En raison de leur nombre, de leur vulnérabilité et de leur accessibilité, ils sont à la fois les cibles les plus probables d’attaques et des vecteurs potentiels d’attaque.
+Les \acs{UE} désignent les dispositifs qui se connectent au réseau 5G, tels que les smartphones, les objets connectés et, plus généralement, tout équipement disposant d’une interface radio par laquelle ils peuvent communiquer avec le réseaux 5G. Ils constituent la grande majorité des entités actives du réseau et représentent, par nature, les composants les plus exposés de l’infrastructure. En raison de leur nombre, de leur vulnérabilité et de leur accessibilité, ils sont à la fois les cibles mais aussi les vecteurs les plus probables lors d'une attaque \cite{ettiane2021toward, spoof_gtp, pfcp_in_gtp}.
 
 Du point de vue d’un attaquant, compromettre un UE peut s’avérer relativement simple. L'accès peut être réalisé à distance, par installation de logiciels malveillants, ou physiquement, en dérobant l'appareil la carte SIM qui l'authentifie. Bien que les UE ne soient capable d'intéragir directement qu'avec la station de base, ils peuvent par exemple être exploités pour mener des attaques par déni de service distribué (DDoS). % Bien que les UE ne soient capable d'intéragir directement qu'avec la station de base, leur compromission peut néanmoins être exploitée de différentes manières. Il existe notamment plusieurs attaques spécifiques à la 5G, et leur très grand nombre peut également être utilisé pour mener des attaques par déni de service distribué (DDoS).
 
@@ -33,9 +92,9 @@ Du point de vue d’un attaquant, compromettre un UE peut s’avérer relativeme
 % \end{itemize}
 
 \subsection{Réseaux d'accès radio (RAN)}
-Comme illustré dans la Figure~\ref{fig:5G_AttackSurface}, les \acs{UE} se connectent au cœur de réseau via le \acs{RAN}. Celui-ci est composé d’un ensemble de stations de base radio, appelé \acs{gNB} et éventuellement complétées par d’autres composants ou relais radio. Le \acs{gNB} assure l’interface avec le cœur de réseau via l’\acs{AMF}, ainsi qu’avec le réseau de données via l’\acs{UPF} auxuquel il est connecté par liaison IP standard. Le gNB prend en charge les communications radio, la gestion de l’accès et de l’ordonnancement des ressources, et garantit la continuité de service grâce aux mécanismes de handover entre stations de base voisines. 
+Les \acs{UE} se connectent au cœur de réseau via le \acs{RAN}, composé d’un ensemble de stations de base radio, appelé \acs{gNB} et éventuellement complété par d’autres relais radio. Le \acs{gNB} assure l’interface avec le cœur de réseau via l’\acs{AMF}, ainsi qu’avec le réseau de données via l’\acs{UPF} auxuquel il est connecté par liaison IP standard. Le gNB prend en charge les communications radio, la gestion de l’accès et de l’ordonnancement des ressources, et garantit la continuité de service grâce aux mécanismes de handover entre stations de base voisines. 
 
-Contrairement aux réseaux 4G, les réseaux 5G reposent sur un déploiement beaucoup plus dense de stations radio, situées plus près des utilisateurs finaux. Cette proximité accrue facilite l’accès physique pour des attaquants susceptibles de tenter de prendre le contrôle de ces équipements. De plus, les \acs{gNB} sont relativement faciles à usurper pour un adversaire en raison de l’absence de mécanisme d’authentification forte vis-à-vis des \acs{UE}. En effet, en émettant un signal plus puissant que celui des stations de base légitimes à proximité, un attaquant peut inciter les terminaux environnants à se connecter à leur station malhonnête en priorité. Ces attaques sont d’autant plus facilitées par la disponibilité croissante d’outils de radio définie par logiciel (SDR), qui nécessitent relativement peu de ressources et de compétences techniques pour être utilisés.
+Contrairement aux réseaux 4G, les réseaux 5G reposent sur un déploiement beaucoup plus dense de stations radio, situées plus près des utilisateurs finaux. Cette proximité accrue facilite l’accès physique pour des attaquants susceptibles de tenter de prendre le contrôle de ces équipements. De plus, les \acs{gNB} sont relativement faciles à usurper pour un adversaire en raison de l’absence de mécanisme d’authentification forte vis-à-vis des \acs{UE}. En effet, en émettant un signal plus puissant que celui des stations de base légitimes à proximité, un attaquant peut inciter les terminaux environnants à se connecter à leur station malhonnête en priorité\cite{mahyoub_security_2024}. Ces attaques sont d’autant plus facilitées par la disponibilité croissante d’outils de radio définie par logiciel (SDR), qui nécessitent relativement peu de ressources et de compétences techniques pour être utilisés.
 
 %Les stations de base restent généralement plus difficiles d’accès que les \acs{UE}, mais leur rôle d’intermédiaire leur confère un potentiel d’impact beaucoup plus important sur le réseau. Les \acs{gNB} sont généralement connectés au cœur de réseau via des liaisons IP standards, offrant aux attaquants une position privilégiée pour lancer des attaques directement contre l’infrastructure du cœur de réseau. %Parmi les exemples notables d'attaques concernant le RAN, on peut citer :
 
@@ -50,39 +109,26 @@ Contrairement aux réseaux 4G, les réseaux 5G reposent sur un déploiement beau
 % \end{itemize}
 
 \subsection{Coeur de réseaux (CN)}
-
-\section{Changements de la 5G en regard de versions précédentes}
-
-\subsection{Virtualisation des fonctions réseaux et changement de paradigme}
-La virtualisation constitue la base technologique qui permet des fonctions avancées telles que le network slicing. Elle repose sur deux concepts clés, \acs{NFV} et \acs{SDN}, qui permettent de déployer des services à la demande sur tout type de matériel. Grâce à ces approches, les réseaux 5G s’éloignent de la conception traditionnelle des systèmes mobiles, historiquement construits sous forme d’architectures monolithiques où chaque fonction s’exécutait sur un matériel dédié et communiquait via des canaux fixes et des piles de protocoles rigides.
-
-Cependant, malgré les avantages significatifs de la virtualisation, celle-ci hérite également d’un nombre important de vulnérabilités héritées propres à cette technologie. En effet, qu’elle repose sur des technologies de machines virtuelles ou sur la conteneurisation, la virtualisation représente une couche supplémentaire qui peut elle-même être vulnérable à des attaques spécifiques. %Parmi les exemples les plus marquants, on peut citer :
-
-% \begin{itemize}
-%     \item \textbf{Évasion de VM/Docker :} Sortir de la couche de virtualisation afin d’obtenir un accès à l’hôte depuis l’environnement invité \cite{vm_escape, docker_escape}, comme illustré dans la Figure~\ref{fig:5G_AttackSurface} (attaque 1).
-%     \item \textbf{Images empoisonnées :} Empoisonnement d’une image \acs{VNF} avant son déploiement afin d’y introduire une porte dérobée \cite{docker_poisonning}.
-% \end{itemize}
-
-\subsection{Evolution des interfaces et piles protocolaires}
-
-\subsection{Ecosystème élargi et nouveaux vecteurs d'intrusions}
-
-% Intro 
-La softwarisation de la 5G et l'introduction de nouveaux mécanismes aux réseaux mobiles ajoute de nouvelles problématiques de sécurité et introduit de nouveaux vecteurs d'intrusion. Parmi les nombreuses nouveautés que la 5G apporte, voici quelques exemples notables qui contribuent à l'élargissement de la surface d'attaque.
+Le cœur de réseau (CN) est un ensemble de fonctions réseau interconnectées via une infrastructure IP, qui interagissent entre elles ainsi qu’avec les UEs et les gNB à travers des chaînes de procédures. Ces fonctions assurent chacune un rôle spécifique et un grand nombre d'entre elles sont définies par le standard 3GPP. Certaines sont essentielles au fonctionnement du réseau, tandis que d’autres répondent à des cas d’usage plus spécifiques et ne sont donc pas systématiquement déployées. Parmi les fonctions réseau essentielles, on retrouve notamment :
 
 \begin{itemize}
-
-    \item \textbf{Slicing} : Afin de gérer efficacement plusieurs services et cas d’usage sur une même infrastructure, la 5G introduit le concept de network slicing qui consiste à créer plusieurs réseaux virtuels, appelés \textit{slices}, au sein d’une même infrastructure physique partagée. Le concept de slicing impacte l’architecture 5G à tous les niveaux, depuis la couche physique, où il implique la gestion de la grille de ressources temps/fréquence \cite{Sexton2019}, jusqu’à la couche applicative, où il garantit la continuité et l’isolation des services. Bien que les spécifications du \acs{3GPP} relatives aux slices intègrent des mécanismes de sécurité robustes \cite{3gpp_tr_33_813, 3gpp_tr_33_811}, les implémentations actuelles, en particulier open source, restent encore immatures. Cette situation soulève des préoccupations de sécurité et introduit de nouveaux vecteurs d’attaque, notamment liés à une isolation imparfaite et au partage de ressources physique.
-
-    \item \textbf{Orchestrations} : Dans un déploiement à grande échelle, il est n'est pas réaliste de gérer l'entiereté de l'infrastructure des réseaux 5G manuellement. La virutalisation des fonctions réseaux permet cependant d'automatiser l'orchestration et la gestion des services \cite{etsi_network_2024} pour pouvoir moduler, en fonction des besoins, l'architecture et les capacités du réseaux. Cette gestion automatisée est généralement réalisée par des logiciels comme Kubernetes ou Openstack qui rajoutent des couches de complexité et de vulnérabiltiés.
-    
-    \item \textbf{Chaîne d'approvisionnement} : L’intégration logicielle était historiquement gérée par un acteur unique : le fournisseur d’équipements réseau. Cependant, les réseaux 5G reposent maintenant sur un bien plus grand panel de logiciels pour leur fonctionnement. Comme c’est généralement le cas dans le développement logiciel moderne, ces logiciels reposent largement sur du code tiers, dont une grande partie est open source. Cela introduit des risques liés à la méconnaissances de l'inventaire détaillé des composants logicielle (Software Bill of Materials) ainsi qu’aux attaques de la chaîne d’approvisionnement ~\cite{williams2025research, sammak2023developers}. % ajouter Small world with high risk et les papiers de zotero
-    
+\item \textbf{AMF (Access and Mobility Management Function)} : gère l’enregistrement des UEs, la mobilité et la signalisation NAS.
+\item \textbf{SMF (Session Management Function)} : responsable de l’établissement, de la modification et de la libération des sessions PDU.
+\item \textbf{UPF (User Plane Function)} : assure le transfert des données utilisateur et le routage vers les réseaux externes.
+\item \textbf{AUSF (Authentication Server Function)} : réalise les procédures d’authentification des utilisateurs.
+\item \textbf{UDM (Unified Data Management)} : gère les données d’abonnement et les profils des utilisateurs.
+\item \textbf{NRF (Network Repository Function)} : permet la découverte et l’enregistrement des fonctions réseau.
 \end{itemize}
+
+Le \acs{CN} est significativement plus difficile d’accès que les UEs ou les gNBs, car les machines physiques qui les hébergent ne sont généralement pas exposés à un accès physique direct. Néanmoins, en raison de leur forte valeur stratégique, compromettre une fonction réseau reste un objectif réaliste pour un adversaire déterminé. Comme évoqué dans les sections précédentes concernant l’orchestration et la chaîne d’approvisionnement, il demeure possible d’atteindre le cœur de réseau pour compromettre certains de ses éléments et obtenir un accès direct au reste du \acs{CN}. Cet accès pourrait notamment être utilisé pour altérer l’architecture du cœur de réseau en ciblant le \acs{NRF}\cite{5gad}, exposer des données utilisateur via l'\acs{UDM}\cite{5gad}, et perturber la gestion des sessions en interférant avec la communication entre le \acs{UPF} et le \acs{SMF}\cite{pfcp1}.
 
 \section{Définition du cadre d'étude de la thèse}
 
-Il y a beaucoup de domaines qu'on pourrait essayer de sécuriser. La plupart sont très hétérogènes et ont des problématiques avec peu de recouvrement. Ainsi, il est nécessaire de % bosser en parallèle pour trouver des solutions à des problèmes précis 
+Comme présenté dans les sections précédentes, l’écosystème et la surface d’attaque de la 5G se sont considérablement élargis par rapport aux générations précédentes, formant plusieurs domaines hétérogènes et attaquables à différents niveaux. Ces domaines sont vastes et présentent peu de recouvrement. Il n’est donc pas envisageable de sécuriser l’ensemble de la 5G et il est plutôt nécessaire de se focaliser sur des problématiques ciblant des parties restreintes de cet écosystème. La virtualisation et la softwarisation constituent l’un des changements majeurs de cette génération, qui se reflètent principalement sur les couches protocolaires hautes. C’est pourquoi nous avons choisi de concentrer le travail de cette tèse sur la partie applicative du trafic de contrôle transitant par le cœur et le RAN de la 5G. 
+
+Les sections précédentes ont montré que la 5G est conçue pour être très modulaire, avec des NF pouvant être définies de manière arbitraire selon les besoins, notamment dans le cas des déploiements privés. Nous restreignons donc notre champ d’étude à un réseau comprenant uniquement les NF essentielles et géré par un seul opérateur. Nous excluons aussi les problématiques liées au network slicing, à la virtualisation ou à l’orchestration, qui nécessiteraient une analyse spécifique. Nous considérons plutôt ces mécanismes comme des vecteurs potentiels d’intrusion qui pourrait permettre à un attaquant de compromettre un ou plusieurs composants du réseau.
+
+Comme nous n’avons pas d’informations sur l’état de maturité ni sur les problématiques de déploiement rencontrées par les opérateurs publics, notre étude se base à la fois sur une version idéale de la 5G telle que définie par la norme 3GPP et sur les implémentations open source disponibles publiquement mais qui ne suivent pas encore fidélement les standards. Nous supposons que ces implémentations open source sont bien moins matures que les déploiements réels des opérateurs commerciaux, mais nous faisons l'hypothèse que, étant donné la complexité du système, même les réseaux 5G des opérateurs doivent s’écarter du standard à certains égards. De plus, dans le cadre de déploiements privés, il est tout à fait plausible que certaines organisations utilisent une version officielle ou dérivée d'implémetations open source.
 
 \ifdefined\included
 \else
