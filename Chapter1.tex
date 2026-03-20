@@ -18,8 +18,11 @@
 \chapter{Définitions des surfaces d'attaques de la 5G}
 \minitoc
 
+
+% (PB1 : La  5G évolue →  la surface d’attaque augmente → besoins en détection évoluent)
 Les réseaux 5G sont conçus pour répondre à des exigences plus strictes en termes de débit amélioré (eMBB), de latence ultra faible (URLLC) et de communication massive d'appareils connectés (mMTC), permettant l’émergence de nombreux services innovants\cite{Gupta2015,Zaame2020}. Pour assurer la mise en œuvre et le fonctionnement efficace de ces différents cas d’usage, la 5G change profondément de paradigme et intègre plusieurs nouveaux concepts aux réseaux mobiles, de nouveaux composants dans son architecture et de nouvelles méthodes de communications entre les entitées qui la compose. 
 
+% (PB2 : Parmi tous les sujets, pourquoi on choisit notre scope)
 Ces évolutons rendent les réseaux mobiles plus flexibles et plus dynamiques mais au prix d'une complexification du système et d'une augmentation de la surface d'attaque. Dans ce contexte, les besoins en matière de détection d’anomalies évoluent également et il devient alors nécessaire de concevoir de nouveaux mécanismes de détection capables de s’adapter aux spécificités et à la complexité des architectures 5G.
 
 
@@ -128,7 +131,7 @@ Comme présenté dans les sections précédentes, l’écosystème et la surface
 
 La softwarisation de la 5G est l’un des changements majeurs de cette génération et se reflète principalement sur les couches protocolaires hautes. C’est pourquoi nous avons choisi de concentrer le travail de cette thèse sur la partie applicative du trafic de contrôle transitant par le cœur et le RAN de la 5G. Les sections précédentes ont montré que la 5G est conçue pour être très modulaire, avec des nouvelles familles de NF pouvant être définies de manière arbitraire, notamment dans le cas des déploiements privés. Nous restreignons donc notre champ d’étude à un réseau comprenant uniquement les NF essentielles et géré par un seul opérateur. 
 
-Comme nous n’avons pas d’informations sur l’état de maturité ni sur les problématiques de déploiement rencontrées par les opérateurs publics, notre étude se base à la fois sur les deux seules sources d'information publiques à savoir la norme 3GPP ainsi que les implémentations open source. Nous supposons que ces implémentations open source sont bien moins matures que les déploiements réels des opérateurs commerciaux, mais nous faisons l'hypothèse que, étant donné la complexité du système, même les réseaux 5G des opérateurs doivent s’écarter du standard à certains égards. De plus, dans le cadre de déploiements privés, il est tout à fait plausible que certaines organisations utilisent une version officielle ou dérivée d'implémetations open source.
+Comme nous n’avons pas d’informations sur l’état de maturité ni sur les problématiques de déploiement rencontrées par les opérateurs publics, notre étude se base à la fois sur les deux seules sources d'information publiques à savoir la norme 3GPP ainsi que les implémentations open source Nous supposons que ces implémentations open source sont bien moins matures que les déploiements réels des opérateurs commerciaux, mais nous faisons l'hypothèse que, étant donné la complexité du système, même les réseaux 5G des opérateurs doivent s’écarter du standard à certains égards. De plus, dans le cadre de déploiements privés, il est tout à fait plausible que certaines organisations utilisent une version officielle ou dérivée d'implémetations open source.
 
 \ifdefined\included
 \else
