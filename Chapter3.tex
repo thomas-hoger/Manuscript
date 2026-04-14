@@ -2,415 +2,107 @@
 \else
 \documentclass[a4paper,11pt,twoside]{StyleThese}
 \include{formatAndDefs}
+% fallback si compilation standalone
+\providecommand{\acs}[1]{#1}
+\providecommand{\minitoc}{}
+\providecommand{\dominitoc}{}
+\providecommand{\faketableofcontents}{}
+\hbadness=10000
 \sloppy
+
 \begin{document}
 \setcounter{chapter}{2} %% Numéro du chapitre précédent ;)
 \dominitoc
 \faketableofcontents
 \fi
 
-\chapter{Sustainable service placement \& service placement reconfiguration}\label{chap:sustainable_service}
+\chapter{Détection d’anomalie multi-domaines}
 \minitoc
 
-\section{Concepts, Architecture \& Models}
-
-This section introduces the fundamental elements of our approach. We begin by detailing the key concepts used throughout our work. We then present an overview of the proposed architecture, illustrated in Fig.~\ref{fig:uml-architecture}, highlighting its main modules and the relationships between infrastructure, services, and orchestration mechanisms. Building on this structural description, we detail the models that characterize the infrastructure and its energy behavior, including the abstraction of computational resources, workload representation, and power dynamics. To facilitate readability and ensure precision in the mathematical formulations that follow, we provide a comprehensive table (Table~\ref{tab:notation}) of notations summarizing the symbols and variables used across this chapter.
-
-\begin{figure}[!h]
-    \centering
-    \includegraphics[width=\linewidth]{figures/chapter3/UML-implementation.png}
-    \caption{Overview of the system architecture}
-    \label{fig:uml-architecture}
-\end{figure}
-
-\begin{table}[!h]
-    \label{tab:notation}
-    \centering
-    \begin{tabular}{c|c}
-        \hline
-        Notation & Meaning \\
-        \hline
-        \hline
-        $N$ & Set of nodes \\
-        $S$ & Set of services \\
-        $F$ & Set of CNFs \\
-        $F_s$ & Set of CNFs that compose service $s$ \\
-        $F_n$ & Set of CNFs running on node $n$ \\
-        \hline
-        $CPU^{req}_f$ & Required CPU of CNF $f$ \\
-        $RAM^{req}_f$ & Required RAM of CNF $f$ \\
-        $W^{CPU}_f$ & CPU workload of CNF $f$ \\ 
-        $CPU^{alloc}_n$ & CPU capacity of node $n$ \\
-        $RAM^{alloc}_n$ & RAM capacity of node $n$ \\
-        \hline
-        $CPU_n$ & CPU usage of node $n$ (in cores) \\
-        $CPU^{\%}_n$ & CPU usage of node $n$ (in percent) \\
-        $PM_n$ & Power consumption model of node $n$ \\
-        $P_n$ & Power consumption of node $n$ \\
-        $P^{green}_n$ & Renewable power generation of node $n$ \\
-        $P^{brown}_n$ & Non-renewable power consumption of node $n$ \\
-        $P^{wasted}_n$ & Wasted power of node $n$ \\
-        \hline
-        $X$ & Binary variable for CNF placement \\
-        $M$ & Binary variable for CNF migration \\
-        $B^{CPU}$ & Binary variable for CPU over-allocation \\
-        $B^{RAM}$ & Binary variable for RAM over-allocation \\
-        \hline
-        $\widetilde{W}^{CPU}_f$ & CPU workload prediction for CNF $f$ \\
-        $\widetilde{P}^{green}_n$ & Renewable power generation prediction for node $n$ \\
-        \hline
-        $\widetilde{G}_n$ & Green ratio of node $n$ \\
-        $\widetilde{G}_s$ & Green ratio of service $s$ \\
-        $\widetilde{G}^{valid}_s$ & Green ratio constraint satisfaction of service $s$ \\
-        $G_s^c$ & Green ratio threshold of service $s$ \\
-        \hline
-        $SCR_s$ & Service concentration ratio of service $s$ \\
-        $m_f$ & Migration cost of CNF $f$ \\
-    \end{tabular}
-    \caption{Notation table}
-    
-\end{table}
-
-\subsection{Service, Infrastructure \& Resources}
-
-Our considered system adopts a container-based architecture composed of three main elements:
-
-\begin{itemize}
-    \item \emph{Services}: Logical groupings of CNFs. Each service $s \in S$ is defined by a set of CNFs denoted as $F_s$.
-    \item \emph{CNFs}: Individual containerized network functions.
-    \item \emph{Nodes}: Physical infrastructure elements with finite computational resources.
-\end{itemize}
-
-We primarily focus on processing (CPU) and memory (RAM) as key resources. Each node $N$ is defined by its allocatable resources $\{CPU^{alloc}_n, RAM^{alloc}_n\}$. For each CNF $f \in F$, the resource requirements are given as $f = \{CPU^{req}_f, RAM^{req}_f\}$. Regarding CPU, we distinguish between allocated resources and the resources currently in use. Specifically, each CNF $f$ has a time-dependent CPU workload at time $t$, denoted by $W^{CPU}_f(t)$ and defined in~\eqref{eq:cpu_usage}.
-
-\begin{align} \label{eq:cpu_usage}
-    CPU_n^{\%}(t) = \frac{\sum_{f \in F_n} W_f^{CPU}(t)}{CPU_n^{alloc}}.
-\end{align}
-
-\subsection{Energy}
-
-An energy consumption model is associated to each node $n$ and a renewable energy generation model is considered when available on the node.
-
-\subsubsection{Energy consumption model}
+%PB1 : Les méthodes proposées actuellement pour la détection d’anomalie sont pas adaptés
+Le passage aux réseaux 5G s’accompagne d’un changement de paradigme majeur, caractérisé par une architecture distribuée et une complexification des interactions entre entités. Par ailleurs, l’émergence d’anomalies sémantique, séquentielle et topologique impose de nouvelles exigences en matière d’analyse. Dans ce contexte, il devient nécessaire non seulement d’adopter une analyse fine au niveau des paquets, mais également de prendre en compte le contexte dans lequel s’inscrivent les échanges. Or, cette problématique reste relativement récente dans le domaine des télécommunications, et les méthodes actuelles de détection d’anomalies apparaissent inadaptées à ce nouveau paradigme.
 
-We define the power consumption $P_n$ of a node $n$ as a function of its CPU utilization. In our work, the adopted model $PM_n$~\eqref{eq:power_model} is a polynomial of degree $m$ with coefficients $a_i$ obtained via polynomial regression from experimental power data on the platform Grid'5000~\cite{Grid5000} as displayed in Fig. \ref{fig:power_models}. 
+%PB2 : Pourquoi la formalisation de notre problème en GNN Dynamique nous parait pertinent
+Dans ce contexte, nous proposons de représenter les échanges au sein des réseaux 5G sous la forme d’un graphe dynamique, permettant de capturer à la fois les interactions entre les différentes entités du réseau ainsi que l’évolution de ces interactions dans le temps. ette formalisation nous permet d’exploiter des techniques issues du domaine des GNN intrinsèquement adaptées à l’analyse des interactions complexes. Nous nous intéressons plus particulièrement aux GNN dynamiques, qui intègrent nativement la dimension temporelle.
 
-\begin{align}\label{eq:power_model}
-    PM_n(x) = a_0 + a_1 x + a_2 x^2 + \dots + a_m x^m.
-\end{align}
+%PB3 : Pourquoi le NLP est une bonne piste si on veut traiter une quantité indénombrable de données mais on ne l’a pas creusé
 
-To create a model correlating CPU usage with power consumption, we designed an experimental method. We executed a CPU-intensive script on a node, simultaneously measuring both CPU utilization and power consumption.
+\section{Objectifs et cadre de détection}
+% Scope = trafic de contrôle
+Dans ces travaux, nous nous plaçons du point de vue de l’opérateur d’un réseau 5G et nous nous intéressons à la détection d’anomalies en nous concentrant exclusivement sur le trafic de contrôle échangé entre les entités du réseau, qu’il s’agisse du cœur de réseau ou du RAN. Le trafic utilisateur n’est pas pris en compte, car il ne présente pas de spécificités propres à l’architecture 5G et ne relève pas de la responsabilité directe du fournisseur d'accès réseau.
+% Accès à tout le trafic
+En se plaçant du point de vue de l’opérateur, nous supposons que celui-ci possède l’ensemble des NF et dispose d’un accès complet au trafic de contrôle. Dans l’architecture 5G, la fonction Service Communication Proxy (SCP) agit comme un intermédiaire dans les échanges entre les différentes NF, notamment pour le routage des requêtes et la vérification des autorisations d’accès. Dans ce contexte, il est raisonnable de considérer que l’opérateur peut observer l’intégralité du trafic de contrôle en déployant des sondes au niveau des SCP, qui constituent des points d’observation privilégiés des interactions entre NF. 
+% Chiffrement
+Ce trafic est généralement chiffré, par exemple via TLS sur le SBI ou via IPsec pour certains canaux, tels que N3 ou N4, reposant sur des protocoles spécifiques à la 5G. Cependant, en adoptant le point de vue de l’opérateur, nous supposons disposer des clés de chiffrement nécessaires pour accéder au contenu de ces échanges en clair.
+% Performances
+L’objectif serait de pouvoir exécuter nos modèles de détection en temps réel. Malgré les débits élevés offerts par la 5G, le volume de données est majoritairement porté par le trafic utilisateur, qui n’entre pas dans le périmètre de cette étude. À l’inverse, le trafic de contrôle est principalement composé de messages liés aux changements d’état des entités du réseau, qu’il s’agisse d’UE ou de NF, et ont une fréquence d’occurrence plus modérée. Par conséquent, bien que le surcoût induit par nos modèles puisse avoir un impact sur les performances, il est raisonnable de supposer que les ressources disponibles sont suffisantes pour permettre un traitement en temps réel, notamment grâce à l’exploitation de techniques d’optimisation et de parallélisation.
+% Remédiation
+La remédiation des anomalies détectées ne relève pas du périmètre de ce travail et est considérée comme une brique fonctionnelle distincte. Nous nous concentrons exclusivement sur la détection et les alertes générées par notre système ont vocation à être exploitées de manière similaire à celles produites par un système de détection d’intrusion (IDS) classique. Elles peuvent ainsi conduire, par exemple, à des ajustements des règles de firewall ou à des modifications de l’architecture réseau.
+% Vrais objectifs
+L’objectif de ces travaux n’est pas de concevoir un système de détection absolu et entièrement autonome. En effet, une anomalie ne constitue pas nécessairement le signe d’une activité malveillante et peut résulter d’une mise à jour, d’une erreur de configuration ou encore d’une interconnexion avec un système tiers, comme dans le cas du roaming. Dans ce contexte, la distinction entre une anomalie bénigne et une attaque de type zero-day requiert in fine une expertise humaine. Par conséquent, l’un des aspects essentiels de nos travaux est de proposer un système interprétable, venant complémenter une expertise humaine plutôt que de la remplacer.
 
-To vary the CPU load, we used \texttt{stress-ng}, a Linux-based stress-testing tool. This tool allows precise control over the number of CPU cores used, their load percentage, and the duration of each workload.
+\section{Etat de l’art de la détection d’anomalies}
+\subsection{Approche historique dans les réseaux traditionnels}
+La détection d’attaques au sein des réseaux est historiquement assurée par des systèmes de détection d’intrusion (IDS). Ces systèmes reposent généralement sur une analyse du trafic agrégé sous forme de flux, plutôt qu’au niveau des paquets individuels. Cette approche permet d’extraire des métriques globales et d’effectuer des analyses de volumétrie, par exemple afin de détecter des variations significatives du volume de trafic ou repérer des signatures d'attaques connues.
 
-CPU usage was measured using the \texttt{psutil} Python library (\texttt{cpu\_percent} function), which provides real-time CPU utilization metrics. On Linux, \texttt{psutil} can use the \texttt{/proc} filesystem and make calls to \texttt{sysinfo}, \texttt{getloadavg}, etc.
+% Rule Based
+Parmi les IDS les plus connus on retrouve Snort \cite{snort}, Zeek \cite{zeek} et Suricata \cite{suricata}, qui reposent sur des règles prédéfinies pour identifier des motifs (aussi appelés signatures) d’attaques spécifiques dans le flux réseau. Ce sont la plupart du temps des outils open source qui bénéficient d'une large communauté qui contribue à l'enrichissement de leur base de signatures. 
 
-Power consumption was retrieved using the Grid'5000 API. The platform uses wattmeters to measure node power draw at one-second intervals. All metrics were retrieved post-experiment using the experiment's timestamps.
+% ML Supervisé
+Par ailleurs, des approches fondées sur l’apprentissage automatique supervisé ont également été proposées pour la détection d’intrusion, notamment à l’aide de réseaux bayésiens \cite{bayesian}, de machines à vecteurs de support (SVM) \cite{svm} ou encore d’arbres de décision \cite{decision_tree}. Ces méthodes présentent l’avantage d’être relativement transparentes, interprétables et efficaces pour détecter des attaques déjà connues.
 
-Our script follows a three-phase approach:
+% Limites + Conclusion
+Néanmoins, les modèles de détection supervisé et rule based restent ultimement limités à la détection d’attaques déjà connues et ne permettent pas de considérer des comportements anormaux au niveau paquet ou des attaques zero-day. Or, il existe une grande variété de formes de cyberattaques et de nouvelles menaces émergent régulièrement. Cette diversité est amplifiée dans un système complexe tel que la 5G et il devient inenvisageable de dresser une liste exhaustive des menaces courantes et à venir. De fait, les approches non supervisées paraissent plus adaptées car elles permettent d’identifier des comportements anormaux, même inconnus, en se fondant sur des déviations par rapport aux comportements normaux présentés lors de l'entrainement. 
+% Non Supervisé
 
-\begin{enumerate}
-    \item \emph{Idle phase}: 30 seconds without load.
-    \item \emph{Fixed CPU load test}: Sequential stress tests at 10\% increments (10\%, 20\%, ..., 100\%) for one minute each, with a 5 seconds cool down, applied across all cores.
-    \item \emph{Mixed workload test}: Randomized workloads with variable core usage, load percentages, and durations.
-\end{enumerate}
+% K-Means
+Parmi les approches non supervisées, Münz et al. \cite{kmeans} proposent, par exemple, de découvrir des motifs anormaux en adaptant l’algorithme K-Means au trafic réseau, permettant ainsi de regrouper les données en fonction de leur similarité sans nécessiter d’étiquettes. Néanmoins, les caractéristiques utilisées en entrée restent relativement limitées et se restreignent notamment au nombre de paquets, au volume d’octets ainsi qu’aux adresses source et destination. Une telle approche permet d’identifier des motifs liés à la volumétrie et, par conséquent, de détecter certains types d’attaques par déni de service (DoS). Toutefois, comme elle ne prend en compte ni le contenu sémantique des paquets ni le contexte des échanges, elle demeure insuffisante pour détecter des attaques plus subtiles.
 
-\begin{figure}[!ht]
-    \centering
-    \includegraphics[width=\columnwidth]{figures/chapter3/nova-6_models.png}
-    \caption{Power consumption models obtained via polynomial regression (up to degree $4$) from Grid'5000 experiments.}
-    \label{fig:power_models}
-\end{figure}
+% Markov
+Ariu et al. \cite{markov} proposent quant à eux d'utiliser des modèles de Markov cachés afin de modéliser le trafic réseau sous forme de séquences d’octets. Ces modèles apprennent des probabilités de transition à partir de trafic bénin, puis évaluent dans quelle mesure un trafic observé s’en écarte. Cependant, les séquences considérées sont limitées à des fenêtres de taille relativement réduite, ce qui empêche la capture de dépendances temporelles à long terme. De plus, cette approche ne permet pas de modéliser explicitement les interactions entre paquets.
 
-\subsubsection{Energy generation model}
+\subsection{Apprentissage non supervisé appliquée aux réseaux 5G}
+% Spécifique 5G
+Parmi les travaux de détection spécifiques à la 5G, Kale et al. \cite{ensemble} proposent d’utiliser des réseaux de neurones convolutionnels (CNN) en considérant les octets d’un paquet comme une image sur laquelle sont ensuite étudiées des variations structurelles. Les modèles CNN obtiennent de très bonnes performances dans de nombreux domaines, y compris dans des tâches qui ne relèvent pas intrinsèquement de la vision par ordinateur. Toutefois, comme ils n’interprètent pas le contenu sémantique des données, leur capacité de détection se limite à un sous-ensemble d’attaques sémantiques dans lesquelles les valeurs s’écartent fortement du trafic normal. Ils ne permettent donc pas de détecter des variations légères de valeurs d'identifiants comme les adresses IP ou les IMSI. De plus, le travail présenté par Kale et al. se concentre uniquement sur la détection sémantique et ne prend pas en compte le contexte des échanges.
 
-When renewable generation is available on a node $n$, we define the green power output as a time-varying function $P^{green}_n(t)$. The residual power drawn from the electrical grid (that we call brown power in our work) is then defined by~\eqref{eq:brown_power}.
+Lam et al. \cite{cnn} ajoutent un contexte temporel à leur CNN en alimentant ses sorties dans un réseau de neurones récurrent RNN. Cependant, en plus de ne pas être satisfaisant sur le domaine sémantique, leur modèle ne prend pas en compte l’identité des acteurs impliqués dans les échanges et n’est donc pas capable de détecter des attaques relationnelles.
 
-\begin{align}\label{eq:brown_power}
-    P^{brown}_n(t) = 
-    \begin{cases}
-        P_n(t) - P^{green}_n(t) & \text{if } P_n(t) > P^{green}_n(t), \\
-        0 & \text{otherwise}.
-    \end{cases}
-\end{align}
+AutoGuard \cite{autoguard} et ADSeq-5GCN \cite{adseq} utilisent également des RNN afin de capturer les dépendances temporelles au sein de séquences de messages. De plus, leurs approches intègrent l’identité des entités communicantes, ce qui leur permet aussi de détecter des anomalies topologiques. Cependant, elles ne prennent pas en compte le contenu des paquets et passent donc à côté des anomalies sémantiques.
 
-In our model, renewable generation can either come from solar or wind sources.
+5GCGuard \cite{5GCGuard} repose également sur une modélisation séquentielle incluant les identités des NF. Les auteurs enrichissent également leur formalisation en intégrant des informations relatives au contenu des paquets, notamment via l’URL associée à chaque message. Bien que cette information soit pertinente, elle reste limitée aux paquets HTTP et ne représente qu’une fraction du contenu global des paquets, lequel peut encore présenter des comportements anormaux.
 
-\emph{Solar power generation} is modeled using a normal distribution-based irradiance profile, estimated via Kernel Density Estimation (KDE) as used in~\cite{trashchenkovKernelDensityEstimation2018}. The instantaneous solar output is then $P^{solar}_n(t) = \eta_n \, S_n \, I_n(t)$, where $\eta_n$ is the panel efficiency, $S_n$ the panel surface area, and $I_n(t)$ the irradiance at time $t$. The process is detailed in Fig.~\ref{fig:solar_generation}.
+À notre connaissance, GSAD \cite{gsad} est la seule approche de détection d’anomalies 5G basée sur l’apprentissage profond qui considère simultanément le contenu, la séquence et les interactions topologiques. Dans leur travaux ils proposent cette fois de formaliser leurs données sous forme de graph sur lesquels ils appliquent des réseaux de neurones adaptés (GNN) afin de modéliser le contexte relationnel des échanges entre les différentes entités. La sortie générée par leur GNN est transmise à un RNN pour le contexte temporel. Mais, les auteurs utilisent ici aussi un CNN pour capturer le contexte sémantique ce qui rend l’analyse du contenu des paquets relativement superficielle.
 
-\begin{figure}[!h]
-    \centering
-    \includegraphics[width=\linewidth]{figures/chapter3/solar_generation.png}
-    \caption{Step-by-step visualization of solar power generation from a normal distribution using KDE.}
-    \label{fig:solar_generation}
-\end{figure}
+% Manque GAN / RL / Re-check littérature 
+% Prov5G
 
-\emph{Wind power generation} model is derived from wind speed generation using a Weibull distribution based on the work in~\cite{megantoroModelingUncertaintiesActive2025a}. The final power output can be computed with~\eqref{eq:wind}, where $P_n^{rated}$ is the rated power output, $v_n(t)$ the wind speed, and $v_n^{cut\_in}$, $v_n^{rated}$, $v_n^{cut\_out}$ the cut-in, rated, and cut-out speeds, respectively. This is also explained by Fig.~\ref{fig:wind_generation}. For both renewable generation models, we add a Gaussian noise to account for natural variability.
+% Conclusion 
+L’état de l’art montre que peu d’approches considèrent simultanément les dimensions sémantique, temporelle et topologique. Les approches basées sur les GNN apparaissent particulièrement adaptées pour modéliser les interactions entre entités. À l’inverse, aucune des modélisations proposées ne semble réellement adaptée au traitement du contenu sémantique des paquets, celui-ci étant le plus souvent considéré comme un bloc monolithique. Dans ce contexte, nous proposons de représenter le contenu des paquets de manière plus fine en décomposant leurs paramètres en nœuds indépendants. %Cette granularité accrue permet d’établir des corrélations plus précises, notamment en reliant la présence de certains paramètres à travers différents paquets et donc de capturer des schémas d’interaction plus complexes.
 
-\begin{align}\label{eq:wind}
-    P^{wind}_n(t) = 
-    \begin{cases}
-        P_n^{rated} \cdot \dfrac{v_n(t) - v_n^{cut\_in}}{v_n^{rated} - v_n^{cut\_in}} & \text{if } v_n^{cut\_in} \leq v_n(t) < v_n^{rated} \\
-        P_n^{rated} & \text{if } v_n^{rated} \leq v_n(t) \leq v_n^{cut\_out} \\
-        0 & \text{otherwise.}
-    \end{cases}
-\end{align}
+\section{Méthodologie de formalisation}
+\subsection{Extraction des payload applicatives}
+\subsection{Tri et séléction des features}
+\subsection{Transformation en graph}
+% C'est quoi les propriétés, biparti dirigé(?) acyclique et dynamique auxquel on peut seulement ajouter des noeuds et arcs mais ni supprimer ni modifier déjà présents
+\subsection{Utilisation de Linegraph}
 
-\begin{figure}[!h]
-    \centering
-    \includegraphics[width=\linewidth]{figures/chapter3/wind_generation.png}
-    \caption{Step-by-step visualization of wind power generation from a Weibull distribution using KDE.}
-    \label{fig:wind_generation}
-\end{figure}
+\section{Détection d’anomalies dans des graphs}
+\subsection{Fonctionnement des GNN}
+\subsection{Prise en compte des arcs}
+\subsection{GNN Dynamiques Discrets et Continus}
+\subsection{Littérature des GNN pour la détection d’anomalies}
 
-This stochastic approach enables us to evaluate our methodology across diverse power generation models, eliminating reliance on a fixed dataset. However, for practical applications, using real-world measurements may be more appropriate.
 
-\subsection{Monitoring}
 
-Monitoring ensures continuous visibility into the state and performance of both physical and virtual entities. It encompasses a wide range of components, from physical nodes to virtual services like our CNFs. Energy-related infrastructure, including power consumption and renewable energy generation, is also closely tracked.
 
-The metrics collected are diverse and purpose-driven. Physical resources like CPU and RAM are monitored alongside virtual resource utilization. Energy metrics, including consumption and generation from renewable sources, are also monitored. Additionally, the system tracks the status and performance of nodes and services, capturing health indicators, uptime, and response times.
+\section{NLP et traitement de features en dimension non-fini}
+% si on veut pouvoir considérer tous les paramètres possibles d'un paquet on se retrouve avec un nombre gigantesque de features. Plus ce nombre de feature est grand plus ça va ralentir l'apprentissage ET si on a pas implémenté une feature on a moins de messages possible et donc de features donc ce nombre de feature n'est pas non plus constant entre les implémentations et leurs versions. 
+% y'a aussi beaucoup de redondance entre features par exemple entre ... mais aussi des nuances sémantiques comme .. 
+% ces features doivent etre encodées pour être traiter par des modèles d'apprentissage profond et si on 
 
-The data gathered serves multiple purposes. It provides real-time insights for orchestrators, enabling them to make informed, dynamic decisions. It also acts as a valuable dataset for training machine learning models, supporting predictive analytics and long-term optimization. Finally, this data is transmitted to analysis modules, where it is processed to uncover trends, anomalies, and opportunities for improvement.
 
-\subsection{Analysis}
-
-The analysis module transforms raw monitored data into usable intelligence. By aggregating and correlating metrics across the system, it identifies patterns, detects anomalies, and highlights lack of resources. This processing is not just reactive, it can also be used to make predictions, such as energy availability based on renewable generation trends or anticipating workload demands during peak periods.
-
-These insights directly influence the orchestrator’s decisions. For example, predictions about energy shortages or workload spikes can trigger proactive adjustments, ensuring the system remains efficient, reliable, and aligned with operational goals.
-
-
-\subsection{Orchestration}
-
-Orchestration is the decision-making engine of the system, responsible for dynamically allocating resources and managing services in accordance with predefined policies and real-time insights. It ensures that services are placed optimally, balancing factors such as performance, energy efficiency, and cost. Resource allocation is not static, it evolves based on demand, availability, and policy constraints. A key function of orchestration is the dynamic migration of CNFs.
-
-In our problem, we consider an Edge service orchestration problem where services, composed of multiple CNFs, must be deployed on a set of nodes with limited resources and subject to unpredictable node departures. The objective is to find optimal \textit{service placement} and \textit{service placement reconfiguration} strategies that makes the best use of available energy resources while ensuring service continuity.
-
-\subsubsection{Service Placement}
-
-Service placement orchestrator assigns each CNF to a physical node while satisfying resource constraints and optimizing multiple objectives. We define a binary decision variable $X(n,f,t) \in \{0,1\}$ that equals $1$ when a CNF $f$ is placed on a node $n$. Each CNF must be placed on exactly one node, and the total resource requirements of CNFs placed on a node must not exceed its allocatable resources.
-
-\subsubsection{Service Placement Reconfiguration}
-
-We then define service placement reconfiguration as the process of migrating CNFs from a node to another in response to infrastructure changes, such as energy variations or node departures. We use the same variable $X(n,f,t)$ and introduce a new migration variable $M(n,f,t) \in \{0,1\}$ that equals $1$ if CNF $f$ is migrated to node $n$ at time $t$. The reconfiguration process must also satisfy the same resource constraints.
-
-\section{Optimization Metrics}
-
-We define main optimization metrics for our service placement and service placement reconfiguration problems. The placement problem is only considered at $t+1$, just after the placement, while the reconfiguration problem can either be considered at $t+1$ or $t+h$ for the reactive and proactive reconfigurations respectively. To generalize the problem, we consider our metrics at a time $t+h$, where $h \in [1, H]$, with $H$ our prediction horizon. 
-
-\subsection{Overall power consumption}
-
-We compute the CPU usage of each node at time $t+h$ as in~\eqref{eq:cpu_obj} and~\eqref{eq:cpu_perc_obj}, from the prediction of CNF $f$ workload $\widetilde{W}^{CPU}_f$. Then, in~\eqref{eq:power_obj}, we derive the power consumption using the power model of the node.
-
-\begin{align}\label{eq:cpu_obj}
-    \widetilde{CPU}_n(t+h) &= \sum_{f \in F} X(n,f,t+h) \cdot \widetilde{W}^{CPU}_f(t+h).
-\end{align}
-
-\begin{align}\label{eq:cpu_perc_obj}
-    \widetilde{CPU}_n^{\%}(t+h) &= \min\left(1, \frac{\widetilde{CPU}_n(t+h)}{CPU_n^{alloc}}\right).
-\end{align}
-
-\begin{align}\label{eq:power_obj}
-    \widetilde{P}_n(t+h) &= PM_n\left(\widetilde{CPU}_n^{\%}(t+h)\right).
-\end{align}
-
-\subsection{Brown power consumption}
-
-The brown power consumption is then obtained in~\eqref{eq:brown_obj} by subtracting the prediction of power generation $\widetilde{P}^{green}_n$ to the estimated power consumption.
-
-\begin{align}
-    \widetilde{P}^{brown}_n(t+h) = &\begin{cases}
-        \widetilde{P}_n(t+h) - \widetilde{P}_n^{green}(t+h) & \text{if } \widetilde{P}_n(t+h) > \widetilde{P}_n^{green}(t+h), \\
-        0 & \text{otherwise.}
-    \end{cases} \label{eq:brown_obj}
-\end{align}
-
-\subsection{Wasted power}
-
-Similarly, the wasted power can be obtained using~\eqref{eq:wasted_obj} by subtracting the estimated power consumption to the prediction of power generation $\widetilde{P}^{green}_n$.
-
-\begin{align}
-    \widetilde{P}^{wasted}_n(t+h) = &\begin{cases}
-        \widetilde{P}_n^{green}(t+h) - \widetilde{P}_n(t+h)  & \text{if } \widetilde{P}_n(t+h) < \widetilde{P}_n^{green}(t+h), \\
-        0 & \text{otherwise.}
-    \end{cases} \label{eq:wasted_obj}
-\end{align}
-
-\subsection{Service green ratio}
-
-From both the prediction of green power generation $\widetilde{P}^{green}_n$ and our estimation of power consumption $\widetilde{P}_n$ in~\eqref{eq:power_obj}, we can compute the \textit{green ratio} of a node $n$ at time $t+h$ as in~\eqref{eq:green_node}, that represents the percentage of the energy consumed on the node that is green at time slot $t+h$. From this ratio, we define the green ratio of a service $s$ as~\eqref{eq:green_svc}, assuming that the green ratio of a CNF is the ratio of the node it is placed on. The satisfaction of the green ratio constraint for a service is then defined in~\eqref{eq:green_valid}, where $G^c_s$ is the minimum required green ratio for service $s$. Since we aim to avoid interruptions in our system, defining an acceptable threshold of green energy usage for our services is an alternative to purely maximize the green usage of our infrastructure. This constraint could be negotiated between the service provider and the infrastructure provider, that orchestrate the wanted services.
-
-\begin{align}\label{eq:green_node}
-    \widetilde{G}_n(t+h) = \begin{cases}
-        \frac{\widetilde{P}_n^{green}(t+h)}{\widetilde{P}_n(t+h)} & \text{if } \widetilde{P}_n^{green}(t+h) < \widetilde{P}_n(t+h) \\
-        1 & \text{otherwise}.
-    \end{cases}
-\end{align}
-
-\begin{align}\label{eq:green_svc}
-    \widetilde{G}_s(t+h) = \frac{1}{|F_s|} \sum_{f \in F_s} \sum_{n \in N} X(n,f,t+h) \cdot \widetilde{G}_n(t+h).
-\end{align}
-
-\begin{align}\label{eq:green_valid}
-    \widetilde{G}^{valid}_s(t+h) = 
-    \begin{cases}
-        1 & \text{if } \widetilde{G}_s(t+h) \geq G^c_s, \\
-        0 & \text{otherwise}.
-    \end{cases}
-\end{align}
-
-\subsection{Service concentration ratio}
-
-To minimize the impact of node departures on service continuity, we define the \textit{service concentration ratio (SCR)} of a service $s$ at time $t+h$ as in~\eqref{eq:scr_obj}, where $|F_s|$ is the total number of CNFs of service $s$ and $n_s(t)$ is the highest number of CNFs that on the same node at time $t$. The goal of this metric is to minimize the amount of CNFs on the same node in case of departure. $r \in \{0,1\}$ is a constant to define a threshold that is acceptable, e.g. $0.5$ for a maximum of $50\%$ of the service's CNFs on the same node. The idea behind this metric is to avoid clustering too much CNFs of the same service on the same node, that will cause an interruption of the service in case of departure. This objective is contradictory with the service green ration satisfaction, that would prioritize the choice of the ``best'' node, i.e. the greenest. Note that the SCR metric is different from load balancing, since we still can have large difference in the load of our nodes.
-
-\begin{align}\label{eq:scr_obj}
-    SCR_s(t+h) = \begin{cases}
-        r \cdot \frac{|F_s|}{n_s(t+h)} & \text{if } n_s(t+h) > r \cdot |F_s| \\
-        1 & \text{otherwise.}
-    \end{cases}    
-\end{align}
-
-\subsection{Migration cost}
-
-Finally, we define the migration cost as in~\eqref{eq:migration_cost} for each migrated CNF $f \in \widehat{F}$, where $t_{init}(f)$ is the initialization time of a CNF $f$. Our logic behind this is that to preserve the continuity of the service, the original instance of the migrated CNF must continue to run until the new instance is initialized, leading to a surplus of consumption during this migration.
-
-\begin{align}\label{eq:migration_cost}
-    m_f(t+h) = \sum_{n \in N} M(n,f,t+h) \cdot t_{init}(f) \cdot CPU^{req}_f.
-\end{align}
-
-\section{Algorithms}
-
-\subsection{Heuristics}
-
-\subsubsection{GREENING}
-
-\begin{algorithm}[!h]
-\caption{Greedy Placement}
-\label{alg:greedy}
-\KwIn{$N$: Nodes, $F_s$: CNFs to place, $X$: Placement Matrix}
-\KwOut{Placement mapping at $t+1$}
-$N^{(\tau)} \leftarrow sort(N, P^{green}_n - P_n)$\;
-\For{$f \in F_s$}{
-    \For{$n \in N^{(\tau)}$}{
-        \If{$n$ has enough resources for $f$}{
-            $X(n,f,t+1) \leftarrow 1$\;
-            break\;
-        }
-    }
-    \If{$\sum_{n \in N} X(n,f,t+1) = 0$}{
-        $X(0,f,t+1) \leftarrow 1$\;
-    }
-}
-\Return{$X$}\;
-\end{algorithm}
-
-\begin{algorithm}[!h]
-\caption{GREENING (migration)}
-\label{alg:greening}
-\KwIn{$N$: Nodes, $F$: Running CNFs, $X$: Placement Matrix, $M$: Migration Matrix}
-\KwOut{Migration plan at $t+1$}
-$N^{(\tau)} \leftarrow sort(N, P^{green}_n - P_n)$\;
-\For{$n \in N^{(\tau)}$}{
-    \If{$P^{green}_n(t) > P^{green}_n(t+1)$}{
-        $candidates \leftarrow \{ f \in F,\quad X(n, f, t) = 1\}$\;
-        \While{$P_n(t+1) > P^{green}_n(t+1)$}{
-            \If{$candidates = \emptyset$}{
-                break\;
-            }
-            $sorted\_candidates \leftarrow sort(candidates, t_{init}(f) \cdot CPU^{req}_f)$\;
-            \For{$d \in N^{(\tau)}$}{
-                \If{$d = n$}{
-                    continue\;
-                }
-                \If{$sorted\_candidates[0]$ can be placed on $d$ and new $P_n(t+1) \leq P_n^{green}(t+1)$}{
-                    $X(d,f,t+1) \leftarrow 1$\;
-                    $X(n,f,t+1) \leftarrow 0$\;
-                    $M(d,f,t+1) \leftarrow 1$\;
-                }
-            }
-            Remove $sorted\_candidates[0]$ from $candidates$\;
-        }
-    }
-}
-\Return{$M$}\;
-
-\end{algorithm}
-
-\subsubsection{Lb-diversity}
-
-\begin{algorithm}[!h]
-\caption{Lb-diversity}
-\label{alg:lb-diversity}
-\KwIn{$N$: Nodes, $F_s$: CNFs to place, $X$: Placement Matrix}
-\KwOut{Placement mapping at $t+1$}
-$\bar{F} \leftarrow$ sort $F_s$ by sum of CPU and RAM ranking\;
-\For{$f \in \bar{F}$}{
-    $candidates \leftarrow \emptyset$\;
-    $m \leftarrow -\infty$\;
-    \For{$n \in N$}{
-        $n \leftarrow \sum_{k \in F} X(n,k,t)$\;
-        \If{$n < m$}{
-            $candidates \leftarrow \{ n \}$\;
-        }
-        \ElseIf{$n = m$}{
-            $candidates \leftarrow candidates \cup \{n\}$\;
-        }
-    }
-
-    $\bar{N} \leftarrow$ sort $candidates$ by sum of CPU and RAM usage\;
-
-    \For{$n \in \bar{N}$}{
-        \If{$f$ can be placed on $n$}{
-            $X(n,f,t+1) = 1$\;
-        }
-    }
-}
-\Return{$X$}\;
-\end{algorithm}
-
-\subsection{Genetic Algorithms}
-
-\subsubsection{Chromosomes}
-
-\subsubsection{Traditional Genetic Algorithm}
-
-\begin{algorithm}[!h]
-    \caption{Traditional Genetic Algorithm}
-    \label{alg:ga}
-    \KwIn{$P$: Population size, $G$: Generations, $\mu$: Mutation probability, $\sigma$: Selection percentage}
-    \KwOut{Best individual}
-    Initialize random $population$\;
-    Evaluate $population$\;
-    $g = 0$\;
-    \While{Termination criterion not met or $g < G$}{
-        $g = g+1$\;
-        Select $\sigma$ of best chromosomes of $population$\;
-        Perform crossover\;
-        Perform mutation with each gene having a probability of $\mu$ to mutate\;
-        Evaluate the new population\;
-    }
-    \Return{Best individual of $population$}\;
-\end{algorithm}
-
-\subsubsection{NSGA-II}
-
-\begin{algorithm}[!h]
-    \caption{Non-dominated Sorting Genetic Algorithm II (NSGA-II)}
-    \label{alg:nsga-ii}
-    \KwIn{$P$: Population size, $G$: Generations, $\mu$: Mutation probability}
-    \KwOut{Best Pareto Front}
-    
-\end{algorithm}
-
-\subsubsection{SP-GA}
-
-\subsubsection{PSPR-GA}
-
-\section{Metric Choice \& Weight Influence}
-
-\section{Balancing Sustainability \& Robustness}
-
-\section{Proactive Orchestration}
+% ce qui serait bien ça serait donc de pouvoir traiter une quantité indénombrable de features et de ne pas se limiter à un nombre fini de features préalablement définies.
+% on a aussi un autre problème notamment avec 
 
 \section{Conclusion}
 
