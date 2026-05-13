@@ -61,7 +61,7 @@ Parmi les approches non supervisées, Münz et al. \cite{kmeans} proposent, par 
 % Markov
 Ariu et al. \cite{markov} proposent quant à eux d'utiliser des modèles de Markov cachés afin de modéliser le trafic réseau sous forme de séquences d’octets. Ces modèles apprennent des probabilités de transition à partir de trafic bénin, puis évaluent dans quelle mesure un trafic observé s’en écarte. Cependant, les séquences considérées sont limitées à des fenêtres de taille relativement réduite, ce qui empêche la capture de dépendances temporelles à long terme. De plus, cette approche ne permet pas de modéliser explicitement les interactions entre paquets.
 
-\subsection{Apprentissage non supervisé appliquée aux réseaux 5G}
+\subsection{Apprentissage profond appliqué aux réseaux 5G}
 % Spécifique 5G
 Parmi les travaux de détection spécifiques à la 5G, Kale et al. \cite{ensemble} proposent d’utiliser des réseaux de neurones convolutionnels (CNN) en considérant les octets d’un paquet comme une image sur laquelle sont ensuite étudiées des variations structurelles. Les modèles CNN obtiennent de très bonnes performances dans de nombreux domaines, y compris dans des tâches qui ne relèvent pas intrinsèquement de la vision par ordinateur. Toutefois, comme ils n’interprètent pas le contenu sémantique des données, leur capacité de détection se limite à un sous-ensemble d’attaques sémantiques dans lesquelles les valeurs s’écartent fortement du trafic normal. Ils ne permettent donc pas de détecter des variations légères de valeurs d'identifiants comme les adresses IP ou les IMSI. De plus, le travail présenté par Kale et al. se concentre uniquement sur la détection sémantique et ne prend pas en compte le contexte des échanges.
 
