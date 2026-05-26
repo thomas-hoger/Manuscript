@@ -127,7 +127,7 @@ GSAD \cite{gsad}                    & Partiel  & Partiel  & Oui \\
 Le tableau \ref{tab:sota_comparison} résume les différentes approches de détection d’anomalies dans les réseaux 5G, en mettant en évidence les dimensions sémantique, temporelle et topologique prises en compte par chacune d’elles. L’état de l’art montre que peu d’approches considèrent simultanément les trois dimensions. Les approches basées sur les GNN apparaissent particulièrement adaptées pour modéliser les interactions entre entités. À l’inverse, aucune des modélisations proposées ne semble réellement adaptée au traitement du contenu sémantique des paquets, celui-ci étant le plus souvent considéré comme un bloc monolithique. 
 
 \subsection{Comparaison aux techniques des systèmes distribués}
-Enfin, nous prenons un peu de recul en nous intéressant aux travaux issus du domaine des systèmes distribués. Comme évoqué précédemment, les architectures 5G présentent de nombreuses similarités avec ces systèmes en raison du changement de paradigme vers des environnements fortement distribués et dynamiques. Nous examinons donc dans cette section les principales approches de détection d’anomalies proposées dans ce domaine, afin d’identifier dans quelle mesure elles exploitent les spécificités de ces architectures et les enseignements qu’il est possible d’en tirer pour notre problématique.
+Enfin, nous prenons un peu de recul en nous intéressant aux travaux issus du domaine des systèmes distribués. Comme évoqué précédemment, les architectures 5G changent de paradigme et présentent maintenant de nombreuses similarités avec ces systèmes fortement distribués et dynamiques. Nous examinons donc dans cette section les principales approches de détection d’anomalies proposées dans ce domaine, afin d’identifier dans quelle mesure elles exploitent les spécificités de ces architectures et les enseignements qu’il est possible d’en tirer pour notre problématique.
 
 Parmi les approches exploitant la nature distribuée des infrastructures, on retrouve notamment des travaux basés sur le Federated Learning (FL). DioT\cite{diot} et VFL\cite{vfl}, par exemple, mettent en avant les avantages de la fédération dans les systèmes distribués, notamment en termes de passage à l’échelle, de confidentialité et de décentralisation de l’apprentissage. Cependant, leur contribution se concentre principalement sur le mécanisme de fédération lui-même. Les modèles utilisés restent relativement classiques et ne couvrent généralement qu’une partie des dimensions nécessaires à une détection complète des anomalies. DioT\cite{diot} s’appuie ainsi sur des GRU pour modéliser les dépendances temporelles, tandis que VFL\cite{vfl} exploite GraphSAGE afin de capturer les relations structurelles entre entités. Dans ce contexte, le Federated Learning apparaît davantage comme une extension permettant de rendre la détection plus scalable et plus réaliste d’un point de vue opérationnel, plutôt que comme une approche introduisant de nouveaux mécanismes de détection fondamentalement différents.
 
@@ -139,16 +139,16 @@ Enfin, une part importante des travaux de la littérature s'intéresse aussi aux
 L’analyse de la littérature sur la détection d’anomalies réseau met en évidence que les approches traditionnelles ne sont pas adaptées à notre problématique, principalement en raison d’un niveau de granularité trop élevé qui empêche la capture de comportements subtils. En se focalisant sur des travaux spécifiquement dédiés à la 5G, on constate par ailleurs qu’aucune approche ne propose à ce jour un formalisme unifié permettant de prendre en compte simultanément les trois dimensions de détection définies dans ce travail. Néanmoins, plusieurs éléments issus de l’état de l’art convergent vers des directions prometteuses. En particulier, des travaux tels que GSAD, ainsi que les approches issues des systèmes distribués, montrent que les représentations par graphes et les GNN font désormais l’objet d’un consensus croissant. Ces modèles apparaissent comme des outils particulièrement adaptés pour représenter la structure complexe des interactions et pourraient constituer une base solide pour répondre à notre problématique.
 
 \section{Méthodologie de formalisation}
-Nous avons vu que le formalisme en graphe proposé par GSAD consiste à regrouper l’ensemble du contenu des paquets dans un bloc monolithique associé à une arête, ce qui limite fortement la capacité à exploiter correctement la dimension sémantique. Dans ce contexte, nous proposons une représentation plus fine du trafic, en décomposant le contenu des paquets en nœuds indépendants correspondant à leurs différents paramètres. Nous détaillons à présent notre méthodologie de formalisation. Nous commencerons par l’extraction des caractéristiques à partir du trafic de contrôle, avant de présenter leur transformation en graphes adaptés à une analyse basée sur les GNN.
+Nous avons vu que le formalisme en graphe proposé par GSAD consiste à regrouper l’ensemble du contenu des paquets dans un bloc monolithique associé à une arête, ce qui limite fortement la capacité à exploiter correctement la dimension sémantique. Dans ce contexte, nous proposons une représentation plus fine du trafic, en décomposant le contenu des paquets en nœuds indépendants correspondant chacun à un paramètre différent. Nous détaillons à présent notre méthodologie de formalisation. Nous commencerons par l’extraction des caractéristiques à partir du trafic de contrôle, puis nous présenterons leur transformation en graphes.
 
 \subsection{Extraction des features depuis la payload applicative}
 Comme notre objectif est principalement d’analyser le contenu applicatif des paquets, nous extrayons la payload ainsi que l’ensemble des champs disponibles pour chaque paquet. Les seules informations non applicatives conservées concernent la couche IP, utilisées comme identifiant afin de discriminer les différentes entités du réseau. Cette approche n’est pas idéale, car elle est sensible au \textit{spoofing}. Toutefois, dans un cadre opérationnel, ces identifiants pourraient être remplacés par des mécanismes plus robustes, tels que des empreintes ou des hash représentant les entités de manière unique.
 
-Pour récupérer le contenu des payloads, nous utilisons \textit{Scapy}, qui permet de parser les paquets réseau et de générer, pour chacun d’eux, une représentation sous forme de dictionnaire associant les champs à leurs valeurs respectives.
+Pour récupérer le contenu des payloads, nous utilisons \textit{Scapy}, qui permet de parser les paquets réseau et de générer, pour chacun d’eux, une représentation sous forme de dictionnaire associant les noms des paramètres à leurs valeurs respectives.
 
-Un des problèmes rencontrés concerne certains paquets, notamment HTTP/2, qui contiennent principalement des structures JSON fortement imbriquées, ce qui introduit une complexité supplémentaire. La conservation explicite du chemin d’imbrication dans notre formalisme modifierait fortement la structure du graphe et accorderait une importance excessive à cette information. L’imbrication est utile pour différencier des paramètres, mais reste secondaire par rapport aux valeurs elles-mêmes.
+Une des problématiques du traffic applicatif est la présence d'imbrication dans le contenu des données de la payload. En effet, les paquets HTTP/2 contiennent courrament des structures JSON avec des données hiérarchisées. Conserver explicitement le chemin d’imbrication dans une modélisation en graph nécessiterait d'introduire de nouveaux types de noeuds et donc de diluer l'information produite par le contenu lui même. Or, même si l’imbrication est utile pour différencier des paramètres, elle reste secondaire par rapport aux valeurs elles-mêmes.
 
-Pour gérer ce problème, nous avons donc choisi d’aplatir les dictionnaires extraits des payloads en construisant le nom de chaque paramètre de feuille comme la concaténation de ses clés le précédantes, séparées par des délimiteurs. On obtient ainsi des identifiants de paramètres composés, par exemple \texttt{http2.headers.content-type}, permettant de désigner le champ \texttt{content-type} d’un paquet HTTP/2. Cette approche permet de conserver l’information d’imbrication tout en maintenant une structure suffisamment simple pour notre formalisation en graphe.
+Pour gérer ce problème, nous avons donc choisi d’aplatir les dictionnaires extraits des payloads en construisant le nom de chaque paramètre de feuille comme la concaténation de ses clés le précédantes, séparées par des délimiteurs. On obtient ainsi des identifiants de paramètres composés, par exemple \texttt{http2.headers.content-type}, permettant de désigner le champ \texttt{content-type} d’un paquet HTTP/2. Cette approche permet de conserver l’information d’imbrication en tant que nom de paramètre tout en maintenant une structure suffisamment simple pour notre formalisation en graphe.
 
 \subsection{Transformation en graph}
 
@@ -159,11 +159,13 @@ Pour gérer ce problème, nous avons donc choisi d’aplatir les dictionnaires e
 \label{fig:graph_example}
 \end{figure}
 
-À la réception d’un paquet, au lieu de le représenter comme une arête entre deux entités, nous le modélisons sous forme de sous-graphe, où chaque paramètre est encodé comme un nœud indépendant relié à un nœud central qui représente le paquet. Chaque nœud de feature contient la valeur du champ associé, tandis que l’arête reliant ce nœud au paquet porte le nom du paramètre correspondant. À chaque nouveau paquet observé, un sous-graphe est créé. Pour chaque paramètre, un nouveau nœud est ajouté s’il n’a pas encore été rencontré. Dans le cas contraire, le nœud existant est réutilisé. Ce mécanisme permet de relier progressivement les différents sous-graphes entre eux à travers les paramètres partagés. La figure \ref{fig:graph_example} illustre le processus de transformation de deux paquets en deux sous graphes. Ces deux paquets partagent certains paramètres ayant des valeurs communes et leurs sous-graphes respectifs se retrouvent donc connectés. Comme il n’existe pas d’arcs reliant des nœuds de type paramètre entre eux, ni de nœuds centraux entre eux, on obtient ainsi un graphe biparti. Une autre caractéristique de notre graphe est qu’il est purement additif : la réception d’un paquet ne peut entraîner que l’ajout de nouveaux nœuds et d’arêtes, sans jamais modifier ni supprimer ceux déjà présents.
+Au lieu de représenter un paquet comme une arête entre deux entités, nous le modélisons comme un sous-graphe, où chaque paramètre est un nœud. Chacun de ces noeuds paramètre est relié à un nœud central qui représente le paquet. Chaque nœud paramètre contient la valeur de ce dernier, tandis que l’arête reliant ce nœud au à celui central porte le nom du paramètre correspondant. Lors de la création d'un sous-graphe représentant un paquet, de nouveaux nœud paramètres sont crées seulement s’il n'existaient pas encore dans le graph global. Dans le cas contraire, le nœud existant est réutilisé. Ce mécanisme permet de relier progressivement les différents sous-graphes entre eux à travers leurs paramètres partagés. La figure \ref{fig:graph_example} illustre le processus de transformation de deux paquets en deux sous-graphes. Ces deux paquets partagent certains paramètres ayant des valeurs communes et leurs sous-graphes respectifs se retrouvent donc connectés. 
+
+Dans notre formalisme nous avons donc deux types de noeuds, paramètres et centraux qui ne peuvent jamais être reliés directement à d'autres noeuds du même type, donc un graphe biparti. Notre graphe est par ailleurs purement additif. La réception d’un paquet ne peut entraîner que l’ajout de nouveaux nœuds et d’arêtes, sans jamais modifier ni supprimer ceux déjà présents.
 
 Cette décomposition permet de connecter des attributs issus de paquets différents en s’appuyant sur des caractéristiques communes, plutôt que sur la seule structure source–destination. Une telle représentation offre un niveau de granularité très fin et permet de capturer des interactions plus riches entre les caractéristiques des paquets. De plus, cette approche permet également d’identifier précisément les paramètres à l’origine d’un comportement anormal et se révèle donc, par construction, hautement interprétable.
 
-Nous allons maintenant voir à quoi ressemblent les anomalies de chaque dimension une fois transformées en graphe.
+Nous allons maintenant analyser la représentation des anomalies de chaque dimension une fois adaptés à notre formalisme.
 
 \subsubsection{Anomalies sémantiques}
 
@@ -174,7 +176,7 @@ Nous allons maintenant voir à quoi ressemblent les anomalies de chaque dimensio
 \label{fig:graph_semantic}
 \end{figure}
 
-La figure \ref{fig:graph_semantic} illustre une anomalie sémantique dans laquelle un champ inhabituel apparaît. Dans le cas présent, il s’agit du paquet P3 qui contient la valeur \textit{NF Type} qui n'existe pas en 5G. Cette anomalie peut être détectée en le comparant aux autres paquets de même nature. On observe par exemple que les paquets P1 et P2, qui sont, comme P3, des requêtes vers l’endpoint \textit{add-nf}, possèdent des valeurs identiques pour le champ \textit{nf-type}, alors que P3 s’en écarte. Un modèle de détection ayant appris la structure usuelle de ce type de paquet pourrait ainsi identifier l’anomalie en observant uniquement le sous-graphe associé à P3.
+La figure \ref{fig:graph_semantic} illustre une anomalie sémantique dans laquelle un champ inhabituel apparaît. Dans le cas présent, il s’agit du paquet P3 qui contient une valeur de son champs \textit{nf-type} qui n'existe pas en 5G. Cette anomalie peut être détectée en le comparant aux autres paquets de même nature. On observe par exemple que les paquets P1 et P2, qui sont, comme P3, des requêtes vers l’endpoint \textit{add-nf}, possèdent des valeurs identiques pour le champ \textit{nf-type}, alors que P3 s’en écarte. Un modèle de détection ayant appris la structure usuelle de ce type de paquet pourrait ainsi identifier l’anomalie en observant uniquement le sous-graphe associé à P3.
 
 \subsubsection{Anomalies topologiques}
 
@@ -185,7 +187,7 @@ La figure \ref{fig:graph_semantic} illustre une anomalie sémantique dans laquel
 \label{fig:graph_topological}
 \end{figure}
 
-Sur la figure \ref{fig:graph_topological}, on observe un exemple d’attaque de type man-in-the-middle, où un paquet P1, initialement envoyé à l’adresse \textit{10.0.0.2}, génère l’envoi d’un nouveau paquet P2 identique (ici simplifié par le fait qu’il s’agisse du même endpoint), avec comme source la destination du paquet précédent et comme destination une nouvelle adresse. Ce cas ne peut normalement pas survenir en 5G, car il n’existe aucun scénario légitime de redirection de trafic de ce type. Le paquet P2 est une copie de P1 et paraît donc légitime pris individuellement. Il est nécessaire de prendre en compte le contexte de redirection afin de détecter l’anomalie.
+Sur la figure \ref{fig:graph_topological}, on observe un exemple d’attaque de type man-in-the-middle, où un paquet P1, initialement envoyé à une première addresse, génère l’envoi d’un nouveau paquet P2 identique (ici simplifié par le fait qu’il s’agisse du même endpoint). Ce nouveau paquet a comme source la destination du paquet précédent et comme destination une nouvelle adresse. Ce cas ne peut normalement pas survenir en 5G, car il n’existe aucun scénario légitime de redirection de trafic de ce type. Le paquet P2 est une copie de P1 et paraît donc légitime pris individuellement. Il est nécessaire de prendre en compte le contexte de redirection afin de détecter l’anomalie.
 
 \subsubsection{Anomalies séquentielles}
 
@@ -196,9 +198,14 @@ Sur la figure \ref{fig:graph_topological}, on observe un exemple d’attaque de 
 \label{fig:graph_sequential}
 \end{figure}
 
-Enfin, sur la figure \ref{fig:graph_sequential}, on observe un exemple d’anomalie séquentielle. Dans ce cas, le contenu et les interactions des paquets sont normaux et la caractéristique anormale concerne uniquement leur ordre d'arrivée. Le problème est que le formalisme actuel ne modélise pas explicitement la dimension temporelle. Il serait possible de l’intégrer en ajoutant à chaque sous-graphe un nœud représentant le temps d’observation du paquet, mais avec cette approche la dimension temporelle serait confondue avec les autres paramètres, alors qu’elle est de nature distincte et particulièrement importante. Il est donc nécessaire de proposer une modélisation permettant d’intégrer le temps de manière plus explicite. Pour cela, nous nous intéressons aux graphes dynamiques, qui intègrent nativement la dimension temporelle, et que nous présentons dans les sections suivantes.
+Enfin, sur la figure \ref{fig:graph_sequential}, on observe un exemple d’anomalie séquentielle. Dans ce cas, le contenu et les interactions des paquets sont normaux et la caractéristique anormale concerne uniquement leur ordre d'arrivée. Le problème est que le formalisme actuel ne modélise pas explicitement la dimension temporelle. Il serait possible de l’intégrer en ajoutant à chaque sous-graphe un nœud représentant le temps d’observation du paquet, mais avec cette approche la dimension temporelle serait confondue avec les autres paramètres, alors qu’elle est de nature distincte et particulièrement importante. Il est donc nécessaire de proposer une modélisation permettant d’intégrer le temps de manière plus explicite. 
+
+\subsection{Conclusion}
+Notre formalisme se distingue par sa capacité à mieux appréhender le contenu sémantique, un aspect souvent négligé dans l'état de l'art. Cependant, notre modélisation actuelle demeure statique et ne prend pas en compte la dimension temporelle. Dans le but de surmonter cette limitation, nous explorons les graphes dynamiques, qui intègrent nativement cette dimension temporelle, et dont nous présenterons les principes fondamentaux dans les sections suivantes.
 
 \section{Détection d’anomalies dans des graphs}
+
+La détection d'anomalies à l’aide de GNN constitue un domaine de recherche en pleine expansion, connaissant un développement significatif ces quinze dernières années. Nous introduisons ici les principes fondamentaux et les caractéristiques essentielles des GNN. Nous examinerons ensuite l’état de l’art des GNN puis. Enfin, nous verrons comment adapter notre formalisme présenté précédemment aux graphs dynamiques. 
 
 \subsection{Introduction aux GNN}
 
@@ -232,15 +239,24 @@ Enfin, sur la figure \ref{fig:graph_sequential}, on observe un exemple d’anoma
 % \label{fig:convolution}
 % \end{figure}
 
-De manière générale, les GNN sont très proches des CNN présentés précédemment. La principale différence est que les CNN opèrent sur des images, tandis que les GNN travaillent directement sur des graphes. Dans les deux cas, le principe repose sur une agrégation locale de l’information. Dans une image, cette agrégation s’effectue sur des voisinages de pixels, tandis que dans un graphe elle s’applique au voisinage des nœuds. Certains travaux proposent notamment de considérer une image comme un graphe de pixels et d’y appliquer des GNN, mais il s’agit d’une approche relativement marginale \cite{gnn_image}. L’idée fondamentale de ces deux types de modèles est que chaque itération du processus de convolution, appelé ici \textit{Message Passing}, permet de diffuser l’information aux voisins directs. En procédant de manière récursive, chaque couche de convolution propage cette information à une distance croissante, augmentant progressivement le champ de réception des représentations. La figure \ref{fig:convolution} illustre ce processus de diffusion de l’information à travers réalisé par deux convolutions successives.
+Le fonctionnement des GNN est très proches de celui des CNN présentés précédemment, la principale différence étant le formalisme. Dans les deux cas, le principe repose sur une agrégation locale de l’information. Dans une image, cette agrégation s’effectue sur des voisinages de pixels, tandis que dans un graphe elle s’applique au voisinage des nœuds. Certains travaux proposent notamment de considérer une image comme un graphe, où chaque pixel est un noeud relié à ses voisins par un arc, et d’y appliquer des GNN. Néanmoins, cette approche reste relativement marginale \cite{gnn_image}. 
+
+L’idée fondamentale de ces deux types de modèles est que chaque itération du processus de convolution, appelé \textit{Message Passing} pour les GNN, permet de diffuser l’information aux voisins directs. En procédant de manière récursive, chaque couche de convolution propage cette information à une distance croissante, augmentant progressivement le champ de réception des représentations. La figure \ref{fig:convolution} illustre ce processus de diffusion de l’information réalisé par deux convolutions successives.
 
 % inductif / transductif 
-En apprentissage sur graphes, on distingue généralement les approches transductives et inductives selon les informations disponibles au moment de l’entraînement. En mode transductif, le modèle connaît déjà le graphe complet, y compris les nœuds à prédire et leur voisinage, même si leurs labels restent inconnus. À l’inverse, l’apprentissage inductif suppose que les nœuds à traiter pendant le test ne sont pas visibles durant l’entraînement. Le modèle doit donc apprendre des règles générales capables de se transférer à de nouvelles structures. Le choix entre ces deux paradigmes dépend fortement de la tâche considérée. Dans certains cas, le cadre transductif est plus adapté, tandis que dans d’autres, notamment lorsque la généralisation à de nouveaux nœuds est nécessaire, l’approche inductive est préférable. De par leur nature évolutive, l’apprentissage inductif est souvent privilégié dans les travaux sur les graphes dynamiques, car il permet de généraliser à des nœuds et interactions apparaissant au cours du temps. Néanmoins, comme le soulignent Longa et al.\cite{survey_gnn2}, un GNN entraîné en mode transductif pour la classification de nœuds peut tout de même être appliqué à un graphe inonnu, ce qui revient à effectuer de l’apprentissage inductif. %On retrouve par exemple EvolveGCN \cite{evolvegcn}, qui est principalement utilisé dans un cadre transductif, tandis que des modèles comme TGN \cite{tgn} et TGAT \cite{tgat} peuvent être employés aussi bien en inductif qu’en transductif.
+En apprentissage sur graphes, on distingue généralement les approches transductives et inductives selon les informations disponibles au moment de l’entraînement. En mode transductif, le modèle connaît déjà le graphe complet, y compris les nœuds à prédire et leur voisinage, même si leurs labels restent inconnus. À l’inverse, l’apprentissage inductif suppose que les nœuds à traiter pendant le test ne sont pas visibles durant l’entraînement. Le modèle doit donc apprendre des règles générales capables de se transférer à de nouvelles structures. Le choix entre ces deux paradigmes dépend fortement de la tâche considérée. Dans certains cas, le cadre transductif est plus adapté, tandis que dans d’autres, notamment lorsque la généralisation à de nouveaux nœuds est nécessaire, l’approche inductive est préférable. 
+
+% suite
+De par leur nature évolutive, l’apprentissage inductif est souvent privilégié dans les travaux sur les graphes dynamiques, car il permet de généraliser à des nœuds et interactions apparaissant au cours du temps. Néanmoins, comme le soulignent Longa et al.\cite{survey_gnn2}, un GNN entraîné en mode transductif pour la classification de nœuds peut tout de même être appliqué à un graphe inonnu, ce qui revient à effectuer de l’apprentissage inductif. Bien que l'apprentissage inductif paraisse le plus adapté à notre problématique dynamique, nous considérerons donc tout de même aussi l'apprentissage transudctif. %On retrouve par exemple EvolveGCN \cite{evolvegcn}, qui est principalement utilisé dans un cadre transductif, tandis que des modèles comme TGN \cite{tgn} et TGAT \cite{tgat} peuvent être employés aussi bien en inductif qu’en transductif.
 
 % Tâches et Différents niveaux
 Parmi les tâches courantes dans l’état de l’art des graphes, on retrouve principalement la classification, la régression et le clustering. Ces tâches peuvent être appliquées à différents niveaux de granularité, que ce soit au sur des nœuds, des arêtes ou des graphes entiers. La classification consiste à attribuer un label discret à un élément du graphe, tandis que la régression vise à prédire une valeur continue associée à celui-ci. Le \textit{clustering}, quant à lui, a pour objectif de regrouper les éléments du graphe selon leur similarité structurelle ou leurs représentations apprises. On retrouve également la tâche de \textit{link prediction}, qui consiste à prédire l’apparition future d’arêtes entre des nœuds, ou plus généralement à estimer la probabilité d’existence d’une connexion entre deux entités du graphe. Cette tâche est particulièrement importante dans les graphes dynamiques, où l’objectif est d’anticiper l’évolution des interactions au cours du temps. C’est cette dernière famille de tâches qui nous intéresse particulièrement, puisque notre objectif est d’estimer, pour chaque valeur de paramètre, la probabilité qu’elle apparaisse et qu’elle soit donc considérée comme légitime.
 
+% Conclusion
+L’étendue des problèmes pouvant être modélisés sous forme de graphes, ainsi que la diversité des cas d’utilisation potentiels, expliquent la croissance rapide de la littérature sur ce sujet.
+
 \subsection{Etat de l'art des GNN}
+Nous analyserons désormais l’état de l’art concernant les GNN. Notre étude s’attachera à l’évolution historique de ces approches, en commençant par les GNN statiques. Nous examinerons ensuite les graphs dynamiques et les différentes architectures de GNN adaptées à la manipulation de ces types de graphes. Enfin, nous analyserons les approches non supervisées, indépendamment de la dimension temporelle, afin d’évaluer la capacité des GNN à traiter des données non étiquetées.
 
 \subsubsection{GNN traditionnels}
 Le domaine des GNN est relativement récent et s’est fortement développé au cours de la dernière décennie. Le concept de réseaux de neurones sur graphes a été formellement introduit pour la première fois en 2008 par Scarselli et al.~\cite{gnn}, qui ont proposé un framework pour l’apprentissage sur des données structurées en graphe, basé sur des mécanismes itératifs de propagation et d’agrégation d’états. Des travaux ultérieurs ont considérablement amélioré la praticabilité et la scalabilité de cette formulation initiale. En particulier, Kipf et Welling~\cite{gcn} ont introduit les Graph Convolutional Networks (GCN), qui simplifient le processus de propagation des messages en linéarisant l’agrégation de voisinage.
@@ -296,6 +312,7 @@ L'ensemble des modèles précédemment énoncés sont conçus pour pouvoir être
 
 L’autre approche non supervisée couramment utilisée pour la détection d’anomalies consiste à formuler le problème comme une tâche de reconstruction des données. Pour se faire, on utilise un autoencodeur qui prend en entrée un graphe qui prend en entrée un graphe et génère une représentation latente compressée avant d’apprendre à reconstruire l’entrée d’origine à partir de cette représentation. Après avoir été entraîné sur des données ne contenant pas d’anomalies, l’autoencodeur est capable de reconstruire correctement les points considérés comme normaux, mais échoue davantage sur des données atypiques qu’il n’a jamais observées auparavant. L’erreur de reconstruction peut alors être utilisée comme score d’anomalie. Plus cette erreur est élevée, plus le point est susceptible d’être anormal. C’est notamment le principe utilisé par DONE \cite{done}, qui repose sur deux autoencodeurs parallèles. Le premier encode la structure des liens du graphe, tandis que l’autre encode les attributs des nœuds. Les auteurs proposent également AdONE \cite{done}, une extension basée sur l’apprentissage adversarial permettant de construire des embeddings plus robustes aux valeurs aberrantes. GraphMAE\cite{graphmae}  utilise également une architecture de type autoencodeur. Leur contribution principale consiste à appliquer un double masquage. Un masque est appliqué sur les attributs des nœuds avant l’encodage, puis un second masque est appliqué dans l’espace latent après l’encodage. Dans leur cas, l'encodeur est un GNN, tandis que le décodeur est un MLP utilisé. Cette stratégie de masquage vise à renforcer la robustesse des représentations apprises en forçant le modèle à inférer des informations manquantes à différents niveaux de représentation. STGMAE\cite{stmgae} est presque identique mais enrichit l'entrée du GNN par une couche d'encodage spatio-temporel. Toutefois, ces approches restent limitées au cadre des graphes statiques et ne prennent pas directement en compte l’évolution temporelle de la structure du graphe. DyGIS\cite{dygis} adapte justement GraphMAE aux graphes discrets dynamiques mais, à notre connaissance, aucun travail de l’état de l’art ne propose encore d’étendre les méthodes de reconstruction au cas des graphes dynamiques en temps continu non supervisé.
 
+Parmi les deux approches d'apprentissage non supervisées présentées, la prédiction d'arcs via l'auto-supervision semble plus facilement équilibrable, étant donné la nature binaire de la tâche. Cependant, la création d'arcs négatifs qui est nécessaire à l'auto-supervision est sujette à l'introduction de biais. En revanche, l'approche de reconstruction est moins susceptible à ces biais mais est plus difficile à guider.
 
 \subsection{Formalismation adapté à l'utilisation de GNN dynamiques}
 Pour considérer la dimension temporel et détecter les attaques d'inondation ou à plusieurs étapes, il faut intégrer l'information temporel à notre détection et donc considérer les graphs dynamiques. On pourrait utiliser les graphs dynamiques discrets et c'est ce que fait d'ailleurs GSAD \cite{gsad}. Cette façon de gérer les graphes dynamiques est facile à comprendre et à implémenter, car les captures à intervalle régulier de l'état du graph forment une séquence de graphs indépendants sur lesquels on peut appliquer les GNN traditionnels sans modification majeure. Leur principal inconvénient est qu'ils sont très lourds et peu efficaces pour détecter les dépendances sur de longues périodes.
@@ -346,7 +363,7 @@ où $u \in \mathcal{V}_c$ désigne un nœud central, $v_i \in \mathcal{V}_f$ un 
 Cette formulation nécessite d’adapter les algorithmes classiques utilisés dans les GNN, mais elle permet une représentation beaucoup plus fine, dans laquelle aucune information temporelle n’est perdue. La figure \ref{fig:graph_continu} illustre la transformation d'une forme de graphe statique à celle d'un graphe dynamique continu.
 
 \subsection{Fonctionnement détaillé des GNN dynamique}
-Pour comprendre le fonctionnement d’un GNN dynamique continu, nous allons nous appuyer sur le fonctionnement du Temporal Graph Network (TGN), l’un des modèles les plus populaires de cette catégorie. La plupart des GNN dynamiques suivent en effet une architecture globale très similaire, ce qui fait de TGN un exemple représentatif de la conception générale de cette famille de modèles. La figure \ref{fig:tgn} illustre l’architecture de TGN, qui se compose de quatre modules principaux : un module de mémoire, un module d’agrégation de messages, un module de mise à jour de la mémoire et un module d’inférence.
+Dans leurs travaux, Rossi et al. \cite{tgn} proposent un cadre de formalisation des GNN dynamiques, permettant de représenter les travaux de l'état de l'art comme des spécifications de leur modèle. Nous nous appuierons sur ce framework pour présenter et comprendre le fonctionnement d'un GNN dynamique. La figure \ref{fig:tgn} illustre les quatre modules principaux définis par TGN \cite{tgn} : un module de mémoire, un module d’agrégation de messages, un module de mise à jour de la mémoire et un module d’inférence.
 
 \begin{figure}[h]
 \centering
@@ -356,38 +373,81 @@ Pour comprendre le fonctionnement d’un GNN dynamique continu, nous allons nous
 \end{figure}
 
 \subsubsection{Création des messages}
-La première étape consiste à construire un message, c’est-à-dire un vecteur contenant l’ensemble des informations encodées associées à un événement du graphe dynamique. Dans un premier temps, les vecteurs associés aux nœuds centraux et aux nœuds paramètres sont initialisés comme des vecteurs nuls. Si ces nœuds ont déjà été impliqués dans des événements précédents, leurs représentations précédemment calculées est alors réutilisées. Le vecteur associé à l’arête est quant à lui déterminé à partir du nom du paramètre porté par l’événement. Dans notre cas, ce nom de paramètre correspond à un token textuel et il est donc nécessaire de l’encoder au préalable sous forme d’un vecteur numérique. La méthode utilisée pour cet encodage est présentée dans la section suivante.
+La première étape d'un GNN consiste à construire un message contenant l’ensemble des informations associées à un événement du graphe dynamique. 
+
+\[
+m_i =  msg\left( s(u), s(v_i), x_i, \Delta t \right)
+\]
+
+Les vecteurs associés aux nœuds centraux \( s(u) \) et aux nœuds paramètres \( s(v_i) \) sont initialisés comme des vecteurs nuls. Si ces nœuds ont déjà été impliqués dans des événements précédents, leurs représentations déjà calculées est alors réutilisées. Le vecteur associé à l’arête \( x_i \) est quant à lui déterminé à partir du nom du paramètre porté par l’événement. Dans notre cas, ce nom de paramètre correspond à un token textuel et il est donc nécessaire de l’encoder au préalable sous forme d’un vecteur numérique. La méthode utilisée pour cet encodage est présentée dans la section suivante. Il existe diverses méthodes pour définir l'intervalle temporel \( \Delta t \) mais la méthode la plus fréquemment employée consiste à calculer la différence temporelle entre l'échantillon et le dernier paquet encodé. Ce dernier est représenté sous forme de vecteur de dimensions identiques aux autres composantes du système. Un paramètre ajustable permet alors de moduler la granularité de cette mesure.
 
 \subsubsection{Agrégation des messages}
-L’étape d’agrégation consiste à considérer l’ensemble des voisins du nœud source en cours de traitement, c’est-à-dire tous les événements dans lesquels ce nœud apparaît. On obtient ainsi une collection de messages qu'on d’agrége ensuite afin de produire un vecteur unique représentant le voisinage de distance 1 du nœud considéré. Cette agrégation peut être réalisée de différentes manières. TGN propose notamment plusieurs stratégies, parmi lesquelles l’utilisation de RNN, d’un mécanisme d’attention, une moyenne des messages ou bien de simplement conserver l’événement le plus récent.
+L’étape d’agrégation consiste à considérer l’ensemble des voisins du nœud source en cours de traitement, c’est-à-dire tous les événements \( m_i \) précédent un temps \( t \) dans lesquels ce nœud apparaît. On obtient ainsi une collection de messages qu'on d’agrége ensuite afin de produire un vecteur unique représentant le voisinage de distance 1 du nœud considéré
+
+$$
+\bar{m}_i(t) = \text{agg} \left( m_i(t_1), \dots, m_i(t) \right)
+$$
+
+Cette agrégation peut être réalisée de différentes manières. TGN \cite{tgn} propose plusieurs stratégies, parmi lesquelles l’utilisation de RNN, d’un mécanisme d’attention, une moyenne des messages ou bien de simplement conserver l’événement le plus récent.
 
 \subsubsection{Mise à jour de la mémoire}
-Afin de prendre en compte la dimension temporelle, le vecteur agrégé est combiné avec l’historique des représentations précédentes des éléments composant le message. Cet ensemble est ensuite transmis à un RNN, qui joue le rôle de module de mémoire apprenable. Ce module produit un nouveau vecteur représentant à la fois le message et son historique. Cette nouvelle représentation est utilisée pour les modules futurs et remplace également l’ancienne valeur stockée en mémoire. TGN propose notamment d’utiliser des architectures de type LSTM ou GRU pour implémenter ce module de mémoire.
+Afin de prendre en compte la dimension temporelle, les modèles dynamiques de type \textit{Temporal Neighborhood} disposent d'un module de mémoire, absent des modèles \textit{Temporal Embedding}. Ce module combine le vecteur agrégé avec l’historique des représentations précédentes des éléments constitutifs du message. Cet ensemble est ensuite transmis à un RNN, qui joue le rôle de module de mémoire apprenable. Ce module produit un nouveau vecteur représentant à la fois le message et son historique. 
+
+\[
+s(u) = mem(x_i, s(u) \big)
+\]
+
+Cette nouvelle représentation est utilisée pour les modules futurs et remplace également l’ancienne valeur stockée en mémoire. TGN \cite{tgn} propose notamment d’utiliser des architectures de type LSTM ou GRU pour implémenter ce module de mémoire.
 
 \subsubsection{Encodeur et Classifieur}
 L’encodeur est le module chargé de calculer la représentation des nœuds à partir de leur mémoire et des interactions temporelles. Plusieurs variantes peuvent être utilisées :
 
 \begin{itemize}
-    \item \textbf{Identity (id)} : l’embedding correspond directement à la mémoire du nœud.
-    \item \textbf{Time projection (time)} : la mémoire est modulée en fonction du temps écoulé depuis la dernière interaction, comme dans JODIE.
-    \item \textbf{Temporal Graph Attention (attn)} : plusieurs couches de graph attention agrègent l’information provenant du voisinage temporel du nœud. À chaque couche, les voisins temporels sont récupérés puis combinés via un mécanisme de multi-head attention.\textsl{}
+    \item \textbf{Identity (id)} : l’encodage correspond directement à la mémoire du nœud.
+    \item \textbf{Time projection (time)} : la mémoire est modulée en fonction du temps écoulé depuis la dernière interaction, comme dans JODIE \cite{jodie}.
+    \item \textbf{Temporal Graph Attention (attn)} : plusieurs couches de graph attention agrègent l’information provenant du voisinage temporel du nœud. À chaque couche, les voisins temporels sont récupérés puis combinés via un mécanisme de multi-head attention.
     \item \textbf{Temporal Graph Sum (sum)} : version plus simple et rapide où les informations des voisins temporels sont agrégées par somme puis projetées linéairement.
 \end{itemize}
 
 Pour les modèles \textit{attn} et \textit{sum}, un encodage temporel de type \textit{Time2Vec} est utilisé afin de représenter les écarts temporels entre interactions. Ces méthodes permettent également de limiter le problème de \textit{staleness} en mettant à jour les représentations grâce aux informations des voisins récents.
 
+\subsubsection{Conclusion}
+Nous avons présenté dans cette section le fonctionnement détaillé des GNN Dynamiques. Toutefois, il s’agit d’un cadre de fonctionnement général, alors que notre problématique est plus spécifique et nécessite la mise en œuvre de plusieurs ajustements méthodologiques.
 
-% TODO
-% On peut aussi ajouter : 
+\subsection{Adaptation à notre cas d'utilisation}
+Pour mieux répondre à notre problématique, nous proposons deux ajustements justifiés par notre cadre d’utilisation. Dans un premier temps, nous supprimons l’information temporelle explicite des messages. Dans un second temps, nous adaptons le mécanisme d’agrégation standard en une version spécifique, conçue pour notre structure bipartite.
+
+Le premier ajustement consiste à supprimer l’information temporelle explicite du modèle. Concrètement, cela se traduit par le retrait du terme \( \Delta t \) dans la formulation des messages. Dans notre contexte, l’information temporelle est déjà implicitement capturée par les séquences d’interactions lorsqu'elle est traité par le RNN. Le terme \( \Delta t \) est principalement pertinent pour identifier d’éventuelles pauses ou irrégularités dans le trafic. Toutefois, dans le cadre de la détection d’anomalies, cette information ne constitue pas un indicateur suffisamment représentatif d’une attaque. Au contraire, elle peut introduire un biais de surapprentissage susceptible d’être exploité par un attaquant. Pour cette raison, nous avons choisi de retirer cette composante temporelle de la formulation des messages.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.3\linewidth]{figures/chapter3/pb_probag_1.png}
+    \includegraphics[width=0.3\linewidth]{figures/chapter3/pb_probag_2.png}
+    \includegraphics[width=0.3\linewidth]{figures/chapter3/pb_probag_3.png}
+    \caption{Représentation du problème lié au parcours mutli saut dans notre graphe biparti. La figure illustre (A) le graphe avec les arrivées temporelles des paquets, (B) la méthode classique de propagation multi-sauts contrainte temporellement, et (C) notre approche modifiée permettant de récupérer correctement les dépendances temporelles en propageant le temps du nœud initial.}
+    \label{fig:propag}
+\end{figure}
+
+Le deuxième ajustement concerne la construction des voisinages multi-sauts. Dans un GNN dynamique classique, un nœud ne peut agréger que des voisins apparus avant lui. Cependant, dans notre graphe bipartite, les nœuds paramètres sont réutilisés et conservent leur temps de première apparition. Cela crée un problème lors de l’exploration multi-sauts. Certains nœuds centraux, pourtant antérieurs au nœud cible ne sont pas récupérés, car ils sont postérieurs au nœud paramètre intermédiaire. Pour résoudre ce problème, nous propageons le temps d’arrivée du nœud cible lors de l’exploration du voisinage, plutôt que celui des nœuds intermédiaires. Cela permet de conserver un voisinage temporel cohérent malgré la réutilisation des nœuds paramètres. Le probléme est ainsi que la solution que nous proposons sont représentés sur la figure \ref{fig:propag}.
+
+%Ces ajustements correspondent bien aux spéficités de notre cas d'utilisation et nous les avons donc appliqués. Néanmoins d'autres idées qu'on a pas mis en place mais qu'on juge tout de même intéressant de mentionner.
+
+\subsubsection{Problèmes ouverts}
+% enfin, y'a des idées qu'on a pas implémenté parce qu'on considère soit que c'est pas utile mais qu'on considère intéressant de mentionner ici
+% , ainsi que la réduction de la complexité du graphe par une transformation en \textit{line graph}
+
 % est-ce qu'on fusionne les réponses avec les questions des requetes ? et tous les messages entre le deux (image wireshark+graph)
+% on a décidé que non parce que 
+
+% représentation des flux
+% comme les imbrications, ça pourrait être intéressant mais ça fait modifier le graph et l'information vaut pas la peine
+
 % mélanger avec des infos systeme
 %  on voulait encoder avec bert+gmm comme baguette et le papier d'avant
 
-\subsection{Adaptation des algorithmes à notre cas d'utilisation}
-- Virer l'information temporel (on veut que les séquences)
-% Citer EGAT (imprimé)
-- Réduire la complexité de nos graphes avec des linegraph
-% photo "line graph problem"
+% Line graph
+% EGAT
+% photo "line graph problem" dossier photo
 
 \section{Encodage des paramètres de dimension non-fini (NLP)}
 % https://www.researchgate.net/profile/Ghazal-Alinezhad-Noghre/publication/361206538_A_Comprehensive_Survey_of_Graph-based_Deep_Learning_Approaches_for_Anomaly_Detection_in_Complex_Distributed_Systems/links/63e3c966c002331f72626977/A-Comprehensive-Survey-of-Graph-based-Deep-Learning-Approaches-for-Anomaly-Detection-in-Complex-Distributed-Systems.pdf 
