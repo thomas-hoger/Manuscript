@@ -1,0 +1,127 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 800px;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "blue", "id": 1, "label": 1, "shape": "dot", "size": 20}, {"color": "blue", "id": 2, "label": 2, "shape": "dot", "size": 20}, {"color": "blue", "id": 3, "label": 3, "shape": "dot", "size": 20}, {"color": "purple", "id": 11, "label": "/nausf-auth/ue-authentication", "shape": "dot", "size": 20}, {"color": "purple", "id": 12, "label": "208950000000031", "shape": "dot", "size": 20}, {"color": "purple", "id": 13, "label": "200 OK", "shape": "dot", "size": 20}, {"color": "purple", "id": 14, "label": "IP_AMF", "shape": "dot", "size": 20}, {"color": "purple", "id": 15, "label": "IP_AUSF", "shape": "dot", "size": 20}, {"color": "purple", "id": 16, "label": "/nudm-ueau/auth-events", "shape": "dot", "size": 20}, {"color": "purple", "id": 17, "label": "IP_UDM", "shape": "dot", "size": 20}, {"color": "purple", "id": 18, "label": "/nudr-dr/subscription-data", "shape": "dot", "size": 20}, {"color": "purple", "id": 19, "label": "204 No Content", "shape": "dot", "size": 20}, {"color": "purple", "id": 20, "label": "IP_UDR", "shape": "dot", "size": 20}]);
+                  edges = new vis.DataSet([{"arrows": "to", "from": 1, "label": "path", "to": 11}, {"arrows": "to", "from": 1, "label": "imsi", "to": 12}, {"arrows": "to", "from": 1, "label": "status", "to": 13}, {"arrows": "to", "from": 1, "label": "ip_src", "to": 14}, {"arrows": "to", "from": 1, "label": "ip_dst", "to": 15}, {"arrows": "to", "from": 2, "label": "path", "to": 16}, {"arrows": "to", "from": 2, "label": "imsi", "to": 12}, {"arrows": "to", "from": 2, "label": "status", "to": 13}, {"arrows": "to", "from": 2, "label": "ip_src", "to": 15}, {"arrows": "to", "from": 2, "label": "ip_dst", "to": 17}, {"arrows": "to", "from": 3, "label": "path", "to": 18}, {"arrows": "to", "from": 3, "label": "imsi", "to": 12}, {"arrows": "to", "from": 3, "label": "status", "to": 19}, {"arrows": "to", "from": 3, "label": "ip_src", "to": 17}, {"arrows": "to", "from": 3, "label": "ip_dst", "to": 20}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"edges": {"color": {"color": "#444444", "highlight": "#444444", "hover": "#444444"}, "arrows": {"to": {"enabled": true}}}, "physics": {"barnesHut": {"gravitationalConstant": -4000, "springLength": 120}}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>

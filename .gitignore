@@ -12,3 +12,4 @@
 *.brf
 *.maf
 .vscode
+lib/*

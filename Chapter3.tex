@@ -17,7 +17,7 @@
 \faketableofcontents
 \fi
 
-\chapter{Détection d’anomalie multi-domaines}
+\chapter{Vers une formalisation adaptée à la détection d’anomalie multi-domaines}
 \minitoc
 
 %PB1 : Les méthodes proposées actuellement pour la détection d’anomalie sont pas adaptés
@@ -417,7 +417,9 @@ Nous avons présenté dans cette section le fonctionnement détaillé des GNN Dy
 \subsection{Adaptation à notre cas d'utilisation}
 Pour mieux répondre à notre problématique, nous proposons deux ajustements justifiés par notre cadre d’utilisation. Dans un premier temps, nous supprimons l’information temporelle explicite des messages. Dans un second temps, nous adaptons le mécanisme d’agrégation standard en une version spécifique, conçue pour notre structure bipartite.
 
-Le premier ajustement consiste à supprimer l’information temporelle explicite du modèle. Concrètement, cela se traduit par le retrait du terme \( \Delta t \) dans la formulation des messages. Dans notre contexte, l’information temporelle est déjà implicitement capturée par les séquences d’interactions lorsqu'elle est traité par le RNN. Le terme \( \Delta t \) est principalement pertinent pour identifier d’éventuelles pauses ou irrégularités dans le trafic. Toutefois, dans le cadre de la détection d’anomalies, cette information ne constitue pas un indicateur suffisamment représentatif d’une attaque. Au contraire, elle peut introduire un biais de surapprentissage susceptible d’être exploité par un attaquant. Pour cette raison, nous avons choisi de retirer cette composante temporelle de la formulation des messages.
+Le premier ajustement consiste à supprimer l’information temporelle explicite du modèle. Concrètement, cela se traduit par le retrait du terme \( \Delta t \) dans la formulation des messages. Dans notre contexte, l’information temporelle est déjà implicitement capturée par les séquences d’interactions lorsqu'elle est traité par le RNN. La mention explicite du terme \( \Delta t \) est principalement pertinent pour identifier d’éventuelles pauses ou délais dans le trafic.
+%
+Toutefois, cette information ne constitue pas un indicateur suffisamment représentatif d’une attaque et induit souvent, au contraire, des biais de surapprentissage. Pour cette raison, nous avons choisi de retirer cette composante temporelle de la formulation des messages.
 
 \begin{figure}[h]
     \centering
@@ -430,28 +432,64 @@ Le premier ajustement consiste à supprimer l’information temporelle explicite
 
 Le deuxième ajustement concerne la construction des voisinages multi-sauts. Dans un GNN dynamique classique, un nœud ne peut agréger que des voisins apparus avant lui. Cependant, dans notre graphe bipartite, les nœuds paramètres sont réutilisés et conservent leur temps de première apparition. Cela crée un problème lors de l’exploration multi-sauts. Certains nœuds centraux, pourtant antérieurs au nœud cible ne sont pas récupérés, car ils sont postérieurs au nœud paramètre intermédiaire. Pour résoudre ce problème, nous propageons le temps d’arrivée du nœud cible lors de l’exploration du voisinage, plutôt que celui des nœuds intermédiaires. Cela permet de conserver un voisinage temporel cohérent malgré la réutilisation des nœuds paramètres. Le probléme est ainsi que la solution que nous proposons sont représentés sur la figure \ref{fig:propag}.
 
-%Ces ajustements correspondent bien aux spéficités de notre cas d'utilisation et nous les avons donc appliqués. Néanmoins d'autres idées qu'on a pas mis en place mais qu'on juge tout de même intéressant de mentionner.
+Ces ajustements répondent directement aux spécificités de notre cas d’usage et ont donc été intégrés à notre approche. La suppression de l’information temporelle explicite permet de limiter les risques de surapprentissage liés aux irrégularités du trafic, tandis que la modification du mécanisme de propagation garantit une exploration multi-sauts cohérente dans le contexte particulier de notre graphe biparti. 
 
 \subsubsection{Problèmes ouverts}
-% enfin, y'a des idées qu'on a pas implémenté parce qu'on considère soit que c'est pas utile mais qu'on considère intéressant de mentionner ici
-% , ainsi que la réduction de la complexité du graphe par une transformation en \textit{line graph}
+D’autres pistes d’ajustement ont également été envisagées au cours de ce travail, mais n’ont finalement pas été intégrées à l’approche proposée. Elles restent néanmoins intéressantes à mentionner, car leur considération est légitime et soulève plusieurs questions pertinentes quant à notre formalisation.
 
-% est-ce qu'on fusionne les réponses avec les questions des requetes ? et tous les messages entre le deux (image wireshark+graph)
-% on a décidé que non parce que 
+\begin{figure}[h] 
+\centering 
+\includegraphics[width=\linewidth]{figures/chapter3/flux_new.png} 
+\caption{Représentation sous forme de graphe d’une procédure composée de trois paquets. Les arcs orientés en pointillés représentent un nouveau type de liaison entre noeuds central permettent de représenter l’ordre temporel des échanges.}
+\label{fig:flux} 
+\end{figure}
 
-% représentation des flux
-% comme les imbrications, ça pourrait être intéressant mais ça fait modifier le graph et l'information vaut pas la peine
+Dans un réseau 5G, le déclenchement d’une procédure engendre la génération de séquences ordonnées de messages. Il peut être envisagé de représenter explicitement ces séquences ainsi que leur ordre au sein du graphe au moyen d’une formalisation dédiée. Une approche consiste à orienter le graphe et à introduire un type de liaison spécifique permettant de relier un nœud central à son successeur dans la séquence. La Figure \ref{fig:flux} illustre cette représentation, qui présente l’avantage d’être aisément interprétable par un lecteur humain tout en rendant explicites les séquences et leur ordre d’exécution. 
+%
+Cependant, cette approche n’apporte pas d’information supplémentaire au modèle, dans la mesure où la structure séquentielle est déjà encodée via les graphes dynamiques continus. Néanmoins, elle conserve un intérêt pour l’analyse humaine et peut ainsi être ajoutée a posteriori de l'inférence afin d’améliorer la lisibilité des résultats.
 
-% mélanger avec des infos systeme
-%  on voulait encoder avec bert+gmm comme baguette et le papier d'avant
+% \begin{figure}[h]
+%     \centering
+%     \includegraphics[width=\linewidth]{figures/chapter3/response_new.png}
+%     \caption{}
+%     \label{fig:response}
+% \end{figure}
 
-% Line graph
-% EGAT
-% photo "line graph problem" dossier photo
+%Deuxieme question est-ce qu'on fusionne les réponses avec les questions des requetes ? en un seule noeud ou non. En effet comme les deux sont liés on devrait pouvoir et ça permettrait de permettrait de réduir le nombre de noeud et donc à la fois la lisibilité humaine, la complexité et faciliter l'apprentissage. Ca pourrait être une bonne piste mais comme le montre la figure \cite{fig:flux} les réponses sont pas forcément directement après les requetes et du coup on perdrait l'info de séquence (en fait c'est pas vrai, on pourrait avoir les éléments à différents endroit de la séquence du graph dynamique continu mais faire en sorte de bien récupérer le bon voisinnage). Faudrait appliquer ça parce que je vois aucun invconvénient au final. Et pareil entre HEADERS et DATA faut aussi réunir
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\linewidth]{figures/chapter3/linegraph.png}
+    \caption{Illustration de la transformation d’un graphe classique (à gauche) en \textit{line graph} (à droite). Dans cette représentation, les arêtes du graphe initial deviennent les nœuds du \textit{line graph}, tandis que les relations entre arêtes sont représentées par de nouvelles connexions.}
+    \label{fig:linegraph}
+\end{figure}
+
+EGAT\cite{egat} propose de donner plus d'importance à l’information portée par les arêtes en réalisant une agrégation sur les arêtes au lieu de sur les nœuds comme classiquement. Pour se faire ils convertissent leur graph en \textit{line graph} où les nœuds correspondent aux arêtes du graphe original, tandis que ses arêtes traduisent les relations entre ces dernières. La Figure~\ref{fig:linegraph} illustre cette transformation. Néanmoins, dans notre cas d’étude, les graphes considérés sont fortement connectés et comportent un grand nombre d’arêtes. Or, la construction du \textit{line graph} entraîne une augmentation significative de la complexité structurelle, puisque chaque arête du graphe initial devient un nœud supplémentaire. Cette transformation ne passe donc pas à l’échelle dans notre configuration et conduit rapidement à une explosion de la complexité computationnelle et mémoire.
+
+Ces différentes approches montrent que plusieurs extensions de la formalisation initiale sont envisageables. Néanmoins, bien qu’elles présentent des avantages évidents, elles soulèvent des problèmes structurels et computationnels qui empêchent leur intégration à notre formalisation.
 
 \section{Encodage des paramètres de dimension non-fini (NLP)}
+
+% comme mentionné dans la partie création de message, il est nécessaire d'encoder les informations contenus dans les arcs. Le problème c'est qu'on a un nombre indénombrable de paramètres potentiels, principalement à cause de l'utilisation d'appels d'API qui n'ont pas de champs d'entrée restreints. Donc on a un espace d'entrée de dimension infini qu'il faudrait pouvoir projeter dans un espace de dimension fini c'est à dire un vecteur de taille fixe 
+
+% Pour ça on a regardé du côté des NLP qui permettent justement d'apprendre la sémantique d'un texte et créer un espace latent ordonné où une proximité sémantique se traduirait par une proximité dans cet espace. C'est particulèrement intéressant parce que on a beaucoup de redondance entre certains pparamètres comme \textit{source-ip} et \textit{destination-ip}, qui pourrait ainsi possèder des représentations relativement similaires dans l’espace latent. 
+
+% le probleme c'est que y'a des parametres comme les ip ou le path qui sont importants pour détecter beaucoup d'attaques mais y'a aussi des paramètres qui sont utiles que pour des attaques spécifiques. y'a aussi pas mal de parametres qui pourraient être utilisés pour détecter des attaques futures mais qui pour l'instant sont pas utils pour celles qu'on a. Mais, un trop grand the number of features can hinder the learning process by introducing noise and increasing model complexity
+
+% !!!! expliquer (quelque part) pourquoi on prend pas la valeur du parametre (noeuds). Parce que soit on a des identifiants leur valeur osef, ce qu'on veut voir c'est leur réutilisation 
+% si on embed nodes ça fait aussi un pb avec les nodes centraux pck on peut pas les encoder comme 0 ou moyenne de tout au risque d'avoir une proximité sémantique artificielle
+
+
+
+% le nombre de noms de paramètres potentiellement observables dans le trafic 5G est extrêmement important, pouvant atteindre plusieurs centaines de milliers de features distinctes. Une approche naïve consisterait à représenter chaque paramètre par un vecteur orthogonal (\textit{one-hot encoding}), mais cela conduirait à des représentations de très grande dimension, peu efficaces en pratique.
+
+
+
+
 % https://www.researchgate.net/profile/Ghazal-Alinezhad-Noghre/publication/361206538_A_Comprehensive_Survey_of_Graph-based_Deep_Learning_Approaches_for_Anomaly_Detection_in_Complex_Distributed_Systems/links/63e3c966c002331f72626977/A-Comprehensive-Survey-of-Graph-based-Deep-Learning-Approaches-for-Anomaly-Detection-in-Complex-Distributed-Systems.pdf 
 % Shallow Embedding, Deep Embedding
+
+% on pourrait du coup donner un embedding initial aux noeuds grâce au nlp mais c'est chiant ausis
 
 % photo bert téléchargement + regarder slides nlp
 
@@ -471,8 +509,6 @@ Le deuxième ajustement concerne la construction des voisinages multi-sauts. Dan
 % Le problème c'est qu'on a un nombre indénombrable de paramètres potentiels, premièrement à cause de l'utilisation d'appels d'API car un attaquant peut injecter des paquets contenants des paramètres arbitraires qu'il faut tout de même encoder.
 
 % le nombre de noms de paramètres potentiellement observables dans le trafic 5G est extrêmement important, pouvant atteindre plusieurs centaines de milliers de features distinctes. Une approche naïve consisterait à représenter chaque paramètre par un vecteur orthogonal (\textit{one-hot encoding}), mais cela conduirait à des représentations de très grande dimension, peu efficaces en pratique.
-
-% De plus, une telle représentation ne permettrait pas de capturer les similarités sémantiques entre paramètres. Or, il est souhaitable que des paramètres conceptuellement proches, comme \textit{source-ip} et \textit{destination-ip}, possèdent des représentations relativement similaires dans l’espace latent. Pour cette raison, il est préférable d’utiliser des embeddings appris, capables de projeter les paramètres dans un espace vectoriel dense de dimension réduite tout en préservant certaines relations sémantiques.
 
 \subsection{Sélection et encodage des features}
 % Le fait de conserver dans le graph toutes les features extraites soulève tout de même plusieurs problématiques. Tout d’abord, le nombre de features extraites est particulièrement élevé. Dans nos données, un paquet contient en moyenne 18 features, ce qui représente déjà une quantité importante d’information à traiter. De plus, dans les données générées, certains paquets peuvent ainsi contenir jusqu’à 200 features différentes ce qui augmente significativement la complexité des graphes générés.
