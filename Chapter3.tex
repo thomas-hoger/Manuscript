@@ -135,7 +135,7 @@ Dans la littérature des systèmes distribués, on retrouve également de nombre
 
 Enfin, une part importante des travaux de la littérature s'intéresse aussi aux GNN \cite{dist_gnn1,dist_gnn2} et plus spécifiquement sur des approches dynamiques\cite{taddy}. Cette convergence confirme que la modélisation par graphes constitue un cadre particulièrement pertinent pour capturer les interactions complexes au sein des systèmes distribués, en intégrant à la fois les dimensions structurelles et temporelles. 
 
-\subsection{Conclusion}
+\subsection{Synthèse}
 L’analyse de la littérature sur la détection d’anomalies réseau met en évidence que les approches traditionnelles ne sont pas adaptées à notre problématique, principalement en raison d’un niveau de granularité trop élevé qui empêche la capture de comportements subtils. En se focalisant sur des travaux spécifiquement dédiés à la 5G, on constate par ailleurs qu’aucune approche ne propose à ce jour un formalisme unifié permettant de prendre en compte simultanément les trois dimensions de détection définies dans ce travail. Néanmoins, plusieurs éléments issus de l’état de l’art convergent vers des directions prometteuses. En particulier, des travaux tels que GSAD, ainsi que les approches issues des systèmes distribués, montrent que les représentations par graphes et les GNN font désormais l’objet d’un consensus croissant. Ces modèles apparaissent comme des outils particulièrement adaptés pour représenter la structure complexe des interactions et pourraient constituer une base solide pour répondre à notre problématique.
 
 \section{Méthodologie de formalisation}
@@ -200,8 +200,16 @@ Sur la figure \ref{fig:graph_topological}, on observe un exemple d’attaque de 
 
 Enfin, sur la figure \ref{fig:graph_sequential}, on observe un exemple d’anomalie séquentielle. Dans ce cas, le contenu et les interactions des paquets sont normaux et la caractéristique anormale concerne uniquement leur ordre d'arrivée. Le problème est que le formalisme actuel ne modélise pas explicitement la dimension temporelle. Il serait possible de l’intégrer en ajoutant à chaque sous-graphe un nœud représentant le temps d’observation du paquet, mais avec cette approche la dimension temporelle serait confondue avec les autres paramètres, alors qu’elle est de nature distincte et particulièrement importante. Il est donc nécessaire de proposer une modélisation permettant d’intégrer le temps de manière plus explicite. 
 
-\subsection{Conclusion}
-Notre formalisme se distingue par sa capacité à mieux appréhender le contenu sémantique, un aspect souvent négligé dans l'état de l'art. Cependant, notre modélisation actuelle demeure statique et ne prend pas en compte la dimension temporelle. Dans le but de surmonter cette limitation, nous explorons les graphes dynamiques, qui intègrent nativement cette dimension temporelle, et dont nous présenterons les principes fondamentaux dans les sections suivantes.
+\subsection{Encodage des arcs et noeuds}
+
+Pour être exploitables par des modèles de détection, les nœuds ou des arêtes doivent être encodés sous forme de vecteurs numériques. Pour les arrêtes, le vecteur est construit à partir du nom du paramètre porté par l’événement, lequel est toujours de type textuel. Ces noms de paramètres sont considérés comme statiques, car ils dépendent de l’implémentation de l’infrastructure 5G au moment de l’entraînement du modèle. Ainsi, si le jeu de données d’entraînement est suffisamment exhaustif, il est possible de couvrir la majorité des noms de paramètres susceptibles d’apparaître. Cependant, lorsqu’un paramètre inconnu est rencontré, deux cas peuvent être envisagés. Il peut s’agir d’une évolution de l’implémentation, auquel cas des anomalies peuvent être observées de manière légitime tant que le modèle n’a pas été réentraîné. Il peut également s’agir d’une tentative d’attaque, par exemple via du fuzzing exploité à travers les appels API, introduisant des noms de paramètres inexistants. Dans ce cas, la présence de ces valeurs constitue une anomalie pertinente pour la détection. Ainsi, l’ensemble des valeurs d’arêtes peut être représenté par des encodages uniques, complétés par une représentation spécifique dédiée aux valeurs inconnues. Les méthodes d’encodage textuel utilisables pour cela sont détaillées dans la section suivante.
+
+Pour les nœuds, le vecteur peut être construit à partir de la valeur du paramètre associé. Ces valeurs peuvent correspondre aussi bien à des variables catégorielles, comme des méthodes HTTP, qu’à des identifiants uniques, comme des adresses IP. L’analyse de l’échantillon collecté dans notre jeu de données montre qu’environ 90\% des valeurs de paramètres correspondent à des identifiants uniques. Si les données ne contenaient que des variables catégorielles, un encodage classique de type one-hot aurait pu être utilisé. Toutefois, cette approche n’est pas adaptée ici, car les identifiants sont générés dynamiquement au cours de l’exécution du système et ne peuvent donc pas être exhaustivement connus lors de l’entraînement. Une autre possibilité serait d’utiliser des méthodes issues du traitement automatique du langage naturel (NLP) afin de rapprocher sémantiquement les valeurs textuelles. Cependant, les identifiants, tels que les addresses IP, ne correspondent généralement pas à des mots porteurs de sens linguistique. Il faudrait alors définir des mécanismes d’encodage spécifiques pour chaque type d’identifiant, ce qui ne serait ni scalable ni cohérent avec la nature dynamique des infrastructures 5G. La solution la plus simple consiste donc à ne pas prendre en compte l’information portée par les valeurs des paramètres. Dans le cas des identifiants uniques, leur valeur intrinsèque présente de toute façon peu d’intérêt. De même, pour les variables catégorielles, la sémantique d’un nœud peut être inférée à travers l’analyse de la structure du graphe, comme illustré dans la figure \ref{fig:graph_semantic} présentée précédemment.
+
+Dans nos représentations, seule l’information portée par les arêtes sera donc conservée explicitement. L’information associée aux nœuds pourra quant à elle être reconstruite implicitement par le GNN à travers les convolutions successives et l’agrégation des informations de voisinage.
+
+%\subsection{Synthèse}
+%Notre formalisme se distingue par sa capacité à mieux appréhender le contenu sémantique, un aspect souvent négligé dans l'état de l'art. Cependant, notre modélisation actuelle demeure statique et ne prend pas en compte la dimension temporelle. Dans le but de surmonter cette limitation, nous explorons les graphes dynamiques, qui intègrent nativement cette dimension temporelle, et dont nous présenterons les principes fondamentaux dans les sections suivantes.
 
 \section{Détection d’anomalies dans des graphs}
 
@@ -315,7 +323,7 @@ L’autre approche non supervisée couramment utilisée pour la détection d’a
 Parmi les deux approches d'apprentissage non supervisées présentées, la prédiction d'arcs via l'auto-supervision semble plus facilement équilibrable, étant donné la nature binaire de la tâche. Cependant, la création d'arcs négatifs qui est nécessaire à l'auto-supervision est sujette à l'introduction de biais. En revanche, l'approche de reconstruction est moins susceptible à ces biais mais est plus difficile à guider.
 
 \subsection{Formalismation adapté à l'utilisation de GNN dynamiques}
-Pour considérer la dimension temporel et détecter les attaques d'inondation ou à plusieurs étapes, il faut intégrer l'information temporel à notre détection et donc considérer les graphs dynamiques. On pourrait utiliser les graphs dynamiques discrets et c'est ce que fait d'ailleurs GSAD \cite{gsad}. Cette façon de gérer les graphes dynamiques est facile à comprendre et à implémenter, car les captures à intervalle régulier de l'état du graph forment une séquence de graphs indépendants sur lesquels on peut appliquer les GNN traditionnels sans modification majeure. Leur principal inconvénient est qu'ils sont très lourds et peu efficaces pour détecter les dépendances sur de longues périodes.
+Pour considérer la dimension temporel et détecter les attaques d'inondation ou à plusieurs étapes, il faut intégrer l'information temporel à notre détection et donc considérer les graphs dynamiques. Une solution serait d'utiliser les graphs dynamiques discrets, c'est d'ailleurs l'approche qu'emploie GSAD \cite{gsad}. Cette façon de gérer les graphes dynamiques est facile à comprendre et à implémenter, car les captures à intervalle régulier de l'état du graph forment une séquence de graphs indépendants sur lesquels on peut appliquer les GNN traditionnels sans modification majeure. Néanmoins, leur principal inconvénient est qu'ils sont très lourds et peu efficaces pour détecter les dépendances sur de longues périodes.
 
 \begin{figure}[h]
 \centering
@@ -363,7 +371,7 @@ où $u \in \mathcal{V}_c$ désigne un nœud central, $v_i \in \mathcal{V}_f$ un 
 Cette formulation nécessite d’adapter les algorithmes classiques utilisés dans les GNN, mais elle permet une représentation beaucoup plus fine, dans laquelle aucune information temporelle n’est perdue. La figure \ref{fig:graph_continu} illustre la transformation d'une forme de graphe statique à celle d'un graphe dynamique continu.
 
 \subsection{Fonctionnement détaillé des GNN dynamique}
-Dans leurs travaux, Rossi et al. \cite{tgn} proposent un cadre de formalisation des GNN dynamiques, permettant de représenter les travaux de l'état de l'art comme des spécifications de leur modèle. Nous nous appuierons sur ce framework pour présenter et comprendre le fonctionnement d'un GNN dynamique. La figure \ref{fig:tgn} illustre les quatre modules principaux définis par TGN \cite{tgn} : un module de mémoire, un module d’agrégation de messages, un module de mise à jour de la mémoire et un module d’inférence.
+Dans leurs travaux, Rossi et al. \cite{tgn} proposent un cadre de formalisation des GNN dynamiques, permettant de représenter les travaux de l'état de l'art comme des spécifications de leur modèle. Nous nous appuierons sur ce cadre pour présenter et comprendre le fonctionnement d'un GNN dynamique. La figure \ref{fig:tgn} illustre les quatre modules principaux définis par TGN \cite{tgn} : un module de mémoire, un module d’agrégation de messages, un module de mise à jour de la mémoire et un module d’inférence.
 
 \begin{figure}[h]
 \centering
@@ -411,8 +419,8 @@ L’encodeur est le module chargé de calculer la représentation des nœuds à 
 
 Pour les modèles \textit{attn} et \textit{sum}, un encodage temporel de type \textit{Time2Vec} est utilisé afin de représenter les écarts temporels entre interactions. Ces méthodes permettent également de limiter le problème de \textit{staleness} en mettant à jour les représentations grâce aux informations des voisins récents.
 
-\subsubsection{Conclusion}
-Nous avons présenté dans cette section le fonctionnement détaillé des GNN Dynamiques. Toutefois, il s’agit d’un cadre de fonctionnement général, alors que notre problématique est plus spécifique et nécessite la mise en œuvre de plusieurs ajustements méthodologiques.
+% \subsubsection{Conclusion}
+% Nous avons présenté dans cette section le fonctionnement détaillé des GNN Dynamiques. Toutefois, il s’agit d’un cadre de fonctionnement général, alors que notre problématique est plus spécifique et nécessite la mise en œuvre de plusieurs ajustements méthodologiques.
 
 \subsection{Adaptation à notre cas d'utilisation}
 Pour mieux répondre à notre problématique, nous proposons deux ajustements justifiés par notre cadre d’utilisation. Dans un premier temps, nous supprimons l’information temporelle explicite des messages. Dans un second temps, nous adaptons le mécanisme d’agrégation standard en une version spécifique, conçue pour notre structure bipartite.
@@ -468,26 +476,90 @@ EGAT\cite{egat} propose de donner plus d'importance à l’information portée p
 
 Ces différentes approches montrent que plusieurs extensions de la formalisation initiale sont envisageables. Néanmoins, bien qu’elles présentent des avantages évidents, elles soulèvent des problèmes structurels et computationnels qui empêchent leur intégration à notre formalisation.
 
-\section{Encodage des paramètres de dimension non-fini (NLP)}
+\section{Encodage des paramètres de dimension non-fini}
 
-% comme mentionné dans la partie création de message, il est nécessaire d'encoder les informations contenus dans les arcs. Le problème c'est qu'on a un nombre indénombrable de paramètres potentiels, principalement à cause de l'utilisation d'appels d'API qui n'ont pas de champs d'entrée restreints. Donc on a un espace d'entrée de dimension infini qu'il faudrait pouvoir projeter dans un espace de dimension fini c'est à dire un vecteur de taille fixe 
+% Intro encodage
+Comme mentionné dans la section relative à la construction des messages, il est nécessaire d’encoder les informations contenues dans les arcs. Les paquets réseaux 5G comportent un très grand nombre de paramètres, ce qui conduit à un espace d’entrée de très grande dimension. Dans le cadre d’une approche de détection de type \textit{zero-day} basée sur l’apprentissage non supervisé, il est essentiel de pouvoir représenter l’ensemble des attributs potentiellement observables, dans la mesure où il est impossible d’anticiper a priori lesquels pourront être exploités par de futures attaques. Cette situation implique la manipulation d’un espace de représentation de très grande dimension, susceptible d’entraîner le phénomène de la \textit{malédiction de la dimensionnalité (curse of dimensionality)}, qui se caractérise par une dégradation de la généralisabilité lorsque la dimension de l'entrée est trop grande. Par conséquent, il est nécessaire de réduire la dimension de cet espace d'entrée afin de le rendre exploitable par les modèles d’apprentissage GNN mentionnés précédemment. 
 
-% Pour ça on a regardé du côté des NLP qui permettent justement d'apprendre la sémantique d'un texte et créer un espace latent ordonné où une proximité sémantique se traduirait par une proximité dans cet espace. C'est particulèrement intéressant parce que on a beaucoup de redondance entre certains pparamètres comme \textit{source-ip} et \textit{destination-ip}, qui pourrait ainsi possèder des représentations relativement similaires dans l’espace latent. 
+\section{Techniques de Traitement du Langage Naturel (NLP)}
 
-% le probleme c'est que y'a des parametres comme les ip ou le path qui sont importants pour détecter beaucoup d'attaques mais y'a aussi des paramètres qui sont utiles que pour des attaques spécifiques. y'a aussi pas mal de parametres qui pourraient être utilisés pour détecter des attaques futures mais qui pour l'instant sont pas utils pour celles qu'on a. Mais, un trop grand the number of features can hinder the learning process by introducing noise and increasing model complexity
+% Intro NLP
+Pour répondre à ce problème, nous nous sommes intéressés à des approches issues du traitement automatique du langage naturel (NLP), traditionnellement utilisées pour des tâches telles que la traduction automatique, la classification de documents, la détection d’intention ou encore la reconnaissance d’entités nommées. Dans ces applications, les modèles sont entraînés à apprendre une représentation sémantique des données textuelles, sous la forme d’un espace latent structuré dans lequel une proximité géométrique reflète une proximité sémantique. Dans ce travail, nous cherchons à exploiter directement la structure de l’espace latent afin d’associer à n’importe quel paramètre une représentation vectorielle pertinente.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\linewidth]{figures/chapter3/pca_simple.png}
+    \caption{Projection en deux dimensions d’un espace latent représentant un vocabulaire anglais, obtenue par analyse en composantes principales (PCA).}
+    \label{fig:pca_simple}
+\end{figure}
+
+% PCA T-SNE
+Pour évaluer la qualité de cette structuration, deux approches complémentaires sont généralement utilisées et reposent sur une interprétation humaine. La première consiste à examiner, au cas par cas, les voisins les plus proches d’un mot donné dans l’espace d’embedding. La seconde consiste à projeter cet espace de haute dimension dans un espace à deux dimensions afin d’en permettre une visualisation globale. Les méthodes les plus couramment utilisées pour cela sont la PCA et le t-SNE, qui représentent respectivement une projection linéaire conservant la structure globale, et une projection stochastique visant à préserver les similarités locales. La figure \ref{fig:pca_simple} illustre un exemple de projection PCA d’un vocabulaire générique encodé avec FastText que nous allons présenter ensuite.
+
+% One Hot
+Nous notre but c'est de pouvoir encoder des mots individuellement. Pour ça la méthode la plus simple c'est de faire du one-hot encoding, c'est à dire d'associer à chaque mot à une dimension d'un vecteur. Chaque mot est donc représenté par un vecteur orthogonal. Le fait d'avoir des embeddings unique à chaque mot laisse au GNN suivant la responsabilité de leur donner de la sémantique. Un inconvénient c'est on part de 0 et on pourrait réfléchir à donner un petit coup de pouce au GNN en donnant un peu de base sémantique aux paramètres avec du NLP. L'autre inconvénient majeur est que pour avoir des vecteurs orthogonaux il faut que la dimension de l'espace d'embedding égale à la taille du vocabulaire.
+
+% Hashing Trick
+Afin de pallier ce problème, des techniques comme le hashing trick projettent les termes dans un espace de dimension fixe à l’aide d’une fonction de hachage. Cette approche permet de contrôler la taille des représentations indépendamment du vocabulaire, mais introduit des collisions. Ainsi, plusieurs termes distincts peuvent obtenir des encodages similaires, ce qui peut induire des proximités artificielles dans l’espace vectoriel. Le hashing trick et le one-hot encoding ont l’avantage d’être simples et rapides à grande échelle, mais ne capturent pas la dimension sémantique des mots qu'ils encodent.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\linewidth]{figures/chapter3/word2vec.png}
+    \caption{Illustration de l'architecture de Word2Vec à travers les modèles Continuous Bag of Words (CBOW) et Skip-Gram, appliqués au mot cible \textit{lie} dans la phrase \textit{The biggest lie ever told}.}
+    \label{fig:word2vec}
+\end{figure}
+
+% Word2Vec 
+Les approches de deep learning permettent justement d’apprendre la sémantique des mots à partir de leur contexte d’utilisation. L’idée principale est qu’un mot peut être compris en observant les mots qui l’entourent dans une phrase ou un corpus. C'est ce que fait Word2Vec\cite{word2vec} qui est constitué de deux modèles qu'il entraine en parallèle, un Continuous BoW (CBOW) qui vise à prédire un mot à partir de son contexte et un Skip-Gram qui, de façon symétrique, vise à prédire les mots du contexte en connaissant un mot en entrée. 
+
+% GloVe
+Néanmoins, comme il apprend sur des fenêtres de contexte locales, Word2Vec ne dispose pas d’une vision globale du corpus. Cette limitation est adressée par GloVe (Global Vectors for Word Representation) \cite{glove}, qui apprend à minimiser la distance entre le produit scalaire de deux vecteurs et le logarithme de leur fréquence de co-occurrence dans le corpus. Cependant, GloVe présente des limites dans le cas de langues à morphologie riche, ainsi que pour les mots rares.
+
+% FastText
+FastText \cite{fasttext} est justement une extension de Word2Vec qui cherche à découper un mot en sous-unités morphologiques. Contrairement à ce Word2vec, FastText ne considère pas un mot comme une entité atomique, mais le représente comme un ensemble de \textit{n-grammes} de caractères. Cette segmentation permet de partager des informations entre mots présentant des structures similaires. Dans notre cas, cela permet par exemple de décomposer \textit{servingNfId} en plusieurs sous-unités telles que \textit{serving}, \textit{Nf} et \textit{Id}. Chacun de ces segments peut alors porter une information sémantique propre et être réutilisé pour représenter d’autres paramètres partageant des sous-parties communes. Cependant, une limite importante de cette approche réside dans le caractère statique des embeddings. Chaque mot et n-gramme possède une représentation fixe, indépendante du contexte dans lequel il apparaît.
+
+% GPT & BERT
+Or, un mot peut être polysémique et donc avoir une sémantique variable en fonction de son contexte d’apparition. Afin de prendre en compte cette ambiguïté sémantique, on a vu l'arrivée de travaux utilisant des architectures de type Transformer, qui permettent d’apprendre des représentations contextuelles dynamiques. Ces modèles, tels que GPT \cite{gpt} et BERT \cite{bert}, utilisent des mécanismes d’attention pour modéliser les dépendances à long terme dans les séquences de texte, ce qui améliore significativement la qualité des représentations apprises. Le premier est basé sur un décodeur qui va analyser le contexte historique d'un mot pour prédire sa suite tandis que le second va prendre le contexte bidirectionnel et sera plus adapté à des tâches de compréhension du langage. Ces modèles sont la plupart du temps pré-entraînés sur de très grands corpus de texte, puis peuvent être adaptés à des tâches spécifiques par le biais d’une phase de fine-tuning. Cependant, leur complexité et leurs besoins en ressources computationnelles sont considérablement plus élevés que les modèles précédents.
+
+% Conclusion
+Parmi les approches proposées, GPT, BERT et leurs variantes respectives figurent parmi les modèles obtenant généralement les meilleures performances. Néanmoins, il convient de souligner que ces architectures ont été conçues pour des données textuelles naturelles et reposent sur des hypothèses implicites liées à la structure du langage humain. Dans le cadre de ce travail, le contexte considéré est sensiblement différent. Le vocabulaire manipulé est très spécifique, parfois constitué d’identifiants ou de chaînes non lexicalisées, et les paquets qui les contiennent diffèrent fortement de la structure d’une phrase naturelle. Dès lors, l’utilisation directe de modèles aussi complexes peut s’avérer disproportionnée au regard de la nature des données. Il apparaît donc nécessaire d’évaluer dans quelle mesure ces architectures peuvent être adaptées à ce type de données, et d’identifier les modèles offrant le meilleur compromis entre expressivité, robustesse et coût computationnel dans un contexte aussi spécifique.
+
+\subsection{Avantages, limites et opportunités d'application}
+
+Le fait d’obtenir une proximité géométrique entre des éléments présentant une similarité sémantique constitue une propriété particulièrement intéressante dans notre contexte. En effet, de nombreux paramètres présentent une forte redondance lexicale ou fonctionnelle, comme \textit{servingNfId} et \textit{nf-id}. Ces paramètres peuvent ainsi être associés à des représentations proches dans l’espace latent, ce qui contribue à réduire la complexité du vocabulaire. De plus, l’utilisation de techniques issues du traitement automatique du langage naturel (NLP) pour enrichir la représentation sémantique des vecteurs d’arêtes peut fournir une information inductive supplémentaire au GNN, facilitant ainsi l’apprentissage de relations complexes.
+
+.% Néanmoins, cette propriété introduit également une limite importante, dans la mesure où certaines similarités sémantiques ne doivent pas nécessairement se traduire par une proximité dans l’espace de représentation. Par exemple, des paramètres tels que \textit{source-ip} et \textit{destination-ip} jouent des rôles distincts au sein de la structure réseau et doivent être explicitement différenciés afin de permettre la détection d’anomalies topologiques pertinentes. Ca devrait aller 
+
+Pour réaliser l’embedding d’éléments textuels à l’aide de techniques de NLP, deux approches principales peuvent être envisagées. Utiliser direcectement des modèles pré-entraînés ou réaliser un fine-tuning pour l'adapter à notre vocabulaire. Dans notre cas, les paramètres à encoder correspondent davantage à des noms de variables qu’à des mots issus d’un langage naturel. Si un modèle pré-entrainé peut fonctionner pour certains termes proches du langage courant, tels que \textit{address}, il atteint rapidement ses limites pour des identifiants techniques comme \textit{avType} ou \textit{kausf}, ainsi que pour leurs sous-composants, qui ne correspondent pas à des unités lexicales connues. Il devient donc fondamentale de passer par une  phase de fine-tuning.
+
+
+
+% VERIF LES 3 DERNIERES
+Les principaux modèles de NLP apprennent la sémantique des mots à partir de leur contexte au sein de phrases. Or, dans notre cas, nous ne disposons pas naturellement de corpus sous cette forme. Il est toutefois possible de représenter les paquets comme des phrases et les paramètres comme des mots. Toutefois, cette approche reste imparfaite, car elle introduit implicitement une notion d’ordre et de position dans la phrase, qui n’a pas de signification dans notre cas. En effet, l’ordre des paramètres dans un paquet et leur proximité ne portent pas d’information pertinente. 
+
+Dans notre contexte, il est plus pertinent de considérer la compréhension d’un paramètre à travers les autres paramètres présents dans le même paquet, ce qui est précisément ce que permet déjà un GNN via les mécanismes de convolution et d’agrégation topologique. L’apport du NLP serait alors principalement complémentaire, en fournissant une initialisation sémantique aux représentations.
+
+Enfin, la principale difficulté liée à l’utilisation du NLP réside dans l’évaluation de ces représentations, qui n’est pas directement interprétable visuellement en haute dimension. Il sera donc nécessaire de recourir à une phase de validation empirique, qui sera détaillée dans le chapitre suivant.
+
+%(montrer PCA des deux)
+
+% Le fait de faire du NLP permet 1) d'ajouter un peu de sémantique inital et 2) de considérer tous les paramètres. 
+% 1) Mais la sémantique sera déjà gérée par le GNN donc pas forcément utile (et en plus ça peut induire des biais qu'on pourra pas forcément check vu que subjctif et pas de méthode de vérif auto)
+% 2) Sur tous les paramètres y'en a certains qui sont très rares et si on les à tous sans les pondérer d'une certaine manière bah on va se retrouver avec un espace d'embedding très bruité et pas forcément pertinent. 
+
+
+% le probleme surtout c'est que nlp trop semblable gnn, fait le même taff et lui vole le boulot. on se retruve avec des embeddings moins controlés et moins vérifiables qui vont repasser dans une moulinette qui fait la même chose
+
+%(faire l'état des lieux des méthodes de NLP et voir si y'en a pas certaiens qui font pas avec le contexte). REsttester aussi pour voir si le nlp galère vraiment ou pas a faire un embedding space cohérent avec les parametres qu'on a gardé.
+
+% Dans le cadre de la détection d’attaques connues, lorsque l’on souhaite conserver une certaine interprétabilité des résultats, il est possible de se limiter à un sous-ensemble de paramètres jugés pertinents pour identifier les attaques déjà observées. C’est l’approche retenue dans cette thèse.
 
 % !!!! expliquer (quelque part) pourquoi on prend pas la valeur du parametre (noeuds). Parce que soit on a des identifiants leur valeur osef, ce qu'on veut voir c'est leur réutilisation 
 % si on embed nodes ça fait aussi un pb avec les nodes centraux pck on peut pas les encoder comme 0 ou moyenne de tout au risque d'avoir une proximité sémantique artificielle
 
 
-
 % le nombre de noms de paramètres potentiellement observables dans le trafic 5G est extrêmement important, pouvant atteindre plusieurs centaines de milliers de features distinctes. Une approche naïve consisterait à représenter chaque paramètre par un vecteur orthogonal (\textit{one-hot encoding}), mais cela conduirait à des représentations de très grande dimension, peu efficaces en pratique.
 
-
-
-
-% https://www.researchgate.net/profile/Ghazal-Alinezhad-Noghre/publication/361206538_A_Comprehensive_Survey_of_Graph-based_Deep_Learning_Approaches_for_Anomaly_Detection_in_Complex_Distributed_Systems/links/63e3c966c002331f72626977/A-Comprehensive-Survey-of-Graph-based-Deep-Learning-Approaches-for-Anomaly-Detection-in-Complex-Distributed-Systems.pdf 
-% Shallow Embedding, Deep Embedding
 
 % on pourrait du coup donner un embedding initial aux noeuds grâce au nlp mais c'est chiant ausis
 
