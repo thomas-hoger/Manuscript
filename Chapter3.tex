@@ -524,63 +524,33 @@ Or, un mot peut être polysémique et donc avoir une sémantique variable en fon
 % Conclusion
 Parmi les approches proposées, GPT, BERT et leurs variantes respectives figurent parmi les modèles obtenant généralement les meilleures performances. Néanmoins, il convient de souligner que ces architectures ont été conçues pour des données textuelles naturelles et reposent sur des hypothèses implicites liées à la structure du langage humain. Dans le cadre de ce travail, le contexte considéré est sensiblement différent. Le vocabulaire manipulé est très spécifique, parfois constitué d’identifiants ou de chaînes non lexicalisées, et les paquets qui les contiennent diffèrent fortement de la structure d’une phrase naturelle. Dès lors, l’utilisation directe de modèles aussi complexes peut s’avérer disproportionnée au regard de la nature des données. Il apparaît donc nécessaire d’évaluer dans quelle mesure ces architectures peuvent être adaptées à ce type de données, et d’identifier les modèles offrant le meilleur compromis entre expressivité, robustesse et coût computationnel dans un contexte aussi spécifique.
 
-\subsection{Avantages, limites et opportunités d'application}
+\subsection{Avantages et limites}
 
-Le fait d’obtenir une proximité géométrique entre des éléments présentant une similarité sémantique constitue une propriété particulièrement intéressante dans notre contexte. En effet, de nombreux paramètres présentent une forte redondance lexicale ou fonctionnelle, comme \textit{servingNfId} et \textit{nf-id}. Ces paramètres peuvent ainsi être associés à des représentations proches dans l’espace latent, ce qui contribue à réduire la complexité du vocabulaire. De plus, l’utilisation de techniques issues du traitement automatique du langage naturel (NLP) pour enrichir la représentation sémantique des vecteurs d’arêtes peut fournir une information inductive supplémentaire au GNN, facilitant ainsi l’apprentissage de relations complexes.
+Le fait d’obtenir une proximité géométrique entre des éléments présentant une similarité sémantique constitue une propriété particulièrement intéressante dans notre contexte. En effet, de nombreux paramètres présentent une forte redondance lexicale ou fonctionnelle, comme \textit{servingNfId} et \textit{nf-id}. Ces paramètres peuvent ainsi être associés à des représentations proches dans l’espace latent, ce qui contribue à réduire la complexité du vocabulaire. De plus, l’utilisation de techniques de NLP pour enrichir la représentation sémantique des vecteurs d’arêtes peut fournir une information de départ supplémentaire au GNN, facilitant ainsi l’apprentissage de relations complexes.
 
-.% Néanmoins, cette propriété introduit également une limite importante, dans la mesure où certaines similarités sémantiques ne doivent pas nécessairement se traduire par une proximité dans l’espace de représentation. Par exemple, des paramètres tels que \textit{source-ip} et \textit{destination-ip} jouent des rôles distincts au sein de la structure réseau et doivent être explicitement différenciés afin de permettre la détection d’anomalies topologiques pertinentes. Ca devrait aller 
+%Néanmoins on a pas envie non plus que les embeddings de termes importants comme \textit{source-ip} et \textit{destination-ip}  soient confondus. jouent des rôles distincts au sein de la structure réseau et doivent être explicitement différenciés afin de permettre la détection d’anomalies topologiques pertinentes. Ca devrait aller parce que même si ils serotn proche sur une dimension y'aura forcément une autre où ils seront loin.  En plus y'a les embeddings positionnels dans les Transformers. Comme les parametres sont toujours dans le même ordre ça les discriminera + 
 
-Pour réaliser l’embedding d’éléments textuels à l’aide de techniques de NLP, deux approches principales peuvent être envisagées. Utiliser direcectement des modèles pré-entraînés ou réaliser un fine-tuning pour l'adapter à notre vocabulaire. Dans notre cas, les paramètres à encoder correspondent davantage à des noms de variables qu’à des mots issus d’un langage naturel. Si un modèle pré-entrainé peut fonctionner pour certains termes proches du langage courant, tels que \textit{address}, il atteint rapidement ses limites pour des identifiants techniques comme \textit{avType} ou \textit{kausf}, ainsi que pour leurs sous-composants, qui ne correspondent pas à des unités lexicales connues. Il devient donc fondamentale de passer par une  phase de fine-tuning.
+Néanmoins, plusieurs limites apparaissent dans ce cadre. Pour réaliser l’embedding d’éléments textuels par NLP, il est possible soit d’utiliser directement des modèles pré-entraînés, soit de recourir à un fine-tuning afin de les adapter au vocabulaire spécifique du domaine. Dans notre cas, les paramètres à encoder s’apparentent davantage à des noms de variables qu’à des tokens issus du langage naturel. Par exemple, certains termes tels que \textit{address} peuvent être correctement interprétés par les modèles, tandis que des identifiants techniques comme \textit{avType} ou \textit{kausf}, y compris leurs sous-unités, ne correspondent pas à des unités lexicales courantes.
 
+Dans ce contexte, le recours à une phase de fine-tuning apparaît nécessaire. Celle-ci consiste à fournir au modèle des exemples de phrases afin d’apprendre la sémantique des tokens à partir de leur contexte d’occurrence. Toutefois, dans notre cas, les données que l'on extrait des paquets ne sont pas naturellement structurées sous forme de phrases. La solution que nous considérons est donc de représenter chaque paquet comme une phrase en concaténant ses différents paramètres. Cette approche demeure cependant imparfaite, car elle introduit implicitement une notion d’ordre et de position dans la séquence, laquelle n’a pas de signification intrinsèque dans notre problématique. La méthode proposée de conversion d'un paquet en phrase utilisé ensuite pour l'apprentissage est détaillée dans la sous-section suivante.
 
+Que ce soit pour FastText, GPT ou BERT, l'ordre des mots dans une phrase est généralement centrale dans les mécanismes d’apprentissage. Il est donc difficile de prédire dans quelle mesure ces modèles parviendront à capturer efficacement la sémantique de notre vocabulaire dans un tel contexte. Par conséquent, nous évaluerons empiriquement, dans la section expérimentale présentée au chapitre suivant, les différents types d’embeddings afin d’identifier ceux qui permettent d’améliorer les performances de détection.
 
-% VERIF LES 3 DERNIERES
-Les principaux modèles de NLP apprennent la sémantique des mots à partir de leur contexte au sein de phrases. Or, dans notre cas, nous ne disposons pas naturellement de corpus sous cette forme. Il est toutefois possible de représenter les paquets comme des phrases et les paramètres comme des mots. Toutefois, cette approche reste imparfaite, car elle introduit implicitement une notion d’ordre et de position dans la phrase, qui n’a pas de signification dans notre cas. En effet, l’ordre des paramètres dans un paquet et leur proximité ne portent pas d’information pertinente. 
+\subsection{Mise en place de l'encodage sémantique}
 
-Dans notre contexte, il est plus pertinent de considérer la compréhension d’un paramètre à travers les autres paramètres présents dans le même paquet, ce qui est précisément ce que permet déjà un GNN via les mécanismes de convolution et d’agrégation topologique. L’apport du NLP serait alors principalement complémentaire, en fournissant une initialisation sémantique aux représentations.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\linewidth]{figures/chapter3/nlp_process.png}
+    \caption{placeholder}
+    \label{fig:nlp_process}
+\end{figure}
 
-Enfin, la principale difficulté liée à l’utilisation du NLP réside dans l’évaluation de ces représentations, qui n’est pas directement interprétable visuellement en haute dimension. Il sera donc nécessaire de recourir à une phase de validation empirique, qui sera détaillée dans le chapitre suivant.
+La figure \ref{fig:nlp_process} présente comment on applique le NLP à notre problème pour récupérer un embedding associé à un mot. Tout d'abord on va aller voir le fichier json qui contient les données qu'on a extrait des paquets et on va transformer ces paquets en représentation lexicographiques pouvant être donnée à un modèle de NLP, une phrase. Pour ça on commence par nettoyer les chaines en enlevant les caractères comme les tirets et les points au sein des mots. ensuite on va concaténer ces mots entre eux, séparés par des espaces. on va par contre séparé les infos en plusieurs phrase différentes selon le type de couche où on récupére l'info. pour les protocole on va donner le nom dans la phrase pour ajouter du contexte aux mots. on va donc avoir une phrase pour les infos générales comme les addresses puis une phrase par protocole. le modèle va quand même considérer le paquet, donc les plusieurs phrases comme un ensemble mais il va aussi prendre en compte la séparation entre les phrases. 
 
-%(montrer PCA des deux)
+Ensuite comme pour du NLP classique on va appliquer des tokenization qui vont essayer de récupérer des mots déjà connus et si ils les trouvent pas ils essaient de découper le mot en sous-unité. Sur la figure on voit notamment que \textit{requester} est découpé en \textit{request} et \textit{##er}, le second signalé comme un suffixe grâce aux signes dièse. Pareil on voit que le terme de \textit{nf} étant inconnu, le tokenizer le découpe en \textit{n} et \textit{##f}. 
 
-% Le fait de faire du NLP permet 1) d'ajouter un peu de sémantique inital et 2) de considérer tous les paramètres. 
-% 1) Mais la sémantique sera déjà gérée par le GNN donc pas forcément utile (et en plus ça peut induire des biais qu'on pourra pas forcément check vu que subjctif et pas de méthode de vérif auto)
-% 2) Sur tous les paramètres y'en a certains qui sont très rares et si on les à tous sans les pondérer d'une certaine manière bah on va se retrouver avec un espace d'embedding très bruité et pas forcément pertinent. 
+Ces tokens sont ensuite transformés en token ids qui peuvent être traités par un modèle.  Ce dernier va retourner des vecteurs, par exemple de taille [768] pour BERT qui représenteront chaque token. Comme on a souvent plusieurs tokens par mots on va vouloir les aggréger et pour ça le plus simple c'est de faire une moyenne des embeddings des tokens d'un mot. 
 
-
-% le probleme surtout c'est que nlp trop semblable gnn, fait le même taff et lui vole le boulot. on se retruve avec des embeddings moins controlés et moins vérifiables qui vont repasser dans une moulinette qui fait la même chose
-
-%(faire l'état des lieux des méthodes de NLP et voir si y'en a pas certaiens qui font pas avec le contexte). REsttester aussi pour voir si le nlp galère vraiment ou pas a faire un embedding space cohérent avec les parametres qu'on a gardé.
-
-% Dans le cadre de la détection d’attaques connues, lorsque l’on souhaite conserver une certaine interprétabilité des résultats, il est possible de se limiter à un sous-ensemble de paramètres jugés pertinents pour identifier les attaques déjà observées. C’est l’approche retenue dans cette thèse.
-
-% !!!! expliquer (quelque part) pourquoi on prend pas la valeur du parametre (noeuds). Parce que soit on a des identifiants leur valeur osef, ce qu'on veut voir c'est leur réutilisation 
-% si on embed nodes ça fait aussi un pb avec les nodes centraux pck on peut pas les encoder comme 0 ou moyenne de tout au risque d'avoir une proximité sémantique artificielle
-
-
-% le nombre de noms de paramètres potentiellement observables dans le trafic 5G est extrêmement important, pouvant atteindre plusieurs centaines de milliers de features distinctes. Une approche naïve consisterait à représenter chaque paramètre par un vecteur orthogonal (\textit{one-hot encoding}), mais cela conduirait à des représentations de très grande dimension, peu efficaces en pratique.
-
-
-% on pourrait du coup donner un embedding initial aux noeuds grâce au nlp mais c'est chiant ausis
-
-% photo bert téléchargement + regarder slides nlp
-
-% si on veut pouvoir considérer tous les paramètres possibles d'un paquet on se retrouve avec un nombre gigantesque de features. Plus ce nombre de feature est grand plus ça va ralentir l'apprentissage ET si on a pas implémenté une feature on a moins de messages possible et donc de features donc ce nombre de feature n'est pas non plus constant entre les implémentations et leurs versions. 
-% y'a aussi beaucoup de redondance entre features par exemple entre ... mais aussi des nuances sémantiques comme .. 
-% ces features doivent etre encodées pour être traiter par des modèles d'apprentissage profond et si on 
-
-
-% ce qui serait bien ça serait donc de pouvoir traiter une quantité indénombrable de features et de ne pas se limiter à un nombre fini de features préalablement définies.
-% on a aussi un autre problème notamment avec 
-% (Hétérogénéité d’opérateur = différents vocabulaire → nombre de variable indénombrable)
-
-% We could encode each parameter name as orthogonal vectors mais y'a 2 problèmes si on le fait directement sur nos données actuelles, Premièrement la valeur des features qu'on a n'est pas homogène. Ainsi comme on se retrouve vite avec beaucoup 
-
-% ensuite on a beaucoup de redondance entre certains paramètres par exemple IMSI et SUCI qui sont deux formats différents d'un même identifiant utilisateur, ces redondances on augmente d'autant plus l'espace que prennent . 
-
-% Le problème c'est qu'on a un nombre indénombrable de paramètres potentiels, premièrement à cause de l'utilisation d'appels d'API car un attaquant peut injecter des paquets contenants des paramètres arbitraires qu'il faut tout de même encoder.
-
-% le nombre de noms de paramètres potentiellement observables dans le trafic 5G est extrêmement important, pouvant atteindre plusieurs centaines de milliers de features distinctes. Une approche naïve consisterait à représenter chaque paramètre par un vecteur orthogonal (\textit{one-hot encoding}), mais cela conduirait à des représentations de très grande dimension, peu efficaces en pratique.
 
 \subsection{Sélection et encodage des features}
 % Le fait de conserver dans le graph toutes les features extraites soulève tout de même plusieurs problématiques. Tout d’abord, le nombre de features extraites est particulièrement élevé. Dans nos données, un paquet contient en moyenne 18 features, ce qui représente déjà une quantité importante d’information à traiter. De plus, dans les données générées, certains paquets peuvent ainsi contenir jusqu’à 200 features différentes ce qui augmente significativement la complexité des graphes générés.
