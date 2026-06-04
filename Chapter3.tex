@@ -476,12 +476,12 @@ EGAT\cite{egat} propose de donner plus d'importance à l’information portée p
 
 Ces différentes approches montrent que plusieurs extensions de la formalisation initiale sont envisageables. Néanmoins, bien qu’elles présentent des avantages évidents, elles soulèvent des problèmes structurels et computationnels qui empêchent leur intégration à notre formalisation.
 
-\section{Encodage des paramètres de dimension non-fini}
+\section{Encodage des paramètres de dimension non-fini via NLP}
 
 % Intro encodage
 Comme mentionné dans la section relative à la construction des messages, il est nécessaire d’encoder les informations contenues dans les arcs. Les paquets réseaux 5G comportent un très grand nombre de paramètres, ce qui conduit à un espace d’entrée de très grande dimension. Dans le cadre d’une approche de détection de type \textit{zero-day} basée sur l’apprentissage non supervisé, il est essentiel de pouvoir représenter l’ensemble des attributs potentiellement observables, dans la mesure où il est impossible d’anticiper a priori lesquels pourront être exploités par de futures attaques. Cette situation implique la manipulation d’un espace de représentation de très grande dimension, susceptible d’entraîner le phénomène de la \textit{malédiction de la dimensionnalité (curse of dimensionality)}, qui se caractérise par une dégradation de la généralisabilité lorsque la dimension de l'entrée est trop grande. Par conséquent, il est nécessaire de réduire la dimension de cet espace d'entrée afin de le rendre exploitable par les modèles d’apprentissage GNN mentionnés précédemment. 
 
-\section{Techniques de Traitement du Langage Naturel (NLP)}
+\subsection{Tour d'horizon des techniques de NLP}
 
 % Intro NLP
 Pour répondre à ce problème, nous nous sommes intéressés à des approches issues du traitement automatique du langage naturel (NLP), traditionnellement utilisées pour des tâches telles que la traduction automatique, la classification de documents, la détection d’intention ou encore la reconnaissance d’entités nommées. Dans ces applications, les modèles sont entraînés à apprendre une représentation sémantique des données textuelles, sous la forme d’un espace latent structuré dans lequel une proximité géométrique reflète une proximité sémantique. Dans ce travail, nous cherchons à exploiter directement la structure de l’espace latent afin d’associer à n’importe quel paramètre une représentation vectorielle pertinente.
@@ -524,6 +524,21 @@ Or, un mot peut être polysémique et donc avoir une sémantique variable en fon
 % Conclusion
 Parmi les approches proposées, GPT, BERT et leurs variantes respectives figurent parmi les modèles obtenant généralement les meilleures performances. Néanmoins, il convient de souligner que ces architectures ont été conçues pour des données textuelles naturelles et reposent sur des hypothèses implicites liées à la structure du langage humain. Dans le cadre de ce travail, le contexte considéré est sensiblement différent. Le vocabulaire manipulé est très spécifique, parfois constitué d’identifiants ou de chaînes non lexicalisées, et les paquets qui les contiennent diffèrent fortement de la structure d’une phrase naturelle. Dès lors, l’utilisation directe de modèles aussi complexes peut s’avérer disproportionnée au regard de la nature des données. Il apparaît donc nécessaire d’évaluer dans quelle mesure ces architectures peuvent être adaptées à ce type de données, et d’identifier les modèles offrant le meilleur compromis entre expressivité, robustesse et coût computationnel dans un contexte aussi spécifique.
 
+\subsection{Mise en place de l'encodage sémantique}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\linewidth]{figures/chapter3/nlp_process.png}
+    \caption{placeholder}
+    \label{fig:nlp_process}
+\end{figure}
+
+La figure \ref{fig:nlp_process} illustre le processus d’application du NLP à notre problème afin d’obtenir des embeddings associés aux mots. Dans un premier temps, nous exploitons le fichier JSON contenant les données extraites des paquets, que nous transformons en phrases. Pour cela, les chaînes de caractères sont nettoyées en supprimant certains caractères spéciaux, tels que les tirets ou les points lorsqu’ils apparaissent à l’intérieur des mots. Pour chaque couche du paquet, une phrase distincte est construite, et le nom du protocole est explicitement ajouté afin d’enrichir le contexte lexical. Le modèle considère ainsi l’ensemble du paquet comme une unité globale, tout en tirant parti de la séparation entre les phrases pour structurer l’information.
+
+Ensuite, comme dans un pipeline NLP classique, une étape de tokenisation est appliquée. Celle-ci consiste à identifier des mots connus dans le vocabulaire et, lorsqu’un mot n’est pas reconnu, à le décomposer en sous-unités. Comme illustré sur la figure, le mot \textit{requester} est par exemple segmenté en \textit{request} et \textit{\#\#er}, ce dernier étant marqué comme suffixe par la présence des dièses. De même, le terme \textit{nf}, inconnu du vocabulaire, est décomposé en \textit{n} et \textit{\#\#f}.
+
+Les tokens obtenus sont ensuite convertis en identifiants (token IDs), qui sont fournis au modèle. Celui-ci produit en sortie des vecteurs d’embeddings, représentant chaque token. Comme un mot peut être composé de plusieurs tokens, il est nécessaire d’agréger ces représentations. La méthode la plus simple consiste à effectuer la moyenne des embeddings des tokens associés à un même mot.
+
 \subsection{Avantages et limites}
 
 Le fait d’obtenir une proximité géométrique entre des éléments présentant une similarité sémantique constitue une propriété particulièrement intéressante dans notre contexte. En effet, de nombreux paramètres présentent une forte redondance lexicale ou fonctionnelle, comme \textit{servingNfId} et \textit{nf-id}. Ces paramètres peuvent ainsi être associés à des représentations proches dans l’espace latent, ce qui contribue à réduire la complexité du vocabulaire. De plus, l’utilisation de techniques de NLP pour enrichir la représentation sémantique des vecteurs d’arêtes peut fournir une information de départ supplémentaire au GNN, facilitant ainsi l’apprentissage de relations complexes.
@@ -536,35 +551,12 @@ Dans ce contexte, le recours à une phase de fine-tuning apparaît nécessaire. 
 
 Que ce soit pour FastText, GPT ou BERT, l'ordre des mots dans une phrase est généralement centrale dans les mécanismes d’apprentissage. Il est donc difficile de prédire dans quelle mesure ces modèles parviendront à capturer efficacement la sémantique de notre vocabulaire dans un tel contexte. Par conséquent, nous évaluerons empiriquement, dans la section expérimentale présentée au chapitre suivant, les différents types d’embeddings afin d’identifier ceux qui permettent d’améliorer les performances de détection.
 
-\subsection{Mise en place de l'encodage sémantique}
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=\linewidth]{figures/chapter3/nlp_process.png}
-    \caption{placeholder}
-    \label{fig:nlp_process}
-\end{figure}
-
-La figure \ref{fig:nlp_process} présente comment on applique le NLP à notre problème pour récupérer un embedding associé à un mot. Tout d'abord on va aller voir le fichier json qui contient les données qu'on a extrait des paquets et on va transformer ces paquets en représentation lexicographiques pouvant être donnée à un modèle de NLP, une phrase. Pour ça on commence par nettoyer les chaines en enlevant les caractères comme les tirets et les points au sein des mots. ensuite on va concaténer ces mots entre eux, séparés par des espaces. on va par contre séparé les infos en plusieurs phrase différentes selon le type de couche où on récupére l'info. pour les protocole on va donner le nom dans la phrase pour ajouter du contexte aux mots. on va donc avoir une phrase pour les infos générales comme les addresses puis une phrase par protocole. le modèle va quand même considérer le paquet, donc les plusieurs phrases comme un ensemble mais il va aussi prendre en compte la séparation entre les phrases. 
-
-Ensuite comme pour du NLP classique on va appliquer des tokenization qui vont essayer de récupérer des mots déjà connus et si ils les trouvent pas ils essaient de découper le mot en sous-unité. Sur la figure on voit notamment que \textit{requester} est découpé en \textit{request} et \textit{##er}, le second signalé comme un suffixe grâce aux signes dièse. Pareil on voit que le terme de \textit{nf} étant inconnu, le tokenizer le découpe en \textit{n} et \textit{##f}. 
-
-Ces tokens sont ensuite transformés en token ids qui peuvent être traités par un modèle.  Ce dernier va retourner des vecteurs, par exemple de taille [768] pour BERT qui représenteront chaque token. Comme on a souvent plusieurs tokens par mots on va vouloir les aggréger et pour ça le plus simple c'est de faire une moyenne des embeddings des tokens d'un mot. 
-
-
-\subsection{Sélection et encodage des features}
-% Le fait de conserver dans le graph toutes les features extraites soulève tout de même plusieurs problématiques. Tout d’abord, le nombre de features extraites est particulièrement élevé. Dans nos données, un paquet contient en moyenne 18 features, ce qui représente déjà une quantité importante d’information à traiter. De plus, dans les données générées, certains paquets peuvent ainsi contenir jusqu’à 200 features différentes ce qui augmente significativement la complexité des graphes générés.
-
-
-% Le deuxième problème est que parmi tout ce vocabulaire très riche y a beaucoup de paramètres qui ont une très forte corrélation sémantique. On se retrouve au final avec des paramètres  comme les IMSI et le SUCI qui désignent la même chose sur des formats différents. De fait, dans nos paramètres y'en a beaucoup qu'on pourrait regrouper et ainsi réduire la complexité de nos graphs
-
-% Le truc c'est qu'au final dans ces paramètres ils ont pas toutes les mêmes importances pour la détection. Par exemple l'endpoint d'api à beaucoup plus d'impact que le débit de transmission. 
-
-% Deep packet analysis requires parsing packets in order to extract attributes from the application layers. The IP layer is used to identify communicating entities. For each application layer, we search for a predefined set of 20 attributes. These attributes only represent a fraction of the existing ones as many of the other ones are redundant or carry limited security-relevant information. Moreover, increasing the number of features can hinder the learning process by introducing noise and increasing model complexity. The selected features are chosen to be directly aligned with the considered threat model, as they capture protocol fields and interaction attributes that are explicitly exploited or manipulated by known attacks. Among these features, we consider for instance the method and path api calls, session identifiers for PFCP, as well as the nested IP addresses carried by the intermediate IP layer encapsulated within GTP. Moreover, this feature set can be easily extended by a human operator at deployment time, based on their expertise, either by adding generally suspicious features or by incorporating features corresponding to entirely novel attack patterns. The complete list of selected features is available in our GitHub repository \cite{anomaly_detect}.
-
-% In order to be processed by deep learning models, they features need to be encoded. Since we currently have only a small number of features, a simple one-hot encoding is sufficient. However, if the number of features were to increase in the future, it could be worthwhile to explore Natural Language Processing (NLP) inspired encoding methods such as Glove\cite{glove} or BERT \cite{bert}. These methods generate embeddings such that semantically similar features are mapped to nearby vectors, which could facilitate faster convergence during the initial training epochs.
-
 \section{Conclusion}
+Nous avons vu dans ce chapitre qu’il est possible de réaliser de la détection d’anomalies en mode non supervisé, notamment à l’aide de GNNs reposant sur des tâches de reconstruction ou de prédiction de liens, en exploitant des arêtes positives et négatives. À première vue, cette approche non supervisée peut sembler plus intéressante, car elle permet théoriquement de détecter des attaques de type zero-day. Cependant, sa mise en œuvre est complexe pour plusieurs raisons. Tout d’abord, les approches de reconstruction ou de link prediction semi-supervisé nécessitent un équilibre délicat entre les différents types d’arêtes, notamment les arêtes négatives, ce qui rend l’entraînement difficile à stabiliser. Par ailleurs, une approche non supervisée implique souvent de considérer l’ensemble des caractéristiques d’un paquet, y compris celles qui ne sont pas pertinentes pour les attaques ciblées, ce qui introduit un bruit important dans les données. Ce bruit peut être partiellement réduit à l’aide de techniques issues du NLP, mais ces dernières introduisent elles-mêmes une incertitude supplémentaire, leur évaluation restant difficile à isoler du reste du modèle.
+
+En comparaison, l’apprentissage supervisé présente certains avantages. Bien qu’il soit limité aux attaques connues, il est généralement plus simple à entraîner et à stabiliser. De plus, lorsque l’ensemble des attaques à détecter est défini à l’avance, il est possible de sélectionner un sous-ensemble de paramètres pertinents, réduisant ainsi la dimension du problème. En pratique, cette réduction de complexité contribue souvent à de meilleures performances. Dans notre cas, l’objectif ne se limite pas à la détection et inclut également l'interprétabilité. Comme l’approche supervisée reste explicable à travers notre formalisme, elle constitue également une piste tout à fait envisageable.
+
+Comme il existe plusieurs méthodes, chacune présentant ses avantages, nous proposons dans le chapitre suivant une analyse empirique afin d’évaluer les résultats de ces différents modèles.
 
 \ifdefined\included
 \else
