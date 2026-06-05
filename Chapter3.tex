@@ -8,6 +8,7 @@
 \providecommand{\dominitoc}{}
 \providecommand{\faketableofcontents}{}
 \usepackage{subcaption}
+\usepackage{multirow}
 \hbadness=10000
 \sloppy
 
@@ -80,7 +81,14 @@ Après avoir présenté les limites des approches traditionnelles de détection 
 % Spécifique 5G
 Parmi les travaux de détection spécifiques à la 5G, Kale et al. \cite{ensemble} proposent d’utiliser des réseaux de neurones convolutionnels (CNN) en considérant les octets d’un paquet comme une image sur laquelle sont ensuite étudiées des variations structurelles. Les modèles CNN obtiennent de très bonnes performances dans de nombreux domaines, y compris dans des tâches qui ne relèvent pas intrinsèquement de la vision par ordinateur. Toutefois, comme ils n’interprètent pas le contenu des données, leur capacité de détection se limite à un sous-ensemble d’attaques sémantiques dans lesquelles les valeurs s’écartent fortement du trafic normal. Ils ne permettent donc pas de détecter des variations légères de valeurs d'identifiants comme les adresses IP ou les IMSI. De plus, le travail présenté par Kale et al. se concentre uniquement sur la détection sémantique et ne prend pas en compte le contexte des échanges. Lam et al. \cite{cnn} ajoutent un contexte temporel à leur CNN en alimentant ses sorties dans un réseau de neurones récurrent (RNN). Cependant, en plus de ne pas être satisfaisant sur le domaine sémantique, leur modèle ne prend pas en compte l’identité des acteurs impliqués dans les échanges et n’est donc pas capable de détecter des attaques relationnelles.
 
-AutoGuard \cite{autoguard} et ADSeq-5GCN \cite{adseq} modélisent les échanges réseau sous forme de séquences d’interactions entre entités du réseau et utilisent également des RNN afin de capturer les dépendances temporelles. Leurs approches intègrent l’identité des entités communicantes, ce qui leur permet de prendre en compte, dans une certaine mesure, le contexte topologique des interactions. Cependant, elles rencontrent des difficultés à modéliser efficacement les dépendances relationnelles lorsque les interactions sont éloignées dans le temps. De plus, le principal problème est que leur formalisme n’intègre pas le contenu des paquets et ne considère donc aucunement la dimension sémantique. 5GCGuard \cite{5GCGuard} tente de pallier cette limitation en enrichissant leurs séquences par l’intégration de l’URL associée à chaque message. Bien qu'elle apporte une information sémantique supplémentaire, cette approche demeure très limitée car l’information propre à l'URL ne représente qu’une fraction du contenu réel des paquets et n'est applicables qu'au traffic HTTP.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\linewidth]{figures/chapter3/adseq.png}
+    \caption{Représentation d'une séquence d'événement bénins entre différentes entitées tel que présenté par ADSeq-5GCN \cite{adseq}.}
+    \label{fig:adseq}
+\end{figure}
+
+AutoGuard \cite{autoguard} et ADSeq-5GCN \cite{adseq} modélisent les échanges réseau sous forme de séquences d’interactions entre entités du réseau tel que représenté sur figure \ref{fig:adseq}. Ces modèles utilisent ensuite des RNN afin de capturer les dépendances temporelles et prédire les interactions futures. Leurs approches intègrent l’identité des entités communicantes, ce qui leur permet de prendre en compte, dans une certaine mesure, le contexte topologique des interactions. Cependant, elles rencontrent des difficultés à modéliser efficacement les dépendances relationnelles lorsque les interactions sont éloignées dans le temps. De plus, le principal problème est que leur formalisme n’intègre pas le contenu des paquets et ne considère donc aucunement la dimension sémantique. 5GCGuard \cite{5GCGuard} tente de pallier cette limitation en enrichissant leurs séquences par l’intégration de l’URL associée à chaque message. Bien qu'elle apporte une information sémantique supplémentaire, cette approche demeure très limitée car l’information propre à l'URL ne représente qu’une fraction du contenu réel des paquets et n'est applicables qu'au traffic HTTP.
 
 \begin{figure}[h]
 \centering
@@ -292,26 +300,35 @@ Plus récemment, DyGFormer~\cite{dygformer} simplifie cette approche en se limit
 
 \begin{table}[h]
 \centering
-\begin{tabular}{lcccc}
+\begin{tabular}{llcccc}
 \hline
-\textbf{Modèle} & \textbf{Attention} & \textbf{RNN} & \textbf{Mémoire} & \textbf{Echantillonnage} \\
-\hline
-
-TGAT~\cite{tgat}             & Oui & Non & Non & multi-saut \\ % 
-CAWs~\cite{cawn}             & Oui & Oui & Non & Parcours causal \\ % transductive and inductiv,  link pred
-DyGFormer~\cite{dygformer}   & Oui & Non & Non & 1-hop \\
-GraphMixer~\cite{graphmixer} & Non & Non & Non & 1-hop \\
+& \textbf{Modèle} & \textbf{Attention} & \textbf{RNN} & \textbf{Mémoire} & \textbf{Parcours} \\
 \hline
 
-DyRep~\cite{dyrep}     & Non & Oui & Oui & multi-saut \\
-JODIE~\cite{jodie}     & Non & Oui & Oui & multi-saut \\
-TGN~\cite{tgn}         & Oui & Oui & Oui & multi-saut \\ % transductif + inductif, link pred
+\multirow{4}{*}{\begin{tabular}[c]{@{}c@{}}Temporal\\Embedding\end{tabular}}
+& TGAT~\cite{tgat}             & Oui & Non & Non & multi-saut \\
+
+& CAWs~\cite{cawn}             & Oui & Oui & Non & causal \\
+
+& DyGFormer~\cite{dygformer}   & Oui & Non & Non & 1-hop \\
+
+& GraphMixer~\cite{graphmixer} & Non & Non & Non & 1-hop \\
+
 \hline
 
+\multirow{3}{*}{\begin{tabular}[c]{@{}c@{}}Temporal\\Neighborhood\end{tabular}}
+& DyRep~\cite{dyrep}     & Non & Oui & Oui & multi-saut \\
+
+& JODIE~\cite{jodie}     & Non & Oui & Oui & multi-saut \\
+
+& TGN~\cite{tgn}         & Oui & Oui & Oui & multi-saut \\
+
+\hline
 \end{tabular}
 \caption{Comparaison des principaux modèles de graphes dynamiques en temps continu}
 \label{tab:tg_models}
 \end{table}
+
 
 Une vue d’ensemble de l’apprentissage sur graphes dynamiques est proposée par Feng et al.~\cite{survey_gnn}, qui présentent une synthèse mettant en évidence les différences conceptuelles entre les modèles dynamiques à temps discret et à temps continu, ainsi qu’un benchmark étendu des principales méthodes de ces deux catégories. Le tableau \ref{tab:tg_models} fournit une comparaison synthétique de ces modèles selon leurs mécanismes d’attention, leur utilisation de RNN et de mémoire, ainsi que leur stratégie d’échantillonnage de voisinage.
 
@@ -370,7 +387,7 @@ e_i = (u, v_i, x_i),
 \]
 où $u \in \mathcal{V}_c$ désigne un nœud central, $v_i \in \mathcal{V}_f$ un nœud de paramètre contenant la valeur de ce dernier et $\mathbf{z}_i \in \mathbb{R}^d$ le nom du paramètre contenu dans l’arête. 
 
-Cette formulation nécessite d’adapter les algorithmes classiques utilisés dans les GNN, mais elle permet une représentation beaucoup plus fine, dans laquelle aucune information temporelle n’est perdue. La figure \ref{fig:graph_continu} illustre la transformation d'une forme de graphe statique à celle d'un graphe dynamique continu.
+Cette formulation nécessite d’adapter les algorithmes classiques utilisés dans les GNN, mais elle permet une représentation beaucoup plus fine, dans laquelle aucune information temporelle n’est perdue. La figure \ref{fig:graph_continu} illustre la transformation d'une forme de graphe statique à celle d'un graphe dynamique continu. On observe que, pour les trois paquets, neuf arcs sont générés dans le graphe statique, lesquels se traduisent ensuite en autant d'événements dans le graphe continu.
 
 \subsection{Fonctionnement détaillé des GNN dynamique}
 Dans leurs travaux, TGN \cite{tgn} proposent un cadre de formalisation des GNN dynamiques, permettant de représenter les travaux de l'état de l'art comme des spécifications de leur modèle. Nous nous appuierons sur ce cadre pour présenter et comprendre le fonctionnement d'un GNN dynamique. La figure \ref{fig:tgn} illustre les quatre modules principaux définis par TGN \cite{tgn} : un module de mémoire, un module d’agrégation de messages, un module de mise à jour de la mémoire et un module d’inférence.
