@@ -28,7 +28,7 @@ Pour des raisons de confidentialité, les grands opérateurs de télécommunicat
 
 À notre connaissance, seuls trois travaux se positionnent officiellement comme des datasets 5G publics dédiés à la détection d’anomalies. 5G-NIDD \cite{5g_nidd} considère principalement des attaques génériques au niveau réseau, sans prendre en compte les spécificités des réseaux 5G. PFCP Intrusion Detection Dataset \cite{amponis20235g} propose un large éventail d’attaques ciblant le plan de gestion de session, mais ne détaille pas la génération du trafic légitime. Enfin, 5GAD \cite{5gad} introduit plusieurs attaques visant les interfaces orientées services du CN, mais son trafic normal repose essentiellement sur des activités utilisateur telles que le streaming vidéo ou le téléchargement de fichiers. Ce trafic étant chiffré, il diffère fortement du trafic de contrôle utilisé pour les attaques.
 
-En l’absence de dataset public satisfaisant, les travaux sur la détection d’anomalies doivent généralement produire leurs propres données d’entraînement, souvent privées ou insuffisamment documentées. GSAD \cite{gsad} et ADSeq-5GCN \cite{adseq} proposent plusieurs procédures normales, telles que l’enregistrement et le désenregistrement ou l’établissement de session des UE mais ne couvrent cependant qu’un nombre limité d’attaques. PROV5GC \cite{prov5g} enrichit cette la diversité de trafic légitime avec les changements d’état des UE. Néanmoins, parmi les attaques qu'ils proposent, certaines concernent le slicing et le signalement SMS, pour lesquels il n’introduisent pas d’équivalents légitimes avec lesquels faire contraster leurs attaques. Enfin, 5GCGuard \cite{5GCGuard} est le seul travail à notre connaissant fournissant des outils permettant de reproduire la génération des données. Cependant, seule une version prétraitée de leur dataset généré est publiée, sans accès aux captures brutes originales.
+En l’absence de dataset public satisfaisant, les travaux sur la détection d’anomalies doivent généralement produire leurs propres données d’entraînement, souvent privées ou insuffisamment documentées. GSAD \cite{gsad} et ADSeq-5GCN \cite{adseq} proposent plusieurs procédures normales, telles que l’enregistrement d'UE ou l’établissement de session des UE mais ne couvrent cependant qu’un nombre limité d’attaques. PROV5GC \cite{prov5g} enrichit cette la diversité de trafic légitime avec les changements d’état des UE. Néanmoins, parmi les attaques qu'ils proposent, certaines concernent le slicing et le signalement SMS, pour lesquels il n’introduisent pas d’équivalents légitimes avec lesquels faire contraster leurs attaques. Enfin, 5GCGuard \cite{5GCGuard} est le seul travail à notre connaissant fournissant des outils permettant de reproduire la génération des données. Cependant, seule une version prétraitée de leur dataset généré est publiée, sans accès aux captures brutes originales.
 
 \begin{table*}[ht]
     \centering
@@ -42,7 +42,7 @@ En l’absence de dataset public satisfaisant, les travaux sur la détection d�
             \multirow{2}{*}{\textbf{PCAP}} & 
             \multirow{2}{*}{\textbf{Code}} & 
             \multicolumn{5}{c|}{\textbf{Procédures bénignes}} \\ \cline{4-8}
-            &  &  & (Dé)enregistrement & Gestion de Session & Changement d'état & Gestion de NF & Transmission par UPF \\
+            &  &  & Enregistrement d'UE & Gestion de Session & Changement d'Etat & Gestion de NF & Transmission par UPF \\
             \hline
             5GAD\cite{5gad} & \checkmark & \checkmark &  &  &  &  &  \\
             \hline
@@ -108,21 +108,23 @@ Parmi le trafic de contrôle 5G, les échanges entre entités s’organisent sou
 
 Toutes les procédures ne présentent pas la même fréquence d’utilisation et le standard 5G en définit un très grand nombre, souvent décliné en plusieurs variantes. L’ensemble des procédures présentées dans cette section est décrit dans la spécification 3GPP TS 23.502 \cite{spec_procedures}. En pratique, il est difficile de reproduire exhaustivement l’ensemble de ces comportements, d’autant plus que les implémentations open-source disponibles ne couvrent qu’une partie des fonctionnalités prévues par les spécifications. Nous nous concentrons donc sur un sous-ensemble de procédures sélectionnées en fonction de leur importance opérationnelle et de leur pertinence vis-à-vis des scénarios d’attaque considérés. L’objectif est de disposer d’un trafic légitime suffisamment diversifié tout en garantissant la présence de procédures pouvant être directement mises en contraste avec les attaques incluses dans le dataset.
 
-\begin{figure}[h]
+\begin{figure}[!h]
 \centering
-\includegraphics[width=\linewidth]{figures/chapter4/registration_3gpp.png}
+\includegraphics[width=0.7\linewidth]{figures/chapter4/registration_3gpp.png}
 \caption{Procédure général d'enregistrement tel que proposé dans la TS 23.502 de 3GPP\cite{spec_procedures}.}
 \label{fig:register}
 \end{figure}
 
-\subsubsection{Enregistrement et désenregistrement des UEs}
-Les procédures d’enregistrement et de désenregistrement des UEs constituent les mécanismes les plus couramment utilisés dans l’état de l’art pour générer du trafic légitime. Elles produisent une vingtaine de requêtes réparties entre le RAN et le CN. Ces procédures font intervenir plusieurs protocoles, notamment NGAP, NAS et HTTP/2, ainsi que différentes NF telles que l’AMF, le PCF, le SMF, l’AUSF et l’UDM. Dans le cadre de notre étude, leur principal intérêt réside dans la diversité des messages et des interactions qu’elles génèrent. La Figure~\ref{fig:register}, extraite de la spécification 3GPP, illustre une procédure complète d’enregistrement incluant l’ensemble des étapes optionnelles.
+\subsubsection{Enregistrement des UEs}
+Les procédures d’enregistrement des UEs sont celles les plus couramment utilisés dans l’état de l’art pour générer du trafic légitime. Elles produisent une vingtaine de requêtes réparties entre le RAN et le CN. Ces procédures font intervenir plusieurs protocoles, notamment NGAP, NAS et HTTP/2, ainsi que différentes NF telles que l’AMF, le PCF, le SMF, l’AUSF et l’UDM. Dans le cadre de notre étude, leur principal intérêt réside dans la diversité des messages et des interactions qu’elles génèrent. La Figure~\ref{fig:register}, extraite de la spécification 3GPP, illustre une procédure complète d’enregistrement incluant l’ensemble des étapes optionnelles.
 
 \subsubsection{Changements d’état des UE}
-Dans la même logique que les procédures d’enregistrement et de désenregistrement, PROV5GC \cite{prov5g} propose un trafic légitime fondé sur les transitions d’état des UEs. Lorsqu’un UE demeure inactif pendant une certaine durée, une procédure de \textit{Context Release} est automatiquement déclenchée. Celle-ci génère une séquence de messages entre le RAN et le CN visant à modifier l’état de l’UE du point de vue du CN et ainsi économiser des ressources précédemment allouées. À l’inverse, lorsqu’un UE redevient actif, une procédure de \textit{Service Request} est initiée afin de rétablir son état actif. Ces procédures correspondent à des comportements courants dans les réseaux opérationnels et contribuent à accroître la diversité des messages présents dans le dataset.
+Dans la même logique que les procédures d’enregistrement, PROV5GC \cite{prov5g} propose un trafic légitime fondé sur les transitions d’état des UEs. Lorsqu’un UE demeure inactif pendant une certaine durée, une procédure de \textit{Libération de contexte} est automatiquement déclenchée. Celle-ci génère une séquence de messages entre le RAN et le CN visant à modifier l’état de l’UE du point de vue du CN et ainsi économiser des ressources précédemment allouées. Dans notre cas, ces procédures sont déclenchées manuellement, en envoyant nous-mêmes le message de libération de contexte. Lorsqu’un UE inactif redevient actif, une procédure de \textit{requête de service} est initiée afin de rétablir son état actif. Elle peut être déclenchée soit par la réception d’un message à destination d’un UE inactif, soit, à l’inverse, par l’envoi d’un message depuis ce dernier. Qu’il s’agisse de la libération de contexte ou de la reprise d’activité, ces procédures correspondent à des comportements courants dans les réseaux opérationnels et contribuent à accroître la diversité des messages présents dans le jeu de données.
 
 \subsubsection{Création et libération de session}
-Plusieurs attaques décrites dans l’état de l’art ciblent l’interface N4 reliant le SMF et l’UPF responsable de la gestion des sessions. Parmi les messages concernés figurent notamment les procédures de création et de libération de session, généralement déclenchées respectivement lors de l’enregistrement et du désenregistrement d’un UE. Sur cette interface, les échanges reposent sur le protocole PFCP. Comme certaines attaques \cite{pfcp1} visent précisément les messages PFCP associés à la création ou à la suppression de sessions, il est indispensable d’inclure des exemples légitimes de ces procédures dans le dataset.
+Plusieurs attaques décrites dans l’état de l’art ciblent l’interface N4 reliant le SMF et l’UPF, responsable de la gestion des sessions. Sur cette interface, les échanges reposent sur le protocole PFCP. Parmi les procédures bénignes figurent notamment les procédures de création, de modification et de libération de session. Les procédures d’établissement et de modification de session sont incluses dans la procédure d’enregistrement de l’UE. Toutefois, il est également possible de redémarrer des sessions actives alors que l’UE est déjà enregistré, ce qui permet de considérer cette opération comme une procédure à part entière.
+
+Certaines attaques \cite{pfcp1} ciblant spécifiquement les messages PFCP associés à la création ou à la suppression de sessions, il est indispensable d’inclure des exemples légitimes de ces mêmes procédures dans le jeu de données afin de garantir une couverture réaliste des comportements du réseau.
 
 \subsubsection{Gestion des NF}
 Nous proposons également d’enrichir le trafic légitime disponible dans l’état de l’art par l’ajout de procédures jusqu’alors absentes mais pourtant nécessaires à la détection de certaines attaques. Il s’agit ici de la gestion des NF, à travers la simulation de leur ajout et de leur suppression au sein du CN. Ces opérations se limitent généralement à une unique requête d’API et surviennent naturellement lors du démarrage ou de l’arrêt du réseau. Toutefois, l’architecture du CN 5G étant conçue pour s’adapter dynamiquement aux variations de charge, nous simulons également ces opérations en cours d’exécution tout en garantissant la continuité du service. La manipulation de l’architecture du CN étant exploitée par certaines attaques \cite{5gad}, la présence de trafic légitime associé à ces opérations constitue également une référence nécessaire à leur détection.
@@ -144,17 +146,16 @@ Enfin, nous introduisons une seconde procédure absente des travaux de l’état
             Inondation de libération de session & Amponis et al.\cite{amponis20235g} & SM & Libération de session & Sequentiel \\ \hline
             DoS des sessions par modification & Amponis et al.\cite{amponis20235g} & SM & Modification de session & Sequentiel / Sémantique \\ \hline
             Fuzzing du SEID & Originale & SM & Modification de session & Sequentiel \\ \hline
-            PFCP dans GTP & Park et al.\cite{pfcp_in_gtp} & UP & Tout message GTP & Sémantique \\ \hline
-            Usurpation de trafic montant & Trend Micro\cite{spoof_gtp} & UP & Tout message GTP & Topologique \\ \hline
+            PFCP dans GTP-U & Park et al.\cite{pfcp_in_gtp} & UP & Tout message GTP-U & Sémantique \\ \hline
+            Usurpation de trafic montant & Trend Micro\cite{spoof_gtp} & UP & Tout message GTP-U & Topologique \\ \hline
         \end{tabular}
     }
     %\vspace{2mm}
-    \footnotesize \textit{Note} : SM = gestion de session ; UP = plan utilisateur. \\
+    \footnotesize \textit{Note} : CN = coeur de réseau; SM = gestion de session ; UP = plan utilisateur \\
     \caption{Liste des attaques présentes dans le dataset ainsi que leurs caractéristiques}
     \label{tab:malicious_table}
     \raggedright
 \end{table*}
-
 
 \subsection{Traffic anormale}
 La littérature recense un large éventail d’attaques ciblant les réseaux mobiles et les infrastructures 5G. Comme évoqué dans la section précédente, certaines de ces attaques exploitent des vulnérabilités spécifiques à des implémentations particulières et ne sont pas nécessairement réalistes dans le cas d’une entreprise disposant d’une implémentation robuste et conforme aux spécifications. Néanmoins, le réel enjeu ici est plutôt que les attaques restent distinguables du trafic normal selon des critères bien définis. Ainsi, en apprenant à détecter des anomalies sur une ou plusieurs des trois dimensions définies précédemment, un modèle peut ensuite être rendu utilisable dans un cadre opérationnel plus réaliste via un entraînement complémentaire sur des données réelles. Par ailleurs, étant donné que certaines implémentations open source sont utilisées dans des réseaux 5G privés, il est également possible que des vulnérabilités similaires et des attaques de ce type existent en pratique. Pour chaque attaque, nous avons identifié de manière explicite dans la Table~\ref{tab:malicious_table} ces dimensions, ainsi que les surfaces d’attaque concernées et les procédures bénignes permettant une comparaison pertinente.
@@ -175,23 +176,82 @@ Comme proposé par Amponis et al.~\cite{amponis20235g}, une attaque possible est
 Dans cette attaque, Amponis et al.~\cite{amponis20235g} proposent de rompre les sessions établies entre l’UE et le réseau de données en envoyant des requêtes de libération. L’attaquant peut cibler un UE spécifique s’il connaît son SEID, ou bien effectuer une attaque par saturation en variant les identifiants afin de déconnecter un grand nombre d’UE. Dans notre implémentation, nous adoptons une stratégie similaire à celle de l'inondation d'établissement de session, en variant systématiquement les SEIDs. Cette attaque présente de fortes similarités avec la précédente et est donc également détectable principalement sur la dimension séquentielle.
 
 \subsubsection{DoS des sessions par modification}
-Amponis et al.~\cite{amponis20235g} proposent également une attaque par modification de session visant à perturber discrètement l’accès au plan de données. En modifiant les règles de forwarding (FAR), l’UPF peut être amené à supprimer silencieusement les paquets associés à une session ciblée, sans notification à l’UE. Ces requêtes sont détectables à la fois par leur répétition anormale et par leur contenu, qui contient des champs absents des messages légitimes de modification de session.
+Amponis et al.~\cite{amponis20235g} décrivent également des attaques reposant sur la modification des règles de transfert (FAR) afin de perturber discrètement l’accès au plan de données. Une première variante consiste à remplacer l’action de transfert (\textit{forward}) par une action de suppression (\textit{drop}), conduisant l’UPF à éliminer silencieusement les paquets associés à une session ciblée, sans qu’aucune notification ne soit transmise à l’UE. Une seconde variante repose sur la modification de la FAR afin de dupliquer les paquets au lieu de simplement les transférer. Cette duplication peut être utilisée à des fins d’écoute passive ou pour amplifier du DoS. Ces attaques peuvent être détectées à la fois par leur fréquence anormale et par leur contenu, qui comporte des champs ou des configurations inhabituels, absents des requêtes légitimes de modification de session.
 
 \subsubsection{Fuzzing de SEID}
 Les attaques de libération et de DoS de sessions supposent l’existence d’une session valide dont le SEID est connu. En l’absence de connaissance d’un SEID valide, un attaquant peut tenter d’exécuter son attaque en testant successivement différents SEID jusqu’à obtenir un résultat concluant. Toutefois, dans le cas des DoS par modification, cette approche peut être détectée à la fois sur les dimensions sémantique et séquentielle. Dans le cas d’attaques par libération de session, dès qu’un SEID valide est identifié, la session associée est supprimée, ce qui empêche toute réutilisation ultérieure de cet identifiant. Afin de discrètement identifier des SEID actifs, un attaquant peut exploiter le comportement des requêtes de modification de session, qui produisent une réponse positive lorsque le SEID existe et une réponse négative dans le cas contraire, même lorsque la requête n’entraîne aucune modification effective de l’état de la session (par exemple lorsque les paramètres demandés correspondent déjà à l’état courant). L’attaquant peut ainsi envoyer un grand nombre de requêtes de modification bénignes, sémantiquement correctes et sans effet, et observer les réponses obtenues. De cette manière, il est possible d’extraire une liste de SEID actifs tout en restant détectable uniquement via la dimension séquentielle.
 
 \subsubsection{PFCP dans GTP-U}
-Park et al.~\cite{pfcp_in_gtp} présentent une vulnérabilité liée au processus de décapsulation de l’UPF. Lorsqu’un utilisateur envoie des données vers le réseau de données, celles-ci sont encapsulées dans un paquet GTP-U traversant l’UPF. Celui-ci décapsule le paquet et le redirige vers sa destination. Toutefois, certaines implémentations, telles que free5GC, ne vérifient pas la nature du protocole encapsulé et le traitent de manière transparente. Il devient alors possible d’injecter des messages PFCP dans un tunnel GTP-U. 
-%Dans notre cas, nous encapsulons un message de suppression de session PFCP dans un paquet GTP-U. comme y'a un seul paquet c'est ni topologique ni séquentiel, ici c'est vraiment la sémantique qui est anormal parce que ce genre d'encapsulation n'est pas du tout prévu dans la normae
+Park et al.~\cite{pfcp_in_gtp} présentent une vulnérabilité liée au processus de décapsulation de l’UPF. Lorsqu’un utilisateur envoie des données vers le réseau de données, celles-ci sont encapsulées dans un paquet GTP-U traversant l’UPF. Celui-ci décapsule le paquet et le redirige vers sa destination. Toutefois, certaines implémentations, telles que free5GC, ne vérifient pas la nature du protocole encapsulé et le traitent de manière transparente. Il devient alors possible d’injecter des messages PFCP dans un tunnel GTP-U. Dans notre cas, nous encapsulons un unique message de suppression de session PFCP dans un paquet GTP-U. Ce type de d'encapsulation n’est pas prévu par les spécifications, ce qui rend l’anomalie détectable sur la dimension sémantique.
 
-\subsubsection{Usurpation de trafic montant}
-Trend Micro met en évidence une vulnérabilité de type réflexion de paquets dans le protocole GTP-U~\cite{spoof_gtp}. En l’absence de validation appropriée, un attaquant ayant accès à l’UPF peut envoyer un paquet GTP-U encapsulant un paquet IP falsifié, prétendant provenir d’un UE légitime. Une fois décapsulé, ce paquet est relayé vers l’Internet, permettant à l’attaquant d’usurper l’identité de l’UE et d’exécuter des actions en son nom. Cette attaque peut également entraîner des restrictions de service pour l’UE légitime, sans que celui-ci n’ait initié les actions concernées.
-% topologique
-
+\subsubsection{Usurpation d'utilisateur}
+Trend Micro met en évidence une vulnérabilité de type réflexion de paquets dans le protocole GTP-U~\cite{spoof_gtp}. En l’absence de validation appropriée, un attaquant ayant accès à l’UPF peut envoyer depuis ce dernier un paquet GTP-U encapsulant un paquet IP falsifié contenant celle d'un UE légitime. Une fois désencapsulé, ce paquet est relayé vers l’Internet, permettant à l’attaquant d’usurper l’identité de l’UE. Celui-ci peut alors émettre des requêtes en se faisant passer pour l’utilisateur légitime et réaliser des actions en son nom. Par exemple, un comportement malveillant répété pourrait conduire certains services à bloquer l’adresse IP associée à cet utilisateur, sans que celui-ci en soit responsable. Son identification repose principalement sur l’analyse de la dimension topologique, en mettant en évidence des incohérences dans les interactions observées entre les différentes entités du réseau.
 
 \subsection{Méthodologie de génération}
-\subsection{Environnement et implémentation}
+Afin de limiter les biais, nous présentons dans cette section les choix méthodologiques ainsi que les mesures mises en œuvre afin de garantir la qualité, la représentativité et la cohérence du dataset généré.
 
+\subsubsection{Longueur des attaques par répétition}
+Parmi les attaques considérées, celles reposant sur la dimension séquentielle, telles que les attaques d’inondation, consistent en l’émission d’un même message répété un certain nombre de fois. Nous fixons ce nombre de répétitions à 100 messages. Cette valeur nous semble suffisamment élevée pour produire un comportement anormal clairement identifiable. En effet, dans un réseau 5G en fonctionnement normal, il est rare d’observer plus de trois ou quatre messages sémantiquement identiques et émis successivement. Une séquence de 100 répétitions permet donc de reproduire un comportement anormal sans pour autant surcharger inutilement le dataset. Par ailleurs, ces traces étant utilisées uniquement à des fins d’évaluation, le maintien d’un nombre fixe de répétitions ne devrait pas introduire de biais significatif.
+
+\subsubsection{Préservation du contexte temporel}
+La plupart des datasets 5G existants séparent le trafic bénin et le trafic malveillant en les plaçant dans des intervalles temporels distincts. Cette approche est explicitement critiquée par Flood et al.~\cite{badsmell}, car elle empêche la conservation d’un contexte séquentiel pertinent et favorise l'apparition d'un sur-apprentissage basé sur les périodes plutôt que sur le contenu des échanges. Afin de reproduire des séquences plus réalistes, nous adoptons une approche similaire à celle proposée par 5GCGuard \cite{5GCGuard}, consistant à entrelacer le trafic malveillant avec une activité bénigne de fond pendant l’exécution des attaques. Pour ce faire, nous exécutons en parallèle un script générant des procédures bénignes et un autre dédié aux procédures malveillantes. Dans chaque cas, les procédures sont sélectionnées aléatoirement parmi l’ensemble de celles que nous avons implémentées.
+
+\subsubsection{Préservation du contexte d’identité}
+Une autre approche couramment utilisée pour distinguer le trafic bénin du trafic malveillant consiste à s’appuyer sur des identités, telles que l’adresse IP. Cette pratique est fréquente dans les datasets d'IDS, les adresses étant généralement anonymisées a posteriori afin de préserver la confidentialité des utilisateurs. Dans notre cas, le dataset étant entièrement synthétique, il n’est pas soumis à ces contraintes. Nous conservons donc les adresses IP, qui sont essentielles pour la détection des anomalies de nature topologique. 
+
+Toutefois, l’utilisation d’une adresse IP fixe pour l’attaquant peut conduire un modèle à sur-apprendre cette caractéristique et à identifier un attaquant uniquement à partir de son adresse. Afin d’éviter ce biais, nous faisons en sorte que l’adresse source associée aux messages d’attaque corresponde à celle d’une NF légitime choisie aléatoirement au sein du CN. Cette configuration peut par exemple simuler la compromission d’une fonction réseau légitime. Afin de conserver un contexte topologique cohérent, nous garantissons toutefois que l’ensemble des messages appartenant à une même procédure d’attaque partagent la même adresse de fonction réseau d’origine.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{figures/chapter4/remplacement des marqueurs.png}
+\caption{Processus de labellisation préservant les contextes temporels et topologiques grâce à l’utilisation de marqueurs.}
+\label{fig:marqueur}
+\end{figure}
+
+\subsubsection{Labelisation du dataset}
+Afin d’attribuer une adresse IP cohérente à l’ensemble des paquets appartenant à une même procédure, il est nécessaire d’identifier, pour chaque paquet, à quelle procédure il appartient. Dans cette optique, les attaques sont initialement générées à partir d’une même machine source. Au lancement de chaque procédure, qu’elle soit bénigne ou malveillante, des marqueurs sont injectés sous la forme de paquets UDP temporaires contenant le nom de la procédure.
+
+Ces marqueurs permettent de délimiter automatiquement les frontières temporelles de chaque procédure et de restreindre la modification des adresses source aux seuls paquets situés entre ces bornes. Il est ainsi possible de modifier a posteriori l’ensemble des adresses IP comprises entre deux marqueurs de manière cohérente. Par ailleurs, cette approche permet de générer, en parallèle, une table de correspondance reliant les identifiants des paquets aux noms des procédures associées. Ce processus est illustré sur la figure \ref{fig:marqueur}.
+
+\begin{table*}[ht]
+    \centering
+    \resizebox{\textwidth}{!}{
+    \renewcommand{\arraystretch}{1.5}
+        \begin{tabular}{|l|r|r||l|r|r|}
+            \hline
+            \multicolumn{3}{|c||}{\textbf{Bénin}} & \multicolumn{3}{c|}{\textbf{Attaque}} \\
+            \hline
+            \textbf{Nom} & \textbf{Procédures} & \textbf{Paquets} & \textbf{Nom} & \textbf{Procédures} & \textbf{Paquets} \\
+            \hline
+            Enregistrement d'UE         & 591  & 467,638 & Fuzzing d'API                & 107  & 33,308  \\
+            Redémarrage de session      & 562  & 379,181 & MiTM dans le CN              & 123  & 22,587  \\
+            Trafic utilisateur          & 317  & 159,228 & Fuzzing de SEID              & 116  & 23,858  \\
+            Libération de contexte      & 288  & 67,124  & Inondation d'établissement   & 113  & 23,949  \\
+            Réveil par envoi            & 137  & 55,599  & Inondation de libération     & 98   & 20,446  \\
+            Deregister UE               & 276  & 50,279  & Scan applicatif              & 81   & 4,997   \\
+            Réveil par reception        & 279  & 21,884  & Modification : Duplication   & 119  & 345     \\
+            Ajout de NF                 & 261  & 18,232  & Modification : Suppression   & 100  & 292     \\
+            Suppression de NF           & 253  & 16,336  & Usurpation d'utilisateur     & 102  & 102     \\
+                                        &      &         & PFCP dans GTP-U              & 101  & 101     \\
+            \hline  
+            \textbf{Total}        & 2\,265 & 1\,235\,501 & \textbf{Total}        & 1\,060 & 129\,985 \\
+            \hline
+        \end{tabular}
+    }
+    \caption{Nombre de procédures et de paquets pour les scénarios bénins et d’attaque, classés par volume de paquets}
+    \label{table:traffic_counts}
+\end{table*}
+
+\subsection{Environnement et implémentation}
+Les implémentations commerciales de la 5G n’étant pas librement accessibles, nous nous appuyons sur des projets open source afin de simuler des déploiements réalistes. Plus précisément, nous utilisons \textit{free5GC} \cite{free5gc} pour émuler le CN, ainsi que \textit{UERANSIM} \cite{ueransim} pour simuler les UEs et les gNBs du réseau d’accès. Ces outils ont été retenus en raison de leur large adoption au sein de la communauté scientifique et de leur utilisation fréquente dans les travaux de génération de données 5G.
+
+Bien que \textit{free5GC} et \textit{UERANSIM} puissent être exécutés directement sous forme de binaires, nous avons choisi de les déployer via Docker, au moyen du projet \textit{free5gc-compose} \cite{free5gc_compose}. L’utilisation de la conteneurisation permet de disposer d’environnements préconfigurés pour l’ensemble des composants, ce qui simplifie le déploiement et améliore la reproductibilité des expériences.
+
+Nous avons également apporté plusieurs modifications à cette architecture basée sur Docker. Tout d’abord, les adresses IP des fonctions réseau ont été fixées, la configuration par défaut reposant sur une attribution dynamique à chaque déploiement. De plus, un nouveau conteneur nommé \texttt{NF\_EVIL} a été ajouté afin d’exécuter les scénarios d’attaque. Par ailleurs, nous avons modifié le Dockerfile de \textit{UERANSIM} afin d’utiliser notre propre fork, la version originale présentant une défaillance affectant le mécanisme de libération du contexte UE, la rendant inutilisable pour nos expérimentations. La version corrigée est disponible dans notre dépôt GitHub \cite{fork_free5gc}.
+
+Le dataset d’apprentissage est constitué exclusivement de trafic bénin, généré sur une période de 15 heures, correspondant à environ 10 000 procédures individuelles. Le dataset d’évaluation, quant à lui, a été produit en exécutant simultanément du trafic bénin et des scénarios d’attaque pendant 4 heures. Les volumes de trafic générés sont résumées dans le tableau~\ref{table:traffic_counts}.
+
+Les volumes de trafic associés aux attaques présentent une forte hétérogénéité. Celle-ci reflète la distinction entre les attaques fondées sur la répétition de messages, qui génèrent un trafic conséquent, et les attaques sémantiques, dont l’exécution repose généralement sur un nombre restreint de requêtes, voire sur une seule interaction.
 
 \section{Evaluation des caractéristiques du dataset}
 \subsection{Charactérisation sémantique}
