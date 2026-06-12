@@ -119,12 +119,12 @@ Toutes les procédures ne présentent pas la même fréquence d’utilisation et
 Les procédures d’enregistrement des UEs sont celles les plus couramment utilisés dans l’état de l’art pour générer du trafic légitime. Elles produisent une vingtaine de requêtes réparties entre le RAN et le CN. Ces procédures font intervenir plusieurs protocoles, notamment NGAP, NAS et HTTP/2, ainsi que différentes NF telles que l’AMF, le PCF, le SMF, l’AUSF et l’UDM. Dans le cadre de notre étude, leur principal intérêt réside dans la diversité des messages et des interactions qu’elles génèrent. La Figure~\ref{fig:register}, extraite de la spécification 3GPP, illustre une procédure complète d’enregistrement incluant l’ensemble des étapes optionnelles.
 
 \subsubsection{Changements d’état des UE}
-Dans la même logique que les procédures d’enregistrement, PROV5GC \cite{prov5g} propose un trafic légitime fondé sur les transitions d’état des UEs. Lorsqu’un UE demeure inactif pendant une certaine durée, une procédure de \textit{Libération de contexte} est automatiquement déclenchée. Celle-ci génère une séquence de messages entre le RAN et le CN visant à modifier l’état de l’UE du point de vue du CN et ainsi économiser des ressources précédemment allouées. Dans notre cas, ces procédures sont déclenchées manuellement, en envoyant nous-mêmes le message de libération de contexte. Lorsqu’un UE inactif redevient actif, une procédure de \textit{requête de service} est initiée afin de rétablir son état actif. Elle peut être déclenchée soit par la réception d’un message à destination d’un UE inactif, soit, à l’inverse, par l’envoi d’un message depuis ce dernier. Qu’il s’agisse de la libération de contexte ou de la reprise d’activité, ces procédures correspondent à des comportements courants dans les réseaux opérationnels et contribuent à accroître la diversité des messages présents dans le jeu de données.
+Dans la même logique que les procédures d’enregistrement, PROV5GC \cite{prov5g} propose un trafic légitime fondé sur les transitions d’état des UEs. Lorsqu’un UE demeure inactif pendant une certaine durée, une procédure de \textit{Libération de contexte} est automatiquement déclenchée. Celle-ci génère une séquence de messages entre le RAN et le CN visant à modifier l’état de l’UE du point de vue du CN et ainsi économiser des ressources précédemment allouées. Dans notre cas, ces procédures sont déclenchées manuellement, en envoyant nous-mêmes le message de libération de contexte. Lorsqu’un UE inactif redevient actif, une procédure de \textit{requête de service} est initiée afin de rétablir son état actif. Elle peut être déclenchée soit par la réception d’un message à destination d’un UE inactif, soit, à l’inverse, par l’envoi d’un message depuis ce dernier. Qu’il s’agisse de la libération de contexte ou de la reprise d’activité, ces procédures correspondent à des comportements courants dans les réseaux opérationnels et contribuent à accroître la diversité des messages présents dans le dataset.
 
 \subsubsection{Création et libération de session}
 Plusieurs attaques décrites dans l’état de l’art ciblent l’interface N4 reliant le SMF et l’UPF, responsable de la gestion des sessions. Sur cette interface, les échanges reposent sur le protocole PFCP. Parmi les procédures bénignes figurent notamment les procédures de création, de modification et de libération de session. Les procédures d’établissement et de modification de session sont incluses dans la procédure d’enregistrement de l’UE. Toutefois, il est également possible de redémarrer des sessions actives alors que l’UE est déjà enregistré, ce qui permet de considérer cette opération comme une procédure à part entière.
 
-Certaines attaques \cite{pfcp1} ciblant spécifiquement les messages PFCP associés à la création ou à la suppression de sessions, il est indispensable d’inclure des exemples légitimes de ces mêmes procédures dans le jeu de données afin de garantir une couverture réaliste des comportements du réseau.
+Certaines attaques \cite{pfcp1} ciblant spécifiquement les messages PFCP associés à la création ou à la suppression de sessions, il est indispensable d’inclure des exemples légitimes de ces mêmes procédures dans le dataset afin de garantir une couverture réaliste des comportements du réseau.
 
 \subsubsection{Gestion des NF}
 Nous proposons également d’enrichir le trafic légitime disponible dans l’état de l’art par l’ajout de procédures jusqu’alors absentes mais pourtant nécessaires à la détection de certaines attaques. Il s’agit ici de la gestion des NF, à travers la simulation de leur ajout et de leur suppression au sein du CN. Ces opérations se limitent généralement à une unique requête d’API et surviennent naturellement lors du démarrage ou de l’arrêt du réseau. Toutefois, l’architecture du CN 5G étant conçue pour s’adapter dynamiquement aux variations de charge, nous simulons également ces opérations en cours d’exécution tout en garantissant la continuité du service. La manipulation de l’architecture du CN étant exploitée par certaines attaques \cite{5gad}, la présence de trafic légitime associé à ces opérations constitue également une référence nécessaire à leur détection.
@@ -254,10 +254,57 @@ Le dataset d’apprentissage est constitué exclusivement de trafic bénin, gén
 Les volumes de trafic associés aux attaques présentent une forte hétérogénéité. Celle-ci reflète la distinction entre les attaques fondées sur la répétition de messages, qui génèrent un trafic conséquent, et les attaques sémantiques, dont l’exécution repose généralement sur un nombre restreint de requêtes, voire sur une seule interaction.
 
 \section{Evaluation des caractéristiques du dataset}
-\subsection{Charactérisation sémantique}
-\subsection{Charactérisation séquentielle}
-\subsection{Charactérisation topologique}
+Nous avons présenté dans les sections précédentes les différents objectifs de qualité retenus pour la conception de notre dataset, ainsi que la méthodologie mise en œuvre pour les satisfaire. Les procédures bénignes associées à chaque attaque ont été présentées dans la Table~\ref{tab:malicious_table}. L’objectif de cette section est de vérifier que les attaques incluses dans le dataset ne peuvent être distinguées du trafic légitime associé qu’à travers les dimensions pour lesquelles elles ont été conçues. 
 
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=1\linewidth]{figures/chapter4/jacard.png}
+\caption{Proportion de messages bénins sémantiquement identiques à des messages d’attaque de même nature.}
+\label{fig:jacard}
+\end{figure}
+
+\subsection{Caractérisation sémantique}
+Afin d’évaluer les attaques sur la dimension sémantique, nous avons calculé, pour chacune d’elles, la distance de Jaccard entre leurs paramètres et ceux des messages bénins correspondants. Cette métrique permet de quantifier la similarité sémantique entre deux contenus de paquets. Une distance nulle signifie que les deux messages partagent exactement les mêmes champs protocolaires et sont donc sémantiquement identiques.
+
+Cependant, il existe une grande diversité de messages bénins, qui différent même sémantiquement entre eux. Ainsi, une attaque ne peut pas être identique à l’ensemble des messages bénins. Nous nous intéressons donc à la proportion de messages bénins présentant une distance nulle avec nos attaques. La Figure~\ref{fig:jacard} illustre ce résultat. On y observe que seules les attaques sémantiques considérées, à savoir PFCP dans GTP ainsi que la modification de session, ne présentent aucun équivalent bénin strictement identique.
+
+Pour les autres attaques, supposées non discriminables sur la seule dimension sémantique, on constate qu’au moins 20\% des paquets bénins observés lors de l’entraînement leur sont strictement identique. Ainsi, le modèle a nécessairement été exposé, lors de l’apprentissage sur le trafic légitime, à des messages structurellement identiques à ceux générés par ces attaques. Les variations observées entre les différentes proportions peuvent s’expliquer par la forte hétérogénéité des messages bénins. Plus les messages associés à une même procédure sont diversifiés, plus la probabilité d’observer des correspondances exactes diminue.
+
+L’attaque de fuzzing d’API constitue un cas particulier et n’a pas été intégrée à cette analyse globale. En effet, elle génère des messages sémantiquement différents selon les endpoints sollicités, ce qui nécessite une analyse distincte de leurs caractéristiques. Par ailleurs, l'objectif du fuzzing étant d'émuler des requêtes sémantiquement correctes, une partie des requêtes produites correspond de fait à des requêtes légitimes. En calculant la distance de Jaccard pour chaque type d’appel d’API indépendamment, nous observons que 89\% des messages générés par cette attaque ne possèdent aucun équivalent sémantiquement identique dans le trafic bénin. Les 11\% restants correspondent à des requêtes fortement plausibles, dont la détection repose davantage sur leur contexte temporel que sur leur seule structure sémantique.
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=1\linewidth]{figures/chapter4/attacks_per_time_intervals_alternatif.png}
+\caption{Distribution des messages issues de procédures d'attaques et bénignes en fonction du temps.}
+\label{fig:distribution}
+\end{figure}
+
+\subsection{Caractérisation séquentielle}
+Nous avons vu dans les sections précédentes que nous cherchions à limiter les biais temporels en introduisant du bruit de fond durant les phases d’attaque et en randomisant l’ordre d’exécution des événements. La Figure~\ref{fig:distribution} met en évidence que, lors de l’exécution d’une attaque, du trafic bénin est systématiquement présent en parallèle, ce qui empêche toute isolation temporelle simple de l’attaque. Cette figure illustre également les différences de longueurs de séquences selon les types d’attaques. Les attaques non fondées sur la répétition apparaissent en très faible quantité, car elles reposent généralement sur un nombre réduit de paquets. 
+
+Il existe néanmoins quelques cas particuliers qu’il convient de détailler ici. Bien que les attaques de type scan applicatif soient généralement détectables sur la dimension temporelle, elles génèrent un volume relativement faible sur les graphiques observés. Cela s’explique par le fait que, bien qu’elles reposent sur un principe de répétition, elles n’ont pas besoin de produire un grand nombre de requêtes pour être efficaces.
+
+À l’inverse, l’attaque de type MiTM génère un nombre important de paquets bien qu’elle ne soit pas fondée sur la répétition. En effet, si sa phase d’initialisation nécessite un faible nombre de messages, l’ensemble des paquets relayés par la suite est systématiquement annoté comme anomalie. Le fait de considérer les paquets redirigés comme appartenant à la procédure MiTM conduit ainsi à une augmentation artificielle du volume de messages associés à cette attaque. Toutefois, comme il s’agit essentiellement d’une redirection de trafic légitime, les séquences restent structurellement similaires à du trafic bénin et ne peuvent être discriminées qu’en analysant les identités et la topologie des échanges. La longueur des séquences associées au MiTM est par ailleurs fortement variable, car elle dépend à la fois de la fonction usurpée et de l’intensité avec laquelle celle-ci est sollicitée par le trafic bénin durant la prise de contrôle.
+
+Le dernier cas particulier concerne le fuzzing applicatif. Celui-ci constitue une attaque reposant sur la répétition, générant typiquement de l’ordre d’une centaine de messages par exécution. Cependant, la figure montre que ces messages présentent moins de pics temporels marqués que les autres attaques séquentielles et sont, au contraire, davantage dispersés dans le temps. Ce comportement s’explique par le fait que certaines exécutions de fuzzing peuvent être relativement longues et s’étendre sur plusieurs minutes, en fonction du temps de réponse des NF.
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=0.45\textwidth]{figures/chapter4/mitm.drawio.png}
+  \includegraphics[width=0.45\textwidth]{figures/chapter4/uplink_spoofing.drawio.png}
+  \caption{Schéma d'interactions : (a) MiTM dans le CN (b) Usurpation d'utilisateur.}
+  \label{fig:interaction_patterns}
+\end{figure}
+
+\subsection{Caractérisation topologique}
+La dernière dimension d’attaques que l'on veut vérifier est la dimension topologique. L’objectif ici est de vérifier que les motifs théoriques caractérisant ces attaques apparaissent effectivement dans le dataset. Ces motifs sont illustrés en Figure~\ref{fig:interaction_patterns} et ne peuvent pas se produire dans un trafic normal d'un réseau respectant la spécification 3GPP. Afin de dénombrer ces occurrences, nous avons transformé les paquets du dataset en graphes, puis recherché dans ces graphes les motifs suivants.
+
+Dans le cas du MiTM, nous avons identifié un motif de redirection durant sa phase opérationnelle, dans lequel le récepteur d’une requête API redirige la même requête vers un autre NF. Le nombre d’occurrences de ce motif dépend directement du volume de trafic bénin sollicitant le MiTM. Étant donné que ce trafic est généralement important, nous observons ainsi de l’ordre de 4500 occurrences de ce motif, ce qui dépasse largement le nombre d’exécutions distinctes de la procédure MiTM.
+
+Pour l’attaque d'usurpation d'utilisateur, nous avons recherché une requête GTP-U dont l’adresse IP source dans l’en-tête IP externe diffère de l’adresse IP de destination de la réponse correspondante. Afin de garantir qu’il s’agit bien d’une réponse, nous vérifions également la cohérence des adresses IP internes. La recherche de ce motif ne permet d’identifier que 72 occurrences, soit 20 de moins que le nombre d’exécutions de la procédure de spoofing. Cet écart est attendu, dans la mesure où des pertes de paquets peuvent être observées lors des requêtes adressées au service web sollicité.
+
+\subsection{Synthèse}
+Nous avons vérifié dans cette section que, pour chacune des attaques de notre datasrt, la discriminabilité n’est possible qu’au regard des dimensions que nous avons définies. Nous obtenons ainsi un dataset dans lequel le risque de biais a été autant que possible réduit et que nous pourront utiliser pendant l’entraînement et l’évaluation de nos modèles, dont les expérimentations sont détaillées dans la section suivante.
 
 \section{Comparaison des modèles de GNN}
 
