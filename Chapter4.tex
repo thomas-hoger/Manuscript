@@ -304,11 +304,51 @@ Dans le cas du MiTM, nous avons identifié un motif de redirection durant sa pha
 Pour l’attaque d'usurpation d'utilisateur, nous avons recherché une requête GTP-U dont l’adresse IP source dans l’en-tête IP externe diffère de l’adresse IP de destination de la réponse correspondante. Afin de garantir qu’il s’agit bien d’une réponse, nous vérifions également la cohérence des adresses IP internes. La recherche de ce motif ne permet d’identifier que 72 occurrences, soit 20 de moins que le nombre d’exécutions de la procédure de spoofing. Cet écart est attendu, dans la mesure où des pertes de paquets peuvent être observées lors des requêtes adressées au service web sollicité.
 
 \subsection{Synthèse}
-Nous avons vérifié dans cette section que, pour chacune des attaques de notre datasrt, la discriminabilité n’est possible qu’au regard des dimensions que nous avons définies. Nous obtenons ainsi un dataset dans lequel le risque de biais a été autant que possible réduit et que nous pourront utiliser pendant l’entraînement et l’évaluation de nos modèles, dont les expérimentations sont détaillées dans la section suivante.
+Nous avons vérifié dans cette section que, pour chacune des attaques de notre dataset, la discriminabilité n’est possible qu’au regard des dimensions que nous avons définies. Nous obtenons ainsi un dataset dans lequel le risque de biais a été autant que possible réduit et que nous pourront utiliser pendant l’entraînement et l’évaluation de nos modèles, dont les expérimentations sont détaillées dans la section suivante.
 
-\section{Comparaison des modèles de GNN}
+% EXPE
+\section{Expérimentation et résultats}
+Nous souhaitons comparer expérimentalement plusieurs configurations et modèles afin de vérifier nos théories. Pour comparer de manière rigoureuse, il est essentiel de disposer d'un cadre expérimental unifié pour éviter des biais liés aux choix d'implémentation. Pour cette raison, nous nous appuyons sur DyGLib, la bibliothèque proposée par Yu et al. \cite{dygformer} et qui fournit un environnement unifié et bien établi regroupant plusieurs modèles de référence de l'état de l'art.
 
-\section{Comparaison des méthodes de NLP}
+Comme présenté dans la section 3.4.5, notre problématique se distingue des scénarios classiquement considérés dans la littérature. Afin de mieux répondre à nos besoins, plusieurs adaptations ont été apportées à la bibliothèque. Ces modifications concernent notamment la prise en compte des informations temporelles associées aux événements ainsi que la gestion des parcours multi-sauts. Ces changements ont été implémentés sous la forme d'un fork de DyGLib, disponible à l'adresse indiquée dans \cite{dyglib_fork}.
+
+L'utilisation de DyGLib nous permet ainsi non seulement de comparer les différents modèles dans un cadre homogène, mais également d'évaluer leurs performances dans plusieurs configurations d'apprentissage, notamment en mode supervisé et non supervisé. Nous étudierons également l'impact des différentes variantes de NLP présentées précédemment. Les résultats de ces expérimentations sont présentés dans les sections suivantes.
+
+\subsection{Approche supervisée}
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=1\linewidth]{figures/chapter4/supervised_lp.png}
+\caption{}
+\label{fig:learning_supervised_lp}
+\end{figure}
+
+
+La première approche qu'on considère c'est le supervisé. Comme on a vu dans la section 3.6, l'inconvénient de ce type d'apprentissage c'est qu'on a besoin de mettre des attaques dans le dataset d'entrainement et du coup on pourra détecter que des attaques connues ou des variantes proches. Néanmoins vu qu'on sait quel type de paramètre on veut détecter on peut en prendre qu'un sous ensemble et les encoder avec un one-hot encoder, ce qui réduit beaucoup la complexité et permet d'avoir de meilleurs résultats. De plus, détecter des anomalies connues n'est pas non plus sans interet et grâce à notre formalisme on peut le faire de manière très interpretable. Enfin, ce genre de modèle pourrait très bien être ré-entrainé au fur et à mesure de la détection de nouveaux pattern malveillant ou mise à jour du système
+
+\subsection{Comparaison des méthodes de NLP}
+
+
+\subsection{Approche non-supervisée}
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=1\linewidth]{figures/chapter4/unsupervised_lp.png}
+\caption{}
+\label{fig:learning_unsupervised_lp}
+\end{figure}
+
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=1\linewidth]{figures/chapter4/unsupervised_ae.png}
+\caption{}
+\label{fig:learning_unsupervise_ae}
+\end{figure}
+
+
+\section{Représentation interprétable de détection}
+
 
 
 \section{Conclusion}
