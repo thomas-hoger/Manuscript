@@ -312,46 +312,77 @@ Nous souhaitons comparer expérimentalement plusieurs configurations et modèles
 
 Comme présenté dans la section 3.4.5, notre problématique se distingue des scénarios classiquement considérés dans la littérature. Afin de mieux répondre à nos besoins, plusieurs adaptations ont été apportées à la bibliothèque. Ces modifications concernent notamment la prise en compte des informations temporelles associées aux événements ainsi que la gestion des parcours multi-sauts. Ces changements ont été implémentés sous la forme d'un fork de DyGLib, disponible à l'adresse indiquée dans \cite{dyglib_fork}.
 
-L'utilisation de DyGLib nous permet ainsi non seulement de comparer les différents modèles dans un cadre homogène, mais également d'évaluer leurs performances dans plusieurs configurations d'apprentissage, notamment en mode supervisé et non supervisé. Nous étudierons également l'impact des différentes variantes de NLP présentées précédemment. Les résultats de ces expérimentations sont présentés dans les sections suivantes.
+L'utilisation de DyGLib nous permet ainsi non seulement de comparer les différents modèles dans un cadre homogène, mais également d'évaluer leurs performances dans plusieurs configurations d'apprentissage, notamment en mode supervisé et non supervisé. Nous étudierons également l'impact des différentes variantes de NLP présentées précédemment. Les résultats de ces expérimentations sont présentés dans les sections suivantes. La comparaison des différentes approches d'apprentissage est présentée dans la figure \ref{fig:learning_pipeline}.
+
+
+\begin{figure}[!ht]
+\centering
+    \includegraphics[width=1\linewidth]{figures/chapter4/supervised_lp.png}
+    \par\vspace{0.5cm}
+    \includegraphics[width=1\linewidth]{figures/chapter4/unsupervised_lp.png}
+    \par\vspace{0.5cm}
+    \includegraphics[width=1\linewidth]{figures/chapter4/unsupervised_ae.png}
+\caption{Comparaison des différentes approches d'apprentissage : (a) approche supervisée avec des données annotées, (b) approche non supervisée basée sur la prédiction de liens, et (c) approche non supervisée basée sur un autoencodeur.}
+\label{fig:learning_pipelines}
+\end{figure}
 
 \subsection{Approche supervisée}
+La première approche considérée est l'apprentissage supervisé. L'objectif est d'entraîner le modèle à partir d'un ensemble d'apprentissage contenant à la fois des paquets issus de comportements bénins et malveillants, associés à leurs labels respectifs. Le modèle apprend ainsi à estimer la probabilité d'existence des arcs dans le graphe.
+
+Comme présenté dans la section 3.6, la principale limite de cette approche est qu'elle permet principalement de détecter des attaques déjà observées ou des variantes proches de celles présentes dans les données d'entraînement. Cependant, dans notre cas, la connaissance préalable des paramètres à analyser permet de sélectionner un sous-ensemble pertinent de caractéristiques et de les encoder à l'aide d'un one-hot encoder. Cette réduction de l'espace de représentation permet de diminuer la complexité du problème et d'obtenir de meilleures performances.
+
+Par ailleurs, la détection d'attaques connues reste une tâche pertinente dans un contexte opérationnel. Grâce au formalisme proposé, les décisions du modèle restent interprétables, ce qui facilite l'analyse des alertes générées. De plus, ce type de modèle peut être réentraîné régulièrement afin d'intégrer de nouveaux comportements malveillants ou des évolutions de l'infrastructure.
+
+\begin{table}[h]
+\centering
+\resizebox{\textwidth}{!}{
+    \begin{tabular}{lccccccc}
+        \hline
+        Métrique & JODIE & DyRep & CAWN & DyGFormer & TCL & GraphMixer & TGN \\
+        \hline
+        Accuracy  & 0.7432 & 0.7581 & 0.7514 & 0.8386 & 0.8466 & 0.8361 & \underline{0.9497} \\
+        Precision & 0.7226 & 0.8112 & 0.9611 & 0.9224 & 0.8916 & 0.9041 & \underline{0.9509} \\
+        Recall    & 0.1954 & 0.3568 & 0.1548 & 0.4879 & 0.5404 & 0.4906 & \underline{0.8727} \\
+        F1 Score  & 0.3077 & 0.4956 & 0.2666 & 0.6383 & 0.6729 & 0.6360 & \underline{0.9102} \\
+        \hline
+    \end{tabular}
+}
+\caption{Comparaison des performances des modèles supervisés}
+\label{tab:supervise}
+\end{table}
+
+Le tableau \ref{tab:supervise} présente les résultats obtenus par les différents modèles. Parmi les approches évaluées, TGN obtient les meilleures performances avec une accuracy de 95\% et un score F1 de 91\%. Cependant, ce modèle repose sur un mécanisme de mémoire qui augmente significativement son coût computationnel et son temps d'entraînement par rapport à des approches plus légères comme GraphMixer.
+
+Bien que l'accuracy obtenue soit élevée, cette métrique doit être interprétée avec précaution dans un contexte de détection d'attaques. En effet, sur un volume important de données, un faible taux de faux positifs peut générer un nombre conséquent d'alertes nécessitant une analyse humaine. De la même manière, les faux négatifs représentent un risque important puisqu'ils correspondent à des attaques non détectées pouvant avoir un impact sur l'infrastructure.
+
+Ainsi, même si les performances actuelles ne sont pas encore suffisantes pour une utilisation opérationnelle directe, ces résultats montrent que le formalisme proposé et son exploitation par des modèles d'apprentissage supervisé sont pertinents. Des améliorations futures pourront notamment être envisagées à travers un ajustement plus fin des hyperparamètres, une optimisation de l'architecture ou des stratégies de fine-tuning adaptées au contexte industriel.
+
+\subsection{Approche non supervisée}
+Cette section s’intéresse aux approches non supervisées, dont l’objectif est de permettre au modèle d’exploiter des informations issues de n’importe quel paramètre de paquet en entrée, sans nécessiter d’étiquettes préalablement définies. Pour cela, une étape d’encodage est nécessaire afin de transformer, par des méthodes de NLP, les différents paramètres disponibles en représentations vectorielles de dimension finie. Pour chacune des architectures étudiées, deux méthodes d’encodage seront évaluées : FastText et BERT. Les performances seront ensuite analysées dans un premier temps par une approche de reconstruction utilisant un autoencodeur et, dans un second, sur une approche de prédiction de lien.
+
+Au moment de la rédaction de cette section, les différents modèles sont encore en cours d’entraînement. Les résultats expérimentaux seront ajoutés ultérieurement afin de compléter cette analyse.
+
+\section{Représentation interprétable de la détection}
+L’un des principaux avantages du formalisme proposé réside dans son caractère visuel ainsi que dans son niveau élevé de granularité, qui en font une représentation particulièrement interprétable. Qu’il soit utilisé dans un cadre d’apprentissage supervisé ou non supervisé, le modèle associe à chaque arc du graphe une probabilité reflétant son degré de légitimité. Ces probabilités peuvent ensuite être directement projetées sur la structure du graphe afin de mettre en évidence les éléments ayant contribué à la décision du modèle.
 
 \begin{figure}[!ht]
 \centering
-\includegraphics[width=1\linewidth]{figures/chapter4/supervised_lp.png}
-\caption{}
-\label{fig:learning_supervised_lp}
+\includegraphics[width=1\linewidth]{figures/chapter4/modify_drop_1_full.png}
+\caption{aaa}
+\label{fig:interpretable}
 \end{figure}
 
+Cette représentation visuelle peut ainsi compléter un mécanisme de détection automatisée fondé sur un seuil d’anomalie. Dans un contexte opérationnel, les opérateurs pourraient définir un niveau de sensibilité à partir duquel une alerte est déclenchée. Lorsqu’un paquet ou une interaction dépasse ce seuil, le modèle fournit alors non seulement une indication de l’anomalie détectée, mais également une représentation visuelle détaillée de son contexte, permettant d’identifier les caractéristiques ayant influencé cette décision. Un exemple de cette représentation est présenté en Figure~\ref{fig:interpretable}.
 
-La première approche qu'on considère c'est le supervisé. Comme on a vu dans la section 3.6, l'inconvénient de ce type d'apprentissage c'est qu'on a besoin de mettre des attaques dans le dataset d'entrainement et du coup on pourra détecter que des attaques connues ou des variantes proches. Néanmoins vu qu'on sait quel type de paramètre on veut détecter on peut en prendre qu'un sous ensemble et les encoder avec un one-hot encoder, ce qui réduit beaucoup la complexité et permet d'avoir de meilleurs résultats. De plus, détecter des anomalies connues n'est pas non plus sans interet et grâce à notre formalisme on peut le faire de manière très interpretable. Enfin, ce genre de modèle pourrait très bien être ré-entrainé au fur et à mesure de la détection de nouveaux pattern malveillant ou mise à jour du système
+Sur cette figure, des paquets légitimes issus de procédures de redémarrage de session (nœuds bleus) ainsi que des paquets associés à des attaques de type DoS de sessions et Fuzzing de SEID (nœuds rouges) sont représentés simultanément au sein d’un même graphe. Les arcs correspondant au trafic légitime sont évalués comme normaux par le modèle et apparaissent en vert, tandis que les arcs associés aux comportements malveillants sont identifiés comme anormaux et apparaissent avec différents niveaux de sévérité allant de l'orange au rouge.
 
-\subsection{Comparaison des méthodes de NLP}
+On observe notamment que les arcs liés aux attaques ne sont pas tous directement classés comme fortement anormaux. Dans le cas des attaques de type DoS de sessions, les premiers paquets sont représentés en orange, traduisant une suspicion initiale modérée de sa sémantique. Les paquets d'attaques suivants constituent de surcroit une anomalie temporelle et renforcent la confiance du modèle quant à la présence d’une anomalie. À l’inverse, les paquets issus des attaques de Fuzzing de SEID sont immédiatement identifiés comme fortement anormaux. Cette distinction s’explique par le fait que ces paquets en particuliers doivent présenter des caractéristiques structurelles et sémantiques directement anormaux.
 
+La principale limitation de cette représentation réside dans le fait qu’elle ne capture pas explicitement la dimension temporelle des échanges. Néanmoins, dans un contexte opérationnel, ce formalisme pourrait être étendu sous la forme d’une visualisation dynamique dans laquelle les paquets et les interactions apparaîtraient progressivement au cours du temps. Une telle approche permettrait de combiner l’interprétabilité structurelle du graphe avec une analyse temporelle plus fine des comportements observés.
 
-\subsection{Approche non-supervisée}
-
-\begin{figure}[!ht]
-\centering
-\includegraphics[width=1\linewidth]{figures/chapter4/unsupervised_lp.png}
-\caption{}
-\label{fig:learning_unsupervised_lp}
-\end{figure}
-
-
-\begin{figure}[!ht]
-\centering
-\includegraphics[width=1\linewidth]{figures/chapter4/unsupervised_ae.png}
-\caption{}
-\label{fig:learning_unsupervise_ae}
-\end{figure}
-
-
-\section{Représentation interprétable de détection}
-
-
-
+%ajouter dans la partie évaluation qu'on a utilisé les modèles présenté dans la section 3.4.2.2
 \section{Conclusion}
+On a vu que l'état de l'art manquait cruellement de dataset 5G et que les seuls proposés n'avaient soit pas le contenu adéquat soit ne partageait aucun matériel de reproduction ou d'utilisation. On a ainsi dû créer un dataset nous même mais c'est un boulot difficile parce que la notion de qualité de dataset est encore un sujet très travaillé en ce moment sans encore de consensus finale. On a donc fait au mieux pour faire un dataset qui évite le plus possible d'avoir des biais et qui a une bonne couverture des dimensions et des surfaces qu'on considère. On valide en plus à posteriori la qualité. On a ensuite utilsié ces données pour entrainer nos modèles et comparer leurs résultats en fonction de leur architecture et des différentes méthodes d'apprentissage. On a ainsi obtenu des performances plutot bonnes qui permettent, une fois représentées graphiquement d'avoir quelque chose de très interpretable qui aurai beaucoup de valeur une fois utilisé par un opérateur humain
 
 \ifdefined\included
 \else
