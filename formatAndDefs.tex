@@ -25,14 +25,14 @@
 
 \usepackage{aecompl}
 
+% custom Thomas 
+\usepackage{pifont}
+\usepackage{subcaption}
+
 % Glossary / list of abbreviations
 
 \usepackage[intoc]{nomencl}
-\iftoggle{ThesisInEnglish}{%
-\renewcommand{\nomname}{Glossary}
-}{ %
 \renewcommand{\nomname}{Liste des Abréviations}
-}
 
 \makenomenclature
 
@@ -57,20 +57,6 @@
 %% nicer backref links. NOTE: The flag ThesisInEnglish is used to define the
 % language in the back references. Read more about it in These.tex
 
-\iftoggle{ThesisInEnglish}{%
-\renewcommand*{\backref}[1]{}
-\renewcommand*{\backrefalt}[4]{%
-\ifcase #1 %
-(Not cited.)%
-\or
-(Cited in page~#2.)%
-\else
-(Cited in pages~#2.)%
-\fi}
-\renewcommand*{\backrefsep}{, }
-\renewcommand*{\backreftwosep}{ and~}
-\renewcommand*{\backreflastsep}{ and~}
-}{%
 \renewcommand*{\backref}[1]{}
 \renewcommand*{\backrefalt}[4]{%
 \ifcase #1 %
@@ -83,7 +69,7 @@
 \renewcommand*{\backrefsep}{, }
 \renewcommand*{\backreftwosep}{ et~}
 \renewcommand*{\backreflastsep}{ et~}
-}
+
 
 % Links in pdf
 \usepackage{color}
@@ -96,14 +82,14 @@
 \hypersetup
 {
 bookmarksopen=true,
-pdftitle="Évaluation de la sécurité des équipements grand public connectés à Internet",
-pdfauthor="Yann BACHY", %auteur du document
+pdftitle="Détection d’anomalies multi-domaines dans un réseau 5G par Graphes Continus Dynamiques",
+pdfauthor="Thomas HOGER", %auteur du document
 pdfsubject="Thèse", %sujet du document
 %pdftoolbar=false, %barre d'outils non visible
 pdfmenubar=true, %barre de menu visible
 pdfhighlight=/O, %effet d'un clic sur un lien hypertexte
 colorlinks=true, %couleurs sur les liens hypertextes
-pdfpagemode=None, %aucun mode de page
+%pdfpagemode=None, %aucun mode de page
 pdfpagelayout=SinglePage, %ouverture en simple page
 pdffitwindow=true, %pages ouvertes entierement dans toute la fenetre
 linkcolor=linkcol, %couleur des liens hypertextes internes

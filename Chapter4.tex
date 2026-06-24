@@ -74,18 +74,16 @@ Dans leur travaux, Gharib et al.~\cite{eval} ont proposé un ensemble de lignes 
 Par conséquent, certaines de ces lignes directrices ne sont pas directement transposables et doivent être réinterprétées dans notre contexte. En compilant les recommandations issues de l’état de l’art et en les adaptant à notre problématique, nous identifions les objectifs suivants comme essentiels à la constitution d’un datasets 5G de qualité.
 
 \subsubsection{Exhaustivité des surfaces d’attaques}
-La littérature recense un large éventail d’attaques ciblant les réseaux mobiles et les infrastructures 5G. Cependant, la plupart des travaux présentant ces attaques se concentrent généralement sur un sous ensemble très restreint de ces entitées et de leurs intéractions. Un dataset de qualité doit donc être aussi exhaustif que possible, aussi bien du point de vue des attaques proposées que du trafic bénin associé.
+(note de thomas pour philippe : j'aime pas trop ce paragraphe et je saurai pas trop justifier qu'on est assez exhaustif)
 
-Dans notre cas, le datasets mis en place couvre les appels d’API entre NF, la gestion de session ainsi que l’encapsulation des paquets.
+La littérature recense un large éventail d’attaques ciblant les réseaux mobiles et les infrastructures 5G. Cependant, la plupart des travaux présentant ces attaques se concentrent généralement sur un sous ensemble très restreint de ces entitées et de leurs intéractions. Un dataset de qualité doit donc être aussi exhaustif que possible, aussi bien du point de vue des attaques proposées que du trafic bénin associé. Dans notre cas, le datasets mis en place couvre les appels d’API entre NF, la gestion de session ainsi que l’encapsulation des paquets.
 
 \subsubsection{Trafic légitime de nature adaptée}
-La détection d’anomalies nécessite de disposer d’exemples représentatifs de trafic légitime servant de référence face aux attaques. Pourtant, peu de travaux proposent un trafic bénin réellement comparable aux attaques qu’ils cherchent à détecter. Pour chaque attaque incluse dans le datasets, il est donc essentiel d’identifier les messages légitimes pouvant servir de référence lors de la détection.
-
-Dans notre approche, chaque attaque intégrée au datasets est associée à au moins un type de message bénin auquel elle peut être comparée. Les résultats sont présentés dans la Table~\ref{tab:malicious_table}.
+La détection d’anomalies nécessite de disposer d’exemples représentatifs de trafic légitime servant de référence face aux attaques. Pourtant, peu de travaux proposent un trafic bénin réellement comparable aux attaques qu’ils cherchent à détecter. Pour chaque attaque incluse dans le datasets, il est donc essentiel d’identifier les messages légitimes pouvant servir de référence lors de la détection. Dans notre approche, chaque attaque intégrée au datasets est associée à au moins un type de message bénin auquel elle peut être comparée. Les résultats sont présentés dans la Table~\ref{tab:malicious_table}.
 
 \subsubsection{Caractérisation des attaques proposées}
 Lorsqu’un datasets intègre des attaques, il est essentiel d’identifier précisément les caractéristiques qui les distinguent du trafic bénin. Dans les sections précédentes, nous avons montré que les attaques pouvaient être catégorisées selon trois dimensions : sémantique, temporelle et topologique. Afin d’éviter l’introduction de biais, il est nécessaire de classifier chaque attaque selon ces dimensions et de vérifier qu’elle ne puisse être détectée qu’à travers l’analyse de la ou des dimensions qui la caractérisent.
-
+%
 Ainsi, pour chaque attaque incluse dans notre datasets, nous définissons explicitement les dimensions sur lesquelles elle doit être détectée. Ces correspondances sont détaillées dans la Table~\ref{tab:malicious_table}.
 
 \subsubsection{Définition du périmètre d’utilisation}
@@ -243,7 +241,7 @@ Ces marqueurs permettent de délimiter automatiquement les frontières temporell
 \end{table*}
 
 \subsection{Environnement et implémentation}
-Les implémentations commerciales de la 5G n’étant pas librement accessibles, nous nous appuyons sur des projets open source afin de simuler des déploiements réalistes. Plus précisément, nous utilisons \textit{free5GC} \cite{free5gc} pour émuler le CN, ainsi que \textit{UERANSIM} \cite{ueransim} pour simuler les UEs et les gNBs du réseau d’accès. Ces outils ont été retenus en raison de leur large adoption au sein de la communauté scientifique et de leur utilisation fréquente dans les travaux de génération de données 5G.
+Les implémentations commerciales de la 5G n’étant pas librement accessibles, nous nous appuyons sur des projets open source afin de simuler des déploiements réalistes. Plus précisément, nous utilisons \textit{free5GC} \cite{free5GC} pour émuler le CN, ainsi que \textit{UERANSIM} \cite{ueransim} pour simuler les UEs et les gNBs du réseau d’accès. Ces outils ont été retenus en raison de leur large adoption au sein de la communauté scientifique et de leur utilisation fréquente dans les travaux de génération de données 5G.
 
 Bien que \textit{free5GC} et \textit{UERANSIM} puissent être exécutés directement sous forme de binaires, nous avons choisi de les déployer via Docker, au moyen du projet \textit{free5gc-compose} \cite{free5gc_compose}. L’utilisation de la conteneurisation permet de disposer d’environnements préconfigurés pour l’ensemble des composants, ce qui simplifie le déploiement et améliore la reproductibilité des expériences.
 
@@ -308,7 +306,7 @@ Nous avons vérifié dans cette section que, pour chacune des attaques de notre 
 
 % EXPE
 \section{Expérimentation et résultats}
-Nous souhaitons comparer expérimentalement plusieurs configurations et modèles afin de vérifier nos théories. Pour comparer de manière rigoureuse, il est essentiel de disposer d'un cadre expérimental unifié pour éviter des biais liés aux choix d'implémentation. Pour cette raison, nous nous appuyons sur DyGLib, la bibliothèque proposée par Yu et al. \cite{dygformer} et qui fournit un environnement unifié et bien établi regroupant plusieurs modèles de référence de l'état de l'art.
+Nous souhaitons comparer expérimentalement plusieurs configurations et modèles présentés dans la section 3.4.2.2 afin de vérifier nos théories. Pour comparer de manière rigoureuse, il est essentiel de disposer d'un cadre expérimental unifié pour éviter des biais liés aux choix d'implémentation. Pour cette raison, nous nous appuyons sur DyGLib, la bibliothèque proposée par Yu et al. \cite{dygformer} et qui fournit un environnement unifié et bien établi regroupant les modèles de référence de l'état de l'art.
 
 Comme présenté dans la section 3.4.5, notre problématique se distingue des scénarios classiquement considérés dans la littérature. Afin de mieux répondre à nos besoins, plusieurs adaptations ont été apportées à la bibliothèque. Ces modifications concernent notamment la prise en compte des informations temporelles associées aux événements ainsi que la gestion des parcours multi-sauts. Ces changements ont été implémentés sous la forme d'un fork de DyGLib, disponible à l'adresse indiquée dans \cite{dyglib_fork}.
 
@@ -368,7 +366,7 @@ L’un des principaux avantages du formalisme proposé réside dans son caractè
 \begin{figure}[!ht]
 \centering
 \includegraphics[width=1\linewidth]{figures/chapter4/modify_drop_1_full.png}
-\caption{aaa}
+\caption{Représentation de la prédiction d'anomalie sur un graph représentant un ensemble de paquets observés. Les arcs rouges signalent des anomalies très probables tandis que les arcs verts signalent une faible probabilité d'anomalie. Les paquets bénins sont représentés comme des nœuds de couleur bleu et les paquets d'attaques comme des nœuds de couleur rouge.}
 \label{fig:interpretable}
 \end{figure}
 
@@ -383,6 +381,13 @@ La principale limitation de cette représentation réside dans le fait qu’elle
 %ajouter dans la partie évaluation qu'on a utilisé les modèles présenté dans la section 3.4.2.2
 \section{Conclusion}
 On a vu que l'état de l'art manquait cruellement de dataset 5G et que les seuls proposés n'avaient soit pas le contenu adéquat soit ne partageait aucun matériel de reproduction ou d'utilisation. On a ainsi dû créer un dataset nous même mais c'est un boulot difficile parce que la notion de qualité de dataset est encore un sujet très travaillé en ce moment sans encore de consensus finale. On a donc fait au mieux pour faire un dataset qui évite le plus possible d'avoir des biais et qui a une bonne couverture des dimensions et des surfaces qu'on considère. On valide en plus à posteriori la qualité. On a ensuite utilsié ces données pour entrainer nos modèles et comparer leurs résultats en fonction de leur architecture et des différentes méthodes d'apprentissage. On a ainsi obtenu des performances plutot bonnes qui permettent, une fois représentées graphiquement d'avoir quelque chose de très interpretable qui aurai beaucoup de valeur une fois utilisé par un opérateur humain
+
+Dans ce chapitre, nous avons mis en évidence le manque de jeux de données publics adaptés à l’évaluation et à la comparaison des approches proposées. Les quelques ensembles de données existants présentent soit une couverture insuffisante des cas d’usage considérés, soit des lacunes en termes de reproductibilité, notamment en raison de l’absence de procédures, d’outils ou de ressources permettant leur réutilisation.
+
+Face à ce constat, un effort conséquent a été consacré à la conception et à la génération d’un nouveau jeu de données. Cette tâche s’est révélée particulièrement complexe, la définition même de la qualité d’un jeu de données demeurant un sujet de recherche actif pour lequel aucun consensus définitif n’a encore émergé. Dans ce contexte, une attention particulière a été portée à la réduction des biais potentiels, à la diversité des scénarios représentés ainsi qu’à la couverture des différentes dimensions et surfaces d’attaque considérées. La qualité du jeu de données a par ailleurs été évaluée a posteriori à l’aide des critères définis au cours de cette étude.
+
+Ce jeu de données a ensuite servi de base à l’entraînement et à l’évaluation de plusieurs modèles reposant sur différentes architectures et paradigmes d’apprentissage. Les résultats obtenus montrent que les approches proposées sont capables d’atteindre des performances satisfaisantes pour la détection des comportements anormaux étudiés. Au-delà des métriques de performance, l’utilisation d’une représentation graphique fondée sur les graphes permet également de fournir une interprétation fine des décisions prises par les modèles. Cette capacité d’explicabilité constitue un atout majeur dans un contexte opérationnel, où les systèmes de détection doivent non seulement identifier les anomalies, mais également fournir aux opérateurs humains les éléments nécessaires à leur compréhension et à leur analyse.
+
 
 \ifdefined\included
 \else

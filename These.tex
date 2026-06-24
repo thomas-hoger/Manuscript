@@ -8,6 +8,9 @@
 \newcommand{\included}{}
 
 \include{formatAndDefs}
+\usepackage{pifont}
+\usepackage{subcaption}
+
 \sloppy
 \begin{document}
 
@@ -44,19 +47,22 @@
 }
 A faire en dernier :-) 
 
-\cleardoublepage
+% \cleardoublepage
 
 \section*{Abstract}
+Pour répondre à de nouvelles exigences de qualité de service et à l’émergence de nouveaux usages, le paradigme de la 5G marque une rupture majeure avec les architectures réseau traditionnelles. Le cœur de réseau évolue d’un système monolithique, dans lequel chaque fonction réseau est statiquement associée à un équipement matériel dédié, vers une architecture logicielle virtualisée, flexible et dynamique. À l’image des architectures à microservices, les fonctions réseau peuvent désormais être déployées, modifiées ou supprimées à la demande, rapprochant ainsi la 5G des systèmes distribués modernes.
 
-The Cloud-Edge continuum has become a central paradigm for delivering digital services, combining the scalability of centralized Cloud infrastructures with the low-latency benefits of distributed Edge resources. However, orchestrating services across this continuum is increasingly complex, as it must balance multiple and often conflicting objectives. Among these, sustainability considerations, such as the integration of renewable energy sources, are gaining importance, yet they introduce new challenges traditionally absent from energy minimization approaches. Indeed, the growing integration of renewable energy sources brings variability and uncertainty that must be managed alongside service-level requirements such as stability and robustness. This variability complicates orchestration decisions, especially in dynamic and heterogeneous environments where both voluntary and involuntary node departures may occur. Orchestration represents both a challenge and a lever for the energy management of future systems of this type that will be deployed on a global scale. Faced with current environmental concerns and the growing and plethora of heterogeneous and scattered resources involved in these systems, it is imperative to rethink the design of orchestration methods from the additional perspective of sustainability and efficiency.
+Cette transformation apporte toutefois de nouveaux défis en matière de sécurité. La virtualisation et la distribution des fonctions réseau élargissent la surface d’attaque et favorisent l’émergence de menaces inédites, difficilement détectables à l’aide des approches traditionnelles de volumétrie ou de signature. Dans ce contexte, il devient nécessaire de dépasser les méthodes classiques employées par les systèmes de détection d’intrusion et d’adopter des approches centrées sur le paquet, capables d’analyser simultanément son contenu, son contexte temporel ainsi que son rôle au sein des interactions réseau.
 
-In this thesis, we present an in-depth investigation of service orchestration in renewable energy-enabled edge computing environments. First, we introduce a comprehensive classification framework specifically designed for sustainable Edge service orchestration across traditional and renewable energy contexts. This review strengthens the critical importance of addressing sustainability concerns and demonstrates how virtualization and service orchestration constitute fundamental foundations for future energy-efficient, distributed ICT infrastructures. Then, we propose a system model that captures the interactions among renewable energy generation, Edge infrastructures, and service robustness. Building on this model, we design an algorithm for service placement and placement reconfiguration, using predictions of energy availability and workload demand to enable more efficient and sustainable orchestration decisions. Finally, we introduce an architecture that instantiates the proposed theoretical models into a practical, standards-compliant solution. Collectively, these contributions provide novel and effective approaches to the challenge of service orchestration in renewable energy-enabled Edge computing settings.
+Afin de capturer ces dimensions sémantiques, séquentielles et topologiques, cette thèse propose un nouveau formalisme fondé sur les graphes continus dynamiques. Cette représentation permet de modéliser finement l’évolution des communications réseau et d’exploiter les capacités des réseaux de neurones sur graphes (GNN). Les travaux présentés démontrent que cette approche permet de détecter efficacement des anomalies subtiles tout en offrant un niveau élevé d’interprétabilité, indispensable à leur analyse et à leur compréhension.
 
-\textbf{Keywords:} Edge computing, Service orchestration, Sustainability, Energy efficiency, Renewable energy
+
+\textbf{Keywords:} Cybersecurité, 5G, Détection d'Anomalie, GNN Dynamique, NLP, Dataset
 
 \cleardoublepage
 
-\section*{Résumé}
+% \section*{Résumé}
+
 
 \tableofcontents
 
@@ -82,7 +88,7 @@ In this thesis, we present an in-depth investigation of service orchestration in
 
 \appendix
 
-\include{Annexe1}
+% \include{Annexe1}
 
 \bibliographystyle{StyleThese}
 %\bibliographystyle{plain}

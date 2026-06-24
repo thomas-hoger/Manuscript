@@ -93,12 +93,12 @@ AutoGuard \cite{autoguard} et ADSeq-5GCN \cite{adseq} modélisent les échanges 
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.7\linewidth]{figures/chapter3/prov5GC.png}
-\caption{Trafic de contrôle 5G formalisé par Prov5GC \cite{prov5G} en tant que graphe de provenance}
+\caption{Trafic de contrôle 5G formalisé par Prov5GC \cite{prov5g} en tant que graphe de provenance}
 \label{fig:prov5GCs}
 \end{figure}
 
 % Prov5G
-Prov5GCC \cite{prov5G} propose de son côté de représenter le trafic sous forme de graphe de provenance. Dans cette représentation, illustrée sur la figure \ref{fig:prov5GCs}, les nœuds correspondent aux entités du réseau et chaque message échangé entre ces entités est modélisé par une arête, à laquelle est associé le contenu du paquet. La formalisation en graphe est particulièrement adaptée à l’analyse topologique des interactions du réseau. Cependant, elle ne modélise pas explicitement la dimension temporelle des échanges, ce qui restreint sa capacité à capturer l’évolution dynamique des interactions. De plus, le fait d’agréger le payload au niveau des arêtes limite fortement l’exploitation de l’information contenue dans les paquets. Dans leur cas la payload est utilisée par un algorithme de détection heurisitique spécifique à chaque attaque, ce qui rend l’approche relativement lourde et peu adaptée à des environnements complexes.
+Prov5GCC \cite{prov5g} propose de son côté de représenter le trafic sous forme de graphe de provenance. Dans cette représentation, illustrée sur la figure \ref{fig:prov5GCs}, les nœuds correspondent aux entités du réseau et chaque message échangé entre ces entités est modélisé par une arête, à laquelle est associé le contenu du paquet. La formalisation en graphe est particulièrement adaptée à l’analyse topologique des interactions du réseau. Cependant, elle ne modélise pas explicitement la dimension temporelle des échanges, ce qui restreint sa capacité à capturer l’évolution dynamique des interactions. De plus, le fait d’agréger le payload au niveau des arêtes limite fortement l’exploitation de l’information contenue dans les paquets. Dans leur cas la payload est utilisée par un algorithme de détection heurisitique spécifique à chaque attaque, ce qui rend l’approche relativement lourde et peu adaptée à des environnements complexes.
 
 \begin{figure}[h]
 \centering
@@ -109,7 +109,7 @@ Prov5GCC \cite{prov5G} propose de son côté de représenter le trafic sous form
 
 
 % GSAD
-GSAD \cite{gsad} propose également de modéliser les données sous forme de graphe de manière similaire à Prov5GC \cite{prov5G}. La principale différence réside dans la représentation du contenu des arêtes. Au lieu de l’encoder sous forme de dictionnaire monolithique, les auteurs le transforment en flux d’octets structuré comme une image. Cette représentation leur permet d’utiliser un CNN pour encoder chaque paquet et analyser sa dimension sémantique. Les représentations sémantiques sont ensuite injectées dans un GNN afin de modéliser les interactions entre les paquets, puis dans un RNN pour capturer les dépendances temporelles. À notre connaissance, GSAD \cite{gsad} est la seule approche de détection d’anomalies 5G qui considère simultanément les trois dimensions de détection. La principale limite de leur approche réside dans le fait que, comme évoqué précédemment, les CNN ne permettent qu’une analyse relativement superficielle de la dimension sémantique des paquets. La Figure~\ref{fig:gsad} illustre l’architecture générale du pipeline proposé par GSAD et met en évidence les trois composantes du modèle correspondant respectivement aux trois dimensions.
+GSAD \cite{gsad} propose également de modéliser les données sous forme de graphe de manière similaire à Prov5GC \cite{prov5g}. La principale différence réside dans la représentation du contenu des arêtes. Au lieu de l’encoder sous forme de dictionnaire monolithique, les auteurs le transforment en flux d’octets structuré comme une image. Cette représentation leur permet d’utiliser un CNN pour encoder chaque paquet et analyser sa dimension sémantique. Les représentations sémantiques sont ensuite injectées dans un GNN afin de modéliser les interactions entre les paquets, puis dans un RNN pour capturer les dépendances temporelles. À notre connaissance, GSAD \cite{gsad} est la seule approche de détection d’anomalies 5G qui considère simultanément les trois dimensions de détection. La principale limite de leur approche réside dans le fait que, comme évoqué précédemment, les CNN ne permettent qu’une analyse relativement superficielle de la dimension sémantique des paquets. La Figure~\ref{fig:gsad} illustre l’architecture générale du pipeline proposé par GSAD et met en évidence les trois composantes du modèle correspondant respectivement aux trois dimensions.
 
 
 \begin{table}[h]
@@ -123,7 +123,7 @@ Lam et al. \cite{cnn}               & Oui      & Oui      & Non \\
 AutoGuard \cite{autoguard}          & Non      & Oui      & Partiel \\
 ADSeq-5GCN \cite{adseq}             & Non      & Oui      & Partiel \\
 5GCGuard \cite{5GCGuard}            & Non      & Oui      & Partiel \\
-Prov5GC \cite{prov5G}               & Partiel  & Non      & Partiel \\
+Prov5GC \cite{prov5g}               & Partiel  & Non      & Partiel \\
 GSAD \cite{gsad}                    & Partiel  & Partiel  & Oui \\
 \hline
 \end{tabular}
@@ -300,31 +300,33 @@ Plus récemment, DyGFormer~\cite{dygformer} simplifie cette approche en se limit
 
 \begin{table}[h]
 \centering
-\begin{tabular}{llcccc}
-\hline
-& \textbf{Modèle} & \textbf{Attention} & \textbf{RNN} & \textbf{Mémoire} & \textbf{Parcours} \\
-\hline
+\resizebox{\textwidth}{!}{
+    \begin{tabular}{llcccc}
+    \hline
+    & \textbf{Modèle} & \textbf{Attention} & \textbf{RNN} & \textbf{Mémoire} & \textbf{Parcours} \\
+    \hline
 
-\multirow{4}{*}{\begin{tabular}[c]{@{}c@{}}Temporal\\Embedding\end{tabular}}
-& TGAT~\cite{tgat}             & Oui & Non & Non & multi-saut \\
+    \multirow{4}{*}{\begin{tabular}[c]{@{}c@{}}Temporal\\Embedding\end{tabular}}
+    & TGAT~\cite{tgat}             & Oui & Non & Non & multi-saut \\
 
-& CAWs~\cite{cawn}             & Oui & Oui & Non & causal \\
+    & CAWs~\cite{cawn}             & Oui & Oui & Non & causal \\
 
-& DyGFormer~\cite{dygformer}   & Oui & Non & Non & 1-hop \\
+    & DyGFormer~\cite{dygformer}   & Oui & Non & Non & 1-hop \\
 
-& GraphMixer~\cite{graphmixer} & Non & Non & Non & 1-hop \\
+    & GraphMixer~\cite{graphmixer} & Non & Non & Non & 1-hop \\
 
-\hline
+    \hline
 
-\multirow{3}{*}{\begin{tabular}[c]{@{}c@{}}Temporal\\Neighborhood\end{tabular}}
-& DyRep~\cite{dyrep}     & Non & Oui & Oui & multi-saut \\
+    \multirow{3}{*}{\begin{tabular}[c]{@{}c@{}}Temporal\\Neighborhood\end{tabular}}
+    & DyRep~\cite{dyrep}     & Non & Oui & Oui & multi-saut \\
 
-& JODIE~\cite{jodie}     & Non & Oui & Oui & multi-saut \\
+    & JODIE~\cite{jodie}     & Non & Oui & Oui & multi-saut \\
 
-& TGN~\cite{tgn}         & Oui & Oui & Oui & multi-saut \\
+    & TGN~\cite{tgn}         & Oui & Oui & Oui & multi-saut \\
 
-\hline
-\end{tabular}
+    \hline
+    \end{tabular}
+}
 \caption{Comparaison des principaux modèles de graphes dynamiques en temps continu}
 \label{tab:tg_models}
 \end{table}

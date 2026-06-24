@@ -1,0 +1,14 @@
+gtp1
+gtp_encap
+priv5G
+log4shell
+spoof_gtp
+
+Warning--I didn't find a database entry for "vm_escape"
+Warning--I didn't find a database entry for "5greasoner"
+Warning--I didn't find a database entry for "fasttext"
+Warning--I didn't find a database entry for "cicids"
+Warning--I didn't find a database entry for "cicids_crit"
+Warning--I didn't find a database entry for "eval"
+Warning--I didn't find a database entry for "badsmell"
+Warning--I didn't find a database entry for "dyglib_fork"

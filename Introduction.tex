@@ -11,23 +11,59 @@
 \addstarredchapter{Introduction} %Sinon cela n'apparait pas dans la table des matières
 
 \section*{Contexte}
-Pour répondre à de nouvelles exigences de qualité de service et à l’émergence de nouveaux usages, le paradigme de la 5G marque une rupture majeure avec les architectures réseau traditionnelles. Le cœur de réseau évolue d’un système monolithique, dans lequel chaque fonction réseau est statiquement associée à un équipement matériel dédié, vers une architecture logicielle virtualisée, flexible et dynamique. À l’image des architectures à microservices, les fonctions réseau peuvent désormais être déployées, modifiées ou supprimées à la demande, rapprochant ainsi la 5G des systèmes distribués modernes.
+% la 5G évolue, se complexifie et se softwarise
+% 2) Manque d’information de la part des opérateurs 
+La cinquième génération de réseaux mobiles (5G) constitue une évolution majeure des infrastructures de télécommunication. Au-delà de l’augmentation des débits et de la réduction de la latence, elle introduit une transformation profonde de l’architecture des réseaux mobiles. Le cœur de réseau, historiquement fondé sur des équipements spécialisés, est désormais largement softwarisé et repose sur une architecture orientée services dans laquelle des fonctions réseau indépendantes interagissent au travers d’interfaces applicatives standardisées. Cette évolution facilite le déploiement de nouveaux services, favorise l’automatisation et permet l’émergence de réseaux privés mobiles adaptés aux besoins spécifiques des entreprises.
 
-Cette transformation apporte toutefois de nouveaux défis en matière de sécurité. La virtualisation et la distribution des fonctions réseau élargissent la surface d’attaque et favorisent l’émergence de menaces inédites, difficilement détectables à l’aide des approches traditionnelles de volumétrie ou de signature. Dans ce contexte, il devient nécessaire de dépasser les méthodes classiques employées par les systèmes de détection d’intrusion et d’adopter des approches centrées sur le paquet, capables d’analyser simultanément son contenu, son contexte temporel ainsi que son rôle au sein des interactions réseau.
-
-Afin de capturer ces dimensions sémantiques, séquentielles et topologiques, cette thèse propose un nouveau formalisme fondé sur les graphes continus dynamiques. Cette représentation permet de modéliser finement l’évolution des communications réseau et d’exploiter les capacités des réseaux de neurones sur graphes (GNN). Les travaux présentés démontrent que cette approche permet de détecter efficacement des anomalies subtiles tout en offrant un niveau élevé d’interprétabilité, indispensable à leur analyse et à leur compréhension.
-
-
-
+Parallèlement, ces améliorations contribuent à accroître considérablement la surface d’attaque du cœur de réseau. De ce fait, un nombre croissant de travaux de recherche en cybersécurité s’intéressent aux enjeux de sécurisation des architectures 5G. De nombreuses vulnérabilités ainsi que divers scénarios d’attaque ont été identifiés dans la littérature récente, aussi bien au niveau des protocoles de communication qu’au niveau des interactions entre les différentes fonctions du réseau.
 
 \section*{Problématique}
+% 1) l'évolution augmente la surface d'attaque et change le type d'attaque
+%  Les méthodes proposées actuellement pour la détection d’anomalie sont pas adaptés
+% 3) du coup chacun fait des datasets et des attaques de son coté mais très critiquable 
+Cette évolution architecturale remet en question les approches traditionnelles de détection d’intrusion. Les mécanismes développés pour les réseaux IP classiques reposent généralement sur l’analyse de flux ou sur des signatures connues, alors que les attaques de la littérature visant les réseaux 5G exploitent souvent des propriétés plus complexes liées à la logique des protocoles, aux séquences de messages ou aux interactions entre entités du cœur de réseau.
+
+L’étude de ces problématiques est également freinée par le manque de données publiques. Pour des raisons de confidentialité, les opérateurs partagent rarement les traces issues de leurs infrastructures. Les travaux de recherche doivent donc s’appuyer sur des datasets synthétiques générés à partir d’implémentations open source. Cette situation a conduit à l’émergence de nombreux datasets construits indépendamment les uns des autres, avec des méthodologies parfois peu documentées et des biais susceptibles de fausser l’évaluation des modèles. Il devient alors difficile de comparer objectivement les approches proposées dans la littérature ou d’évaluer leur capacité réelle de généralisation.
 
 \section*{Approche Scientifique}
+% Proposition d’une nouvelle méthode de classification innovante 
+% Nouveau formalisme
+% réflexion sur le nlp
+% Mise en place d'un dataset
+% Comparaison entre modèle
+Pour répondre à ces problématiques, ce manuscrit propose une approche fondée sur une représentation explicite des échanges observés dans le cœur de réseau 5G. Cette approche vise à capturer simultanément les dimensions sémantiques, séquentielles et topologiques des communications et des scénarios d’attaque. À cette fin, nous introduisons un nouveau formalisme permettant de modéliser ces échanges sous la forme de graphes interprétables.
+
+Afin de permettre une évaluation rigoureuse, nous proposons également une méthodologie de génération de dataset couvrant plusieurs surfaces d’attaque du cœur de réseau 5G. Une attention particulière est portée à la qualité des données produites, à la limitation des biais de génération et à l’association systématique d’un trafic légitime comparable à chaque scénario d’attaque.
+
+Enfin, les différentes représentations et modèles étudiés sont comparés expérimentalement afin d’identifier les approches les plus adaptées à la détection d’anomalies dans les réseaux 5G.
 
 \section*{Contributions}
+Les travaux réalisés dans le cadre de cette thèse ont conduit à trois contributions principales :
+\begin{itemize}
+\item \textbf{Analyse critique des attaques 5G et des cadres de catégorisation existants.} Soumise à \emph{IEEE Communications Magazine}, actuellement en cours d'évaluation.
+\item \textbf{Conception d'un dataset de trafic de contrôle 5G.} Soumise au workshop \emph{ANUBIS} de la conférence \emph{ESORICS 2026}, actuellement en cours d'évaluation.
+\item \textbf{Proposition d'un formalisme de graphes dynamiques continus et évaluation comparative de modèles de détection d'anomalies.} Article en cours de rédaction et prévu pour soumission avant la soutenance.
+\end{itemize}
 
+Ces travaux ont également donné lieu aux présentations suivantes :
+\begin{itemize}
+\item \textbf{Conférence RESSI 2025} — Présentation du formalisme de graphes dynamiques continus.
+\item \textbf{Workshop « Supervision des Infrastructures Critiques », Journées TransNumériques 2026} — Présentation de l'analyse critique de la littérature sur les attaques 5G.
+\item \textbf{Workshop « Supervision des Infrastructures Critiques », Journées TransNumériques 2026} — Présentation des travaux relatifs à la conception du jeu de données.
+\item \textbf{Conférence THCon 2026} —  Présentation du formalisme proposé et des modèles de détection étudiés.
+\item \textbf{Conseil Scientifique et Technologique} — Présentation du formalisme proposé et des modèles de détection étudiés.
+
+\end{itemize}
 \section*{Contexte au sein du PEPR Réseaux du futur}
-Dans le cadre de son programme de recherche scientifique France 2030, le gouvernement français a lancé plusieurs programmes PEPR (Programmes et Equipements Priotaires de Recherche) thématiques dans différents domaines scientifiques. L'un d'entre eux est consacré à la 5G et aux réseaux du futur (NF). Au sein de ce programme, NF-HiSec vise à traiter les questions de sécurité des réseaux du futurn, en particulier la 5G. Le projet NF-HiSec cherche à relever les principaux défis en matière de sécurité en se concentrant sur cinq objectifs principaux :
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.6\linewidth]{tlsflyleaf/pepr.jpg}
+\caption{Logo du PEPR Réseaux du Futur.}
+\label{fig:pepr}
+\end{figure}
+
+Dans le cadre de son programme de recherche scientifique France 2030, le gouvernement français a lancé plusieurs programmes PEPR (Programmes et Equipements Priotaires de Recherche) thématiques dans différents domaines scientifiques. L'un d'entre eux est consacré à la 5G et aux réseaux du futur. Au sein de ce programme, NF-HiSec vise à traiter les questions de sécurité des réseaux du futurn, en particulier la 5G. Le projet NF-HiSec cherche à relever les principaux défis en matière de sécurité en se concentrant sur cinq objectifs principaux :
 
 \begin{itemize}
 \item \textbf{Détection et atténuation des attaques dans des environnements complexes :} Développer des techniques avancées pour identifier et atténuer les cyberattaques dans des réseaux dynamiques et en constante évolution.
@@ -38,10 +74,23 @@ Dans le cadre de son programme de recherche scientifique France 2030, le gouvern
 
 Dans le cadre de cette large initiative, le projet NF-HiSec joue donc un rôle central dans le développement de méthodes et d'outils innovants visant à sécuriser de manière exhaustive les réseaux du futur. Cette thèse s'inscrit ainsi comme une contribution à un effort commun, cherchant à sécuriser une partie de l'ecosystème divers et complet qu'est la 5G.
 
-
 \section*{Plan}
+Cette thèse est organisée en quatre chapitres, chacun abordant un aspect spécifique de la problématique étudiée et de l'approche proposée.
 
+\begin{itemize}
+\item \textbf{Chapitre 1 : Identification des surfaces d'attaque de la 5G}
+Ce premier chapitre présente le contexte général des réseaux 5G, en détaillant leur architecture ainsi que les principales technologies qui les composent. Nous identifions ensuite les différentes surfaces d'attaque susceptibles d'être exploitées par un adversaire et les surfaces à protéger. Cette analyse permet de délimiter précisément le périmètre d'étude retenu dans le cadre de cette thèse.
 
+\item \textbf{Chapitre 2 : État de l'art des attaques 5G}
+Une fois le cadre d'étude établi, nous analysons les travaux existants consacrés aux attaques visant les réseaux 5G. Nous montrons que la notion même d'attaque n'est pas toujours définie de manière uniforme dans la littérature, de nombreux travaux se concentrant principalement sur l'absence ou l'insuffisance de certains mécanismes de sécurité. Ce constat nous conduit à proposer une nouvelle classification des attaques, qui servira de fondement à l'approche de détection développée dans la suite de la thèse.
+
+\item \textbf{Chapitre 3 : Vers une formalisation adaptée à la détection d'anomalies multi-domaines}
+Ce chapitre présente un état de l'art des méthodes de détection d'anomalies, aussi bien dans les réseaux 5G que dans les réseaux traditionnels. À partir de cette analyse, nous identifions les GNN dynamiques comme une approche particulièrement adaptée à notre problématique. Nous proposons alors une formalisation permettant de représenter finement les interactions observées dans un environnement 5G. Enfin, nous discutons plusieurs extensions permettant de prendre en compte l'encodage de paramètres de dimension non-fini.
+
+\item \textbf{Chapitre 4 : Évaluation empirique des modèles}
+Le dernier chapitre est consacré à l'évaluation expérimentale du formalisme et des modèles développés. Nous présentons tout d'abord la conception d'un dataset visant à combler une lacune importante de la littérature actuelle. Nous comparons ensuite différentes architectures de modèles ainsi que plusieurs stratégies d'apprentissage afin d'évaluer leur capacité à détecter les anomalies dans les environnements 5G étudiés.
+
+\end{itemize}
 
 \ifdefined\included
 \else
