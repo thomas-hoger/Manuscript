@@ -9,11 +9,44 @@
 
 \chapter*{Conclusion}
 \addstarredchapter{Conclusion} %Sinon cela n'apparait pas dans la table des matières
-Ce manuscrit de thèse rapporte 
+Au cours de cette thèse, nous avons tâché d'étudier les évolutions introduites par la 5G, tant du point de vue des nouvelles surfaces d'attaque que de la nature des menaces auxquelles ces réseaux sont exposés. Cette analyse nous a permis de mettre en évidence que la notion d'attaque 5G demeure encore insuffisamment unifiée dans la littérature. Les travaux existants adoptent des définitions et des niveaux de réalisme très hétérogènes, rendant difficile la comparaison des approches proposées. Afin de répondre à cette limite, nous avons proposé une classification des attaques visant à fournir un cadre commun pour l'étude et l'évaluation des mécanismes de détection.
+
+Nous avons également montré que les spécificités des réseaux 5G nécessitent une analyse approfondie des paquets échangés, en prenant simultanément en compte trois dimensions complémentaires : la dimension sémantique, la dimension séquentielle et la dimension topologique. Pour répondre à cette problématique, nous avons proposé un nouveau formalisme reposant sur les graphes dynamiques continus, capable de représenter conjointement ces trois aspects tout en offrant un niveau d'interprétabilité élevé, indispensable dans le contexte de la cybersécurité.
+
+Par ailleurs, nos travaux ont mis en évidence le manque cruel de datasets publics, complets et reproductibles dans l'état de l'art pour évaluer les approches de détection dans des environnements 5G. Afin de pallier cette limitation, nous avons conçu notre propre dataset couvrant un ensemble étendu de procédures bénignes et de scénarios d'attaque, tout en veillant à garantir sa qualité et sa reproductibilité afin de faciliter la comparaison de futurs travaux.
+
+Enfin, nous avons évalué plusieurs architectures de réseaux de neurones sur graphes dynamiques afin d'étudier leur capacité à exploiter le formalisme proposé. Les résultats obtenus montrent que cette représentation est adaptée à la détection d'anomalies dans les réseaux 5G, en particulier dans un cadre supervisé, où les meilleurs modèles atteignent une accuracy d'environ 94\%. Ces résultats confirment l'intérêt des graphes dynamiques pour représenter les interactions complexes observées dans les infrastructures 5G et ouvrent la voie à de futurs travaux visant à améliorer encore leurs performances ainsi que leur capacité de généralisation à des environnements opérationnels.
+
+\section{Contributions}
+
+Les principales contributions de cette thèse peuvent être résumées peuvent être résumées comme suit :
+
+\begin{itemize}
+\item \textbf{Analyse critique des attaques 5G et des cadres de catégorisation existants.} Nous mettons en évidence les limites des cadres de catégorisation existants et proposons une classification permettant de structurer les différentes familles d'attaques selon les surfaces du réseau 5G qu'elles ciblent.
+\item \textbf{Proposition d'un formalisme de graphes dynamiques continus.} Nous introduisons une représentation permettant de capturer simultanément les dimensions sémantique, temporelle et topologique des échanges au sein d'un réseau 5G, tout en conservant un haut niveau d'interprétabilité.
+\item \textbf{Conception d'un dataset de trafic de contrôle 5G.} Nous proposons un nouveau dataset couvrant un ensemble étendu de procédures bénignes et de scénarios d'attaque, afin de pallier le manque de jeux de données publics représentatifs des environnements 5G.
+\item \textbf{Evaluation comparative de modèles de détection d'anomalies} Nous comparons plusieurs architectures de l'état de l'art, dans des contextes supervisés et non supervisés, afin d'évaluer leur aptitude à exploiter le formalisme proposé pour la détection d'anomalies dans les réseaux 5G.
+\end{itemize}
 
 
-% DyRep un peu pourri
+\section{Limites et perspectives}
+Bien que les principaux objectifs de cette thèse aient été atteints, plusieurs pistes d'amélioration et d'extension n'ont pas pu être explorées pleinement et pourront faire l'objet de travaux futurs.
 
+\subsection{Optimisation de l'implémentation et utilisation de BERT}
+Une perspective concerne l'optimisation de l'implémentation utilisée pour l'évaluation des modèles. Nous avions initialement prévu d'intégrer des modèles d'encodage plus complexes, tel que BERT, afin d'étudier leur impact sur les performances. Cependant, l'implémentation actuelle de DyGLib présente plusieurs limitations en termes d'efficacité computationnelle, rendant l'entraînement de modèles plus coûteux difficilement envisageable.
+
+En particulier, la gestion mémoire adoptée par la librairie n'est pas totalement adaptée aux contraintes des graphes dynamiques : l'espace mémoire est réservé pour des nœuds futurs avant leur apparition, et aucun mécanisme efficace de suppression des nœuds trop anciens n'est proposé. Cela conduit progressivement à une augmentation importante de la taille du graphe et ralentit fortement les entraînements.
+
+Ces contraintes nous ont conduits à ne pas intégrer BERT dans les expérimentations finales, malgré son potentiel pour améliorer la représentation sémantique des paramètres réseau. Une optimisation de l'implémentation permettrait ainsi d'explorer ces modèles plus complexes dans de futurs travaux.
+
+\subsection{Mise en place d'un modèle custom}
+
+\subsection{Extension du dataset CTD5G}
+% Notre dataset CTD5G est normalement couvre suffisament les surfaces que l'on a délimité dans notre scope et permet de détecter les attaques qui les concernent. Néanmoins y'a plusieurs types de surfaces qu'on a pas pu considérer tel que l'access network où on a un peu de trafic bénin mais pas d'attaque. Y'a aussi le handover avec le fait de considérer gNB sur lequel un utilisateur switcherait en se déplacant. 
+
+% Y a aussi des mécanismes comme le slicing où y'a déjà des attaque proposé \ref{} le problème c'est qu'à l'heure actuel les implémentations open source le supportent pas vraiment et l'identifiant de slice agit plus comme un filtre supplémentaire qu'on peut choisir de mentionner ou non plutôt qu'un vrai facteur d'isolation logique.
+
+\subsection{Intégration de logs ou d'informations système}
 
 \ifdefined\included
 \else
