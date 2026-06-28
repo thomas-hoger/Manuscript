@@ -35,18 +35,41 @@ Bien que les principaux objectifs de cette thèse aient été atteints, plusieur
 \subsection{Optimisation de l'implémentation et utilisation de BERT}
 Une perspective concerne l'optimisation de l'implémentation utilisée pour l'évaluation des modèles. Nous avions initialement prévu d'intégrer des modèles d'encodage plus complexes, tel que BERT, afin d'étudier leur impact sur les performances. Cependant, l'implémentation actuelle de DyGLib présente plusieurs limitations en termes d'efficacité computationnelle, rendant l'entraînement de modèles plus coûteux difficilement envisageable.
 
-En particulier, la gestion mémoire adoptée par la librairie n'est pas totalement adaptée aux contraintes des graphes dynamiques : l'espace mémoire est réservé pour des nœuds futurs avant leur apparition, et aucun mécanisme efficace de suppression des nœuds trop anciens n'est proposé. Cela conduit progressivement à une augmentation importante de la taille du graphe et ralentit fortement les entraînements.
+En particulier, la gestion mémoire adoptée par la librairie n'est pas totalement adaptée aux contraintes des graphes dynamiques. L'espace mémoire est réservé pour des nœuds futurs avant leur apparition, et aucun mécanisme efficace de suppression des nœuds trop anciens n'est proposé. Cela conduit progressivement à une augmentation importante de la taille du graphe et ralentit fortement les entraînements.
 
 Ces contraintes nous ont conduits à ne pas intégrer BERT dans les expérimentations finales, malgré son potentiel pour améliorer la représentation sémantique des paramètres réseau. Une optimisation de l'implémentation permettrait ainsi d'explorer ces modèles plus complexes dans de futurs travaux.
 
-\subsection{Mise en place d'un modèle custom}
+\subsection{Mise en place d'un modèle spécialisé}
+Dans cette étude, nous avons principalement utilisé des modèles issus de l'état de l'art afin d'évaluer notre formalisme, avec seulement quelques adaptations mineures. Toutefois, ces architectures ne sont pas nécessairement optimisées pour répondre aux spécificités de notre problématique.
+
+Une perspective d'amélioration serait donc de concevoir une architecture dédiée, comme cela est fréquemment réalisé dans les travaux existants. Dans notre cas, une telle architecture pourrait notamment exploiter les particularités de notre représentation sous forme de graphe biparti, ainsi que le fait que l'information pertinente soit portée par les arcs plutôt que par les nœuds. Cette approche permettrait potentiellement d'obtenir un modèle mieux adapté à la structure des données et aux objectifs de détection considérés.
 
 \subsection{Extension du dataset CTD5G}
-% Notre dataset CTD5G est normalement couvre suffisament les surfaces que l'on a délimité dans notre scope et permet de détecter les attaques qui les concernent. Néanmoins y'a plusieurs types de surfaces qu'on a pas pu considérer tel que l'access network où on a un peu de trafic bénin mais pas d'attaque. Y'a aussi le handover avec le fait de considérer gNB sur lequel un utilisateur switcherait en se déplacant. 
+Le dataset CTD5G couvre de manière satisfaisante les surfaces d'attaque définies dans le périmètre de cette étude et permet de détecter les attaques qui leur sont associées. Néanmoins, certaines surfaces n'ont pas pu être prises en compte.
 
-% Y a aussi des mécanismes comme le slicing où y'a déjà des attaque proposé \ref{} le problème c'est qu'à l'heure actuel les implémentations open source le supportent pas vraiment et l'identifiant de slice agit plus comme un filtre supplémentaire qu'on peut choisir de mentionner ou non plutôt qu'un vrai facteur d'isolation logique.
+C'est notamment le cas de l'AN, pour lequel le dataset contient du trafic légitime mais aucun scénario d'attaque. Les procédures de \textit{handover} constituent également une piste d'extension, puisqu'elles mettent en jeu une pile protocolaire spécifique ainsi que des scénarios impliquant le changement de gNB par un UE au cours de son déplacement.
 
-\subsection{Intégration de logs ou d'informations système}
+Le \textit{slicing} représente une autre perspective intéressante. Plusieurs attaques ciblant ce mécanisme ont déjà été proposées dans la littérature \cite{slicing_attack}. Toutefois, les implémentations open source actuelles offrent un support encore limité de cette fonctionnalité. En pratique, l'identifiant de slice est principalement utilisé comme un simple critère de filtrage, plutôt que comme un véritable mécanisme d'isolation logique entre les différentes tranches du réseau.
+
+Bien que la couverture actuelle du dataset soit suffisante pour les surfaces d'attaque considérées dans le périmètre de cette étude, l'intégration de ces nouvelles surfaces permettrait d'améliorer davantage sa représentativité en regard des fonctionnalités avancées des réseaux 5G.
+
+\subsection{Intégration d'informations système}
+Les logs systèmes sont fréquemment utilisés pour la détection d'anomalies dans le domaine des systèmes distribués \cite{dist_log_trace}. Dans notre approche, nous avons choisi de ne pas les intégrer, car ils constituent une représentation indirecte et potentiellement partielle des événements réseau. 
+
+Toutefois, plutôt que de s'appuyer sur la surcouche que constituent les logs, une approche alternative consisterait à surveiller directement les appels systèmes effectués par les machines hôtes afin d'intégrer des informations issues de l'environnement d'exécution. Ces données pourraient permettre d'identifier des comportements complémentaires, comme les phases d'une intrusion ainsi que les conséquences système des attaques réseau, telles que les surcharges ou les pertes de connectivité.
+
+Le travail de Raulin et al. \cite{baguette} propose notamment une modélisation des appels systèmes sous forme de graphes, ce qui ouvre la possibilité d'adapter ce formalisme à notre représentation et de combiner les informations réseau et système. Une telle approche nécessiterait néanmoins une étape de sélection des événements pertinents afin d'écarter les comportements systèmes non liés à la détection d'attaques réseau, ce qui représente un défi supplémentaire mais constitue une perspective intéressante.
+
+\section{Synthèse}
+Au cours de cette thèse, nous avons étudié les approches existantes en détection d'anomalies dans les réseaux 5G et mis en évidence plusieurs limites de l'état de l'art, notamment concernant les attaques considérées, les datasets disponibles et les méthodes de détection proposées.
+
+La principale contribution de ce travail est la proposition d'un nouveau formalisme permettant de répondre à ces limites. Celui-ci permet de détecter des attaques couvrant les trois dimensions étudiées, tout en conservant une forte capacité d'explicabilité. Cette propriété le rend particulièrement adapté aux environnements nécessitant une validation humaine, comme les SOC.
+
+Les résultats obtenus sont encourageants, avec des performances atteignant jusqu'à 94\% d'accuracy. Ces performances pourraient encore être améliorées par des modèles plus spécialisés ou des étapes de \textit{fine-tuning}.
+
+% Enfin, plusieurs extensions sont envisageables, notamment l'intégration d'informations issues de l'environnement système afin de compléter l'analyse basée sur les données réseau.
+
+Ainsi, cette thèse ouvre de nouvelles perspectives pour l'amélioration des méthodes et outils existants, tout en proposant de nouvelles opportunités grâce au formalisme développé et à l'exploitation de modèles de graphes continus dynamiques.
 
 \ifdefined\included
 \else
