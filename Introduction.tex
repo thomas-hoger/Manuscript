@@ -2,13 +2,20 @@
 \else
 \documentclass[a4paper,11pt,twoside]{StyleThese}
 \include{formatAndDefs}
+\usepackage[acronym,nogroupskip,nonumberlist]{glossaries}  % pour gérer les acronymes aussi
+\include{glossary}
 \sloppy
 \begin{document}
 \fi
 
 
 \chapter*{Introduction}
+\setcounter{chapter}{0}
+\setcounter{section}{0}
+
+% \mtcaddchapter{Introduction}
 \addstarredchapter{Introduction} %Sinon cela n'apparait pas dans la table des matières
+% \minitoc
 
 \section*{Contexte}
 % la 5G évolue, se complexifie et se softwarise
@@ -63,7 +70,7 @@ Ces travaux ont également donné lieu aux présentations suivantes :
 \label{fig:pepr}
 \end{figure}
 
-Dans le cadre de son programme de recherche scientifique France 2030, le gouvernement français a lancé plusieurs programmes PEPR (Programmes et Equipements Priotaires de Recherche) thématiques dans différents domaines scientifiques. L'un d'entre eux est consacré à la 5G et aux réseaux du futur. Au sein de ce programme, NF-HiSec vise à traiter les questions de sécurité des réseaux du futurn, en particulier la 5G. Le projet NF-HiSec cherche à relever les principaux défis en matière de sécurité en se concentrant sur cinq objectifs principaux :
+Dans le cadre de son programme de recherche scientifique France 2030, le gouvernement français a lancé plusieurs programmes \gls{pepr} thématiques dans différents domaines scientifiques. L'un d'entre eux est consacré à la 5G et aux réseaux du futur. Au sein de ce programme, NF-HiSec vise à traiter les questions de sécurité des réseaux du futurn, en particulier la 5G. Le projet NF-HiSec cherche à relever les principaux défis en matière de sécurité en se concentrant sur cinq objectifs principaux :
 
 \begin{itemize}
 \item \textbf{Détection et atténuation des attaques dans des environnements complexes :} Développer des techniques avancées pour identifier et atténuer les cyberattaques dans des réseaux dynamiques et en constante évolution.
@@ -94,7 +101,7 @@ Le dernier chapitre est consacré à l'évaluation expérimentale du formalisme 
 
 \ifdefined\included
 \else
-\bibliographystyle{acm}
+\bibliographystyle{StyleThese}
 \bibliography{These}
 \end{document}
 \fi

@@ -11,6 +11,12 @@
 \usepackage{pifont}
 \usepackage{subcaption}
 
+\usepackage[acronym,nogroupskip,nonumberlist]{glossaries}  % pour gérer les acronymes aussi
+
+\include{glossary}
+\makeglossaries  % commande pour générer le glossaire
+
+
 \sloppy
 \begin{document}
 
@@ -54,7 +60,7 @@ Pour répondre à de nouvelles exigences de qualité de service et à l’émerg
 
 Cette transformation apporte toutefois de nouveaux défis en matière de sécurité. La virtualisation et la distribution des fonctions réseau élargissent la surface d’attaque et favorisent l’émergence de menaces inédites, difficilement détectables à l’aide des approches traditionnelles de volumétrie ou de signature. Dans ce contexte, il devient nécessaire de dépasser les méthodes classiques employées par les systèmes de détection d’intrusion et d’adopter des approches centrées sur le paquet, capables d’analyser simultanément son contenu, son contexte temporel ainsi que son rôle au sein des interactions réseau.
 
-Afin de capturer ces dimensions sémantiques, séquentielles et topologiques, cette thèse propose un nouveau formalisme fondé sur les graphes continus dynamiques. Cette représentation permet de modéliser finement l’évolution des communications réseau et d’exploiter les capacités des réseaux de neurones sur graphes (GNN). Les travaux présentés démontrent que cette approche permet de détecter efficacement des anomalies subtiles tout en offrant un niveau élevé d’interprétabilité, indispensable à leur analyse et à leur compréhension.
+Afin de capturer ces dimensions sémantiques, séquentielles et topologiques, cette thèse propose un nouveau formalisme fondé sur les graphes continus dynamiques. Cette représentation permet de modéliser finement l’évolution des communications réseau et d’exploiter les capacités des \gls{gnn}. Les travaux présentés démontrent que cette approche permet de détecter efficacement des anomalies subtiles tout en offrant un niveau élevé d’interprétabilité, indispensable à leur analyse et à leur compréhension.
 
 
 \textbf{Keywords:} Cybersecurité, 5G, Détection d'Anomalie, GNN Dynamique, NLP, Dataset
@@ -74,7 +80,10 @@ Afin de capturer ces dimensions sémantiques, séquentielles et topologiques, ce
 %
 % You should not use \mtcfixnomenclature if you have no glossary (that means,
 % if you don't use \printnomenclature or if your glossary is empty).
-\mtcfixnomenclature
+
+% \mtcfixnomenclature
+
+\printglossary[type=\acronymtype]
 
 \mainmatter
 
@@ -84,7 +93,6 @@ Afin de capturer ces dimensions sémantiques, séquentielles et topologiques, ce
 \include{Chapter3}
 \include{Chapter4}
 \include{Conclusion}
-
 
 \appendix
 

@@ -4,17 +4,18 @@
 \include{formatAndDefs}
 \usepackage{pifont}
 % fallback si compilation standalone
-\providecommand{\acs}[1]{#1}
 \providecommand{\minitoc}{}
 \providecommand{\dominitoc}{}
 \providecommand{\faketableofcontents}{}
 \hbadness=10000
 \sloppy
 
+\usepackage[acronym,nogroupskip,nonumberlist]{glossaries}  % pour gérer les acronymes aussi
+\include{glossary}
+
 \begin{document}
-\setcounter{chapter}{1} %% Numéro du chapitre précédent ;)
 \dominitoc
-\faketableofcontents
+% \faketableofcontents
 
 \fi
 
@@ -75,7 +76,7 @@ Les procédures de \textit{Session Report} sont définies dans la norme TS 29.24
 Ce mécanisme n’a sans doute pas été conçu initialement à des fins de sécurité, mais y contribue néanmoins en supprimant les sessions obsolètes de l'UPF. Ainsi, les \textit{Session Report} peuvent atténuer les attaques de type \textit{PFCP Session Establishment Flood} en supprimant les sessions frauduleuses qui auraient pu être injectées dans l'UPF par un attaquant. Ce mécanisme n’est implémenté que dans free5GC et OAI.
 
 \subsection{Allocation aléatoire des Identifiants de Session (SEID)}
-Le SMF et l'UPF maintiennent chacun une liste locale d’identifiants uniques (SEID) permettant de désigner les sessions qu’ils gèrent. Pour interagir avec une session existante, une NF initiatrice de communication doit connaître le SEID correspondant. La norme TS 29.244\cite{ts_29244} spécifie que le SEID doit être codé sur 8 octets, ce qui implique en théorie une faible probabilité de collision si les valeurs sont uniformément réparties sur l’ensemble de l’espace. 
+Le SMF et l'UPF maintiennent chacun une liste locale de \gls{seid} permettant de désigner les sessions qu’ils gèrent. Pour interagir avec une session existante, une NF initiatrice de communication doit connaître le SEID correspondant. La norme TS 29.244\cite{ts_29244} spécifie que le SEID doit être codé sur 8 octets, ce qui implique en théorie une faible probabilité de collision si les valeurs sont uniformément réparties sur l’ensemble de l’espace. 
 %
 Néanmoins, même dans les versions les plus récentes, le 3GPP ne précise pas de méthode d’attribution des SEID. En conséquence, les implémentations varient : free5GC et OAI attribuent des SEID de manière incrémentale à partir de 0, tandis qu’Open5GS les génère de manière pseudo-aléatoire mais n’utilise que 12 bits sur 64, ce qui les rend prédictibles.
 
@@ -93,7 +94,7 @@ L’autorisation des NF est renforcée par l’utilisation d’OAuth 2.0 pour le
 Parmi les implémentations étudiées, seule free5GC utilise ces jetons OAuth. Toutefois, leur version actuelle ne vérifie pas les permissions contenues dans les jetons lors des requêtes, rendant caduque l'utilisation d'OAuth.
 
 \subsection{Présence du Service Communication Proxy (SCP)}
-Dans le plan de contrôle du CN, les NF communiquent selon quatre modèles architecturaux (A, B, C et D), qui diffèrent par la manière dont la découverte, la sélection et le routage sont effectués (3GPP TS 23.501 \cite{ts_23501}). L’approche recommandée par le standard introduit une NF dédiée, appelée \textit{Service Communication Proxy} (SCP), qui agit comme intermédiaire pour les communications SBI entre NF et ajoute une couche supplémentaire de contrôle d’accès et de supervision. Parmi les implémentations étudiées, seule Open5GS suit le modèle de communication D proposé par 3GPP.
+Dans le plan de contrôle du CN, les NF communiquent selon quatre modèles architecturaux (A, B, C et D), qui diffèrent par la manière dont la découverte, la sélection et le routage sont effectués (3GPP TS 23.501 \cite{ts_23501}). L’approche recommandée par le standard introduit une NF dédiée, appelée \gls{scp}, qui agit comme intermédiaire pour les communications SBI entre NF et ajoute une couche supplémentaire de contrôle d’accès et de supervision. Parmi les implémentations étudiées, seule Open5GS suit le modèle de communication D proposé par 3GPP.
 
 \vspace{0.5cm}
 
@@ -128,11 +129,11 @@ Les spécifications 3GPP sont considérées comme exhaustives et couvrent de nom
 
 Park et al.~\cite{pfcp_in_gtp} exploitent le fait que l’encapsulation de tout autre trafic que celui des utilisateurs par la couches GTP-U constitue une zone ambiguë des spécifications 3GPP (TS 29.281)\cite{ts_29281}. De fait, la plupart des UPF n’inspectent pas les en-têtes GTP imbriqués et considèrent le contenu comme une charge utile opaque, sans validation supplémentaire. Park et al. montrent ainsi que l’encapsulation de protocoles tels que PFCP, NGAP, ou même d’une autre couche GTP-U permet à un attaquant de transmettre des requêtes à des NF critiques du CN sans y avoir un accès direct. Ces attaques restent efficaces même lorsque IPSec est déployé car bien que ce dernier protège les communications entre acteurs légitimes mais n'est d'aucun secours si ces derniers sont compromis.
 
-Fan et al.~\cite{Fan2025} identifient deux vulnérabilités liées à des ambiguïtés de la spécification 5G. Lorsque le processus \textit{Security Mode Command} (SMC) échoue, l’UE réinitialise le compteur à zéro, mais la clé elle-même n’est pas nécessairement renouvelée selon la TS 33.501\cite{ts_33501}. Par conséquent, le même flux de clé peut être réutilisé, permettant à un attaquant de déchiffrer les messages de signalisation. De plus, selon la TS 24.501, le CN 5G peut faire primer la vérification d’identité sur celle d’intégrité, ce qui permet à un attaquant de forger certains paquets et de provoquer des DoS.
+Fan et al.~\cite{Fan2025} identifient deux vulnérabilités liées à des ambiguïtés de la spécification 5G. Lorsque le processus  échoue, l’UE réinitialise le compteur à zéro, mais la clé elle-même n’est pas nécessairement renouvelée selon la TS 33.501\cite{ts_33501}. Par conséquent, le même flux de clé peut être réutilisé, permettant à un attaquant de déchiffrer les messages de signalisation. De plus, selon la TS 24.501, le CN 5G peut faire primer la vérification d’identité sur celle d’intégrité, ce qui permet à un attaquant de forger certains paquets et de provoquer des DoS.
 
-Chlosta et al.~\cite{Chlosta2021} présentent l’attaque \textit{SUCI‑Catcher}, qui permet de découvrir des identifiants utilisateurs et de les utiliser pour de la géolocalisation. L’attaque exploite le fait que les messages d'enregistrement NAS de l’UE sont échangés en clair avant l’établissement de clés, conformément à TS 33.501\cite{ts_33501}, ce qui permet à un gNB malveillant de lire le \textit{Subscriber Concealed Identifier} (SUCI) et donc d'identifier les UE présents dans une zone donnée. 
+Chlosta et al.~\cite{Chlosta2021} présentent l’attaque \textit{SUCI‑Catcher}, qui permet de découvrir des identifiants utilisateurs et de les utiliser pour de la géolocalisation. L’attaque exploite le fait que les messages d'enregistrement NAS de l’UE sont échangés en clair avant l’établissement de clés, conformément à TS 33.501\cite{ts_33501}, ce qui permet à un gNB malveillant de lire le \gls{suci} et donc d'identifier les UE présents dans une zone donnée. 
 
-Hussain et al.~\cite{5greasoner} introduisent 5GReasoner, un outil de vérification formelle pour les protocoles du plan de contrôle. En l’appliquant aux spécifications 3GPP, ils ont découvert plusieurs attaques qu’un gNB malveillant peut exécuter. Ils ont notamment identifié des vulnérabilités de désynchronisation des compteur NAS dans TS 33.501\cite{ts_33501} qui permet plusieurs formes de DoS.
+Hussain et al.~\cite{5Greasoner} introduisent 5GReasoner, un outil de vérification formelle pour les protocoles du plan de contrôle. En l’appliquant aux spécifications 3GPP, ils ont découvert plusieurs attaques qu’un gNB malveillant peut exécuter. Ils ont notamment identifié des vulnérabilités de désynchronisation des compteur NAS dans TS 33.501\cite{ts_33501} qui permet plusieurs formes de DoS.
 
 Ces attaques illustrent des vulnérabilités systémiques qui ne dépendent pas d’un contexte particulier et sont donc beaucoup plus susceptibles d’être exploitées en pratique. C’est précisément ce type d’attaques qui présente le plus d’intérêt pour la recherche, car il contribue significativement au renforcement et à la maturation continue du standard 3GPP.
 
@@ -165,7 +166,7 @@ Ces attaques illustrent des vulnérabilités systémiques qui ne dépendent pas 
     Evasion & \cellcolor{gray} & Rejeu de NAS SMC \cite{5greplay} (2021) & free5GC (v3.0) Open5GS (v2.3) & RIC & Implem. \\ \hline
     Evasion & \cellcolor{gray} & Manipulation du flux de clé \cite{Fan2025} (2025) & srsRAN (v25.04) & \cellcolor{gray} & Standard \\ \hline
     Collection & FGT1040.501 & Récupération de SUCI \cite{Chlosta2021} (2021) & free5gc (v3.0.5) srsRAN (21.04) & \cellcolor{gray} & Standard \\ \hline
-    Impacte & \cellcolor{gray} & Desynchronization du compteur NAS\cite{5greasoner} (2019) & Non spécifié & \cellcolor{gray} & Standard \\ \hline
+    Impacte & \cellcolor{gray} & Desynchronization du compteur NAS\cite{5Greasoner} (2019) & Non spécifié & \cellcolor{gray} & Standard \\ \hline
     \end{tabular}
     \vspace{0.8em}
     \par\noindent
@@ -181,9 +182,9 @@ Ces attaques illustrent des vulnérabilités systémiques qui ne dépendent pas 
 L'ambiguité au sujet de la portée des attaques provient d'un manque de caractérisation rigoureuse de ces dernières. Les matrices MITRE constituent justement des cadres universels pour la compréhension et la caractérisation des cyberattaques. Elles proposent généralement à la fois une couverture exhaustive des attaques ainsi qu’une catégorisation à plusieurs niveaux de granularité, allant des tactiques, elles-mêmes déclinées en techniques, lesquelles peuvent être mises en œuvre sous forme d’attaques concrètes appelées procédures. FiGHT™\cite{fight} en est une adaptation spécifique à la 5G, permettant de se concentrer sur les menaces propres à cet environnement. Néanmoins, l’outil FiGHT™ présente encore certaines limites que nous avons constatées en essayant de l'utiliser pour catégoriser différentes attaques de l'état de l'art :
 
 \begin{itemize}
-    \item \textbf{Manque de cohérence dans le niveau de granularité :} Les catégories de techniques proposées par FiGHT™ présentent un niveau de granularité très hétérogène, allant de techniques très spécifiques comme « Fraudulent AMF Registration for UE in UDM » à des techniques beaucoup plus générales comme « Rootkit ».
+    \item \textbf{Manque de cohérence dans le niveau de granularité :} Les catégories de techniques proposées par FiGHT™ présentent un niveau de granularité très hétérogène, allant de techniques très spécifiques comme « Fraudulent AMF Registration for UE in UDM » à des techniques beaucoup plus générales comme « Rootkit ».
 
-    \item \textbf{Absence de techniques et concepts identifiés :} Certaines procédures ou attaques, telles que « Session Modification » \cite{pfcp1}, ne correspondent à aucune catégorie existante. Bien que la matrice fasse référence à certains concepts comme les sessions, elle omet des éléments techniques importants de même niveau, tels que les tunnels GTP-U.
+    \item \textbf{Absence de techniques et concepts identifiés :} Certaines procédures ou attaques, telles que « Session Modification » \cite{pfcp1}, ne correspondent à aucune catégorie existante. Bien que la matrice fasse référence à certains concepts comme les sessions, elle omet des éléments techniques importants de même niveau, tels que les tunnels GTP-U.
     
     \item \textbf{Manque de référence aux standards 3GPP :} Le cadre FiGHT™ référence les mécanismes de sécurité associés à la plupart des techniques, mais ne fait pas explicitement référence aux spécifications 3GPP, rendant difficile la détermination de l’origine de ces mécanismes dans les standards.
     
@@ -238,7 +239,9 @@ Pour remédier à cela, il serait nécessaire que les travaux de recherche s’a
 
 \ifdefined\included
 \else
-\bibliographystyle{acm}
+\bibliographystyle{StyleThese}
 \bibliography{These}
 \end{document}
 \fi
+
+
