@@ -15,7 +15,7 @@
 
 \begin{document}
 \dominitoc
-% \faketableofcontents
+\faketableofcontents
 
 \fi
 
@@ -26,17 +26,17 @@
 Les opérateurs de télécommunications divulguent très peu d'information au sujet de leurs implémentations de la 5G ainsi que sur les attaques auxquelles ils sont confrontés. Cette « sécurité par l’obscurité » limite l’émergence de menaces opportunistes et préserve des avantages concurrentiels. Toutefois, elle constitue également un frein important pour la recherche et la mise en place de solutions de sécurité systémique. En l’absence de données empiriques et de retours d’expérience concrets, de nombreux travaux proposent des scénarios d’attaque théoriques sans disposer de cadre de référence solide, rendant difficile l'estimation de leur réalisme et de leur applicabilité dans des environnements opérationnels.
 
 % (PB2 : La définition d’une attaque 5G est flou à cause de mauvaise caractérisation)
-Ce flou de l'état de l'art en matière de réalisme est accentué par une caractérisation parfois insuffisante des attaques dans la littérature scientifique. Certains travaux reposent sur des modèles d’attaquants incomplets, des hypothèses peu explicites ou encore des expérimentations menées sur des implémentations open source trop peu matures. Bien qu’il existe des cadres méthodologiques dédiés à la caractérisation des attaques tels que FIGHT, ceux-ci présentent encore des limites et demeurent, à notre connaissance, très peu adoptés dans l’état de l’art. Cette situation contribue à entretenir une certaine ambiguïté quant à la définition et à la classification des attaques réellement pertinentes dans le contexte de la 5G.
+Ce flou de l'état de l'art en matière de réalisme est accentué par une caractérisation parfois insuffisante des attaques dans la littérature scientifique. Certains travaux reposent sur des modèles d’attaquants incomplets, des hypothèses peu explicites ou encore des expérimentations menées sur des implémentations open-source trop peu matures. Bien qu’il existe des cadres méthodologiques dédiés à la caractérisation des attaques tels que FIGHT, ceux-ci présentent encore des limites et demeurent, à notre connaissance, très peu adoptés dans l’état de l’art. Cette situation contribue à entretenir une certaine ambiguïté quant à la définition et à la classification des attaques réellement pertinentes dans le contexte de la 5G.
 
 % (PB3 : Proposition d’une nouvelle méthode de classification innovante)
 Par ailleurs, les approches traditionnelles de détection d’anomalies reposent majoritairement sur l’analyse de flux à grande échelle, fondée sur des indicateurs volumétriques. Cependant, la softwarisation des réseaux 5G rapproche ces infrastructures de systèmes distribués complexes, ce qui nécessite désormais une analyse plus fine, notamment au niveau des paquets. Afin de répondre à ce changement de paradigme, nous proposons une nouvelle catégorisation en trois dimensions d'attaques : sémantiques, séquentielles et topologiques, chacune présentant des problématiques spécifiques en matière de détection.
 
-\section{Les plateformes open source comme une approximation du réel}
-Afin d’accélérer la recherche sur les réseaux 5G et soutenir la mise en place de réseaux privés par les acteurs industriels, plusieurs projets open source ont été développés, proposant des implémentations fonctionnelles à la fois du RAN et du CN. Ces plateformes sont devenues des outils essentiels pour le monde académique, permettant de mener des expérimentations sans dépendre d’équipements propriétaires coûteux. Parmi les implémentations de cœur de réseau les plus populaires figurent OAI\cite{oai}, free5GC\cite{free5GC} et Open5GS\cite{open5gs}. Ces dernières peuvent être associées à un RAN réel comme srsRAN\cite{srsRAN} ou OAI-RAN\cite{oai}, connecté à du matériel radio et qui exploite vraiment la couche physique radio. Il existe néanmoins aussi des alternatives simulées, telles que UERANSIM\cite{ueransim}, qui émulent la couche physique radio via TCP.
+\section{Les plateformes open-source comme une approximation du réel}
+Afin d’accélérer la recherche sur les réseaux 5G et soutenir la mise en place de réseaux privés par les acteurs industriels, plusieurs projets open-source ont été développés, proposant des implémentations fonctionnelles à la fois du RAN et du CN. Ces plateformes sont devenues des outils essentiels pour le monde académique, permettant de mener des expérimentations sans dépendre d’équipements propriétaires coûteux. Parmi les implémentations de cœur de réseau les plus populaires figurent OAI \cite{oai}, free5GC \cite{free5GC} et Open5GS \cite{open5gs}. Ces dernières peuvent être associées à un RAN réel comme srsRAN \cite{srsRAN} ou OAI-RAN \cite{oai}, connecté à du matériel radio et qui exploite vraiment la couche physique radio. Il existe aussi des alternatives simulées, telles que UERANSIM \cite{ueransim}, qui émulent la couche radio via TCP.
 
-Ces initiatives sont particulièrement importantes mais restent encore à un stade de développement précoce, et couvrent pas encore tous les aspects de la norme 3GPP de manière exhaustive. Leur priorité est avant tout de proposer un code fonctionnel offrant un maximum de fonctionnalités. La sécurité, bien qu’importante dans un cadre opérationnel, constitue chez eux une contrainte parmi d’autres qui n’est pas toujours prioritaire. 
+Ces initiatives sont particulièrement importantes mais restent encore à un stade de développement précoce, et ne couvrent pas encore tous les aspects de la norme 3GPP de manière exhaustive. Leur priorité est avant tout de proposer un code opérationnel offrant un maximum de fonctionnalités. La sécurité, bien qu’importante dans un cadre opérationnel, constitue chez eux une contrainte parmi d’autres et n’est pas toujours prioritaire. 
 
-De ce fait, de nombreux mécanismes de sécurité définis par la norme 3GPP ne sont pas implémentés dans les différentes solutions open source. Le tableau \ref{tab:exec_by_platform_status} illustre ce problème en mettant en évidence l’absence de certains mécanismes dans les trois implémentations de CN les plus répandues. Afin de mieux appréhender les implications de ces lacunes, chacun des mécanismes présentés dans ce tableau est décrit individuellement dans les sous-sections suivantes. %Cette analyse détaillée vise à expliciter leur rôle, ainsi que les conséquences concrètes de leur absence au sein des plateformes étudiées. Cette situation n’est toute fois pas sans conséquence : le niveau de sécurité des outils d'expérimentation disponible ne reflète pas fidèlement celui spécifié par les standards. Bien qu'elles n'y soient pas aptes, ces plateformes sont pourtant utilisé pour valider et d’évaluaer des attaques dans plusieurs travaux de l’état de l’art.
+De ce fait, de nombreux mécanismes de sécurité définis par la norme 3GPP ne sont pas implémentés dans les différentes solutions open-source. Le tableau \ref{tab:exec_by_platform_status} illustre ce problème en mettant en évidence l’absence de certains mécanismes dans les trois implémentations de CN les plus répandues. Afin de mieux appréhender les implications de ces lacunes, chacun des mécanismes présentés dans ce tableau est décrit individuellement dans les sous-sections suivantes. %Cette analyse détaillée vise à expliciter leur rôle, ainsi que les conséquences concrètes de leur absence au sein des plateformes étudiées. Cette situation n’est toute fois pas sans conséquence : le niveau de sécurité des outils d'expérimentation disponible ne reflète pas fidèlement celui spécifié par les standards. Bien qu'elles n'y soient pas aptes, ces plateformes sont pourtant utilisé pour valider et d’évaluaer des attaques dans plusieurs travaux de l’état de l’art.
 
 \begin{table*}[t]
     \centering
@@ -60,20 +60,19 @@ De ce fait, de nombreux mécanismes de sécurité définis par la norme 3GPP ne 
     OAuth2                  & \textit{\ding{54}}    & v3.4.0 (2024)         & \textit{\ding{54}}    & Rel. 15 (2018) \\ \hline
     Fonction réseau SCP     & v2.4.9 (2022)         & \textit{\ding{54}}    & \textit{\ding{54}}    & Rel. 16 (2020) \\ \hline
     \end{tabular}
-    \caption{Date d'implémentation de mécanismes de sécurité dans les implémentations CN open source vis à vis de leur date de parution dans les standards 3GPP. }
-
+    \caption{Date d'implémentation de mécanismes de sécurité dans les implémentations CN open-source vis à vis de leur date de parution dans les standards 3GPP.}
     \label{tab:exec_by_platform_status}
 \end{table*}
 
 \subsection{IPSec}
 Selon la norme TS 33.501\cite{ts_33501}, les interfaces non basées sur les services, telles que N2, N3 et N4, doivent assurer des mécanismes d’intégrité, de protection contre le rejeu et de confidentialité. Plus précisément, IPSec en mode tunnel est requis pour N2 et N3, et n’est obligatoire pour N4 que si la sécurité n’est pas assurée par d’autres moyens. 
 %
-Parmi les implémentations open source étudiées, seule free5GC propose IPSec. Toutefois, IPSec est uniquement disponible via les fonctions réseau N3IWF et TNGF, qui sont utilisées pour des équipements non conformes 3GPP. En pratique, la majorité des attaques proposées dans l'état de l'art que nous avons examinées déploient le cœur de réseau 5G avec un simulateur de RAN, tel que UERANSIM, qui se connecte directement à l’AMF et à l’UPF sans utiliser IPSec.
+Parmi les implémentations open-source étudiées, seule free5GC propose IPSec. Toutefois, IPSec est uniquement disponible via les fonctions réseau N3IWF et TNGF, qui sont utilisées pour des équipements non conformes 3GPP. En pratique, la majorité des attaques proposées dans l'état de l'art que nous avons examinées déploient le cœur de réseau 5G avec un simulateur de RAN, tel que UERANSIM, qui se connecte directement à l’AMF et à l’UPF sans utiliser IPSec.
 
 \subsection{Session Report}
 Les procédures de \textit{Session Report} sont définies dans la norme TS 29.244\cite{ts_29244} et sont initiées par le SMF afin de synchroniser sa table de sessions locale avec celle de l'UPF. Régulièrement, et pour chaque session de sa table locale, le SMF envoie une requête sur l’interface N4 afin de vérifier l’état de la session du point de vue de l'UPF. 
 %
-Ce mécanisme n’a sans doute pas été conçu initialement à des fins de sécurité, mais y contribue néanmoins en supprimant les sessions obsolètes de l'UPF. Ainsi, les \textit{Session Report} peuvent atténuer les attaques de type \textit{PFCP Session Establishment Flood} en supprimant les sessions frauduleuses qui auraient pu être injectées dans l'UPF par un attaquant. Ce mécanisme n’est implémenté que dans free5GC et OAI.
+Ce mécanisme n’a sans doute pas été initialement conçu à des fins de sécurité, mais y contribue néanmoins en supprimant les sessions obsolètes de l'UPF. Ainsi, les \textit{Session Report} peuvent atténuer les attaques de type \textit{PFCP Session Establishment Flood} en supprimant les sessions frauduleuses qui auraient pu être injectées dans l'UPF par un attaquant. Ce mécanisme n’est implémenté que dans free5GC et OAI.
 
 \subsection{Allocation aléatoire des Identifiants de Session (SEID)}
 Le SMF et l'UPF maintiennent chacun une liste locale de \gls{seid} permettant de désigner les sessions qu’ils gèrent. Pour interagir avec une session existante, une NF initiatrice de communication doit connaître le SEID correspondant. La norme TS 29.244\cite{ts_29244} spécifie que le SEID doit être codé sur 8 octets, ce qui implique en théorie une faible probabilité de collision si les valeurs sont uniformément réparties sur l’ensemble de l’espace. 
@@ -102,12 +101,12 @@ Dans le plan de contrôle du CN, les NF communiquent selon quatre modèles archi
 À travers les sections précédentes et le tableau~\ref{tab:exec_by_platform_status}, nous avons montré que le niveau de maturité des plateformes 5G disponibles dans l’état de l’art varie significativement. Chaque plateforme présente au moins trois mécanismes absents dans son implémentation, et les mécanismes manquants diffèrent d’une plateforme à l’autre. Cette hétérogénéité rend ces plateformes inadaptées comme outils intrinsèques d’évaluation des attaques et souligne la nécessité, dans le cadre de travaux de recherche orientés sur les attaques, de se référer aux spécifications 3GPP.
 
 \section{Distinction entre attaques réalistes et hypothèses irréalistes}
-Plusieurs travaux récents ont analysé des vulnérabilités 5G à travers des attaques théoriques et pratiques. Nous les classons en deux catégories : (i) les attaques exploitant des failles spécifiques aux implémentations open source, et (ii) les attaques exploitant des faiblesses inhérentes aux spécifications 3GPP. L’objectif de cette classification est de mettre en évidence les biais de raisonnement qui conduisent à confondre des attaques irréalistes avec des failles majeures des standards. Le tabkeau \ref{tab:attack_table_mitre_observed} présente une catégorisation détaillée de ces attaques, en précisant les versions des plateformes utilisées, les mécanismes de sécurité manquants et le type de faille exploitée.
+Plusieurs travaux récents ont analysé des vulnérabilités 5G à travers des attaques théoriques et pratiques. Nous les classons en deux catégories : (i) les attaques exploitant des failles spécifiques aux implémentations open-source, et (ii) les attaques exploitant des faiblesses inhérentes aux spécifications 3GPP. L’objectif de cette classification est de mettre en évidence les biais de raisonnement qui conduisent à confondre des attaques irréalistes avec des failles majeures des standards. Le tableau \ref{tab:attack_table_mitre_observed} présente une catégorisation détaillée de ces attaques, en précisant les versions des plateformes utilisées, les mécanismes de sécurité manquants et le type de faille exploitée.
 
 \subsection{Attaques spécifiques aux implémentations}
 
 % mTLS + Oauth + SCP
-Coldwell et al.~\cite{5gad} ainsi que CTD5G \cite{CTD5G} exploitent différentes NF de free5GC via des appels API malveillants qui incluent la manipulation de la gestion des NF, le scan et l'extraction de données utilisateurs. Ces attaques réussissent sur la version par défaut de free5GC, qui ne dispose ni de TLS, ni d’OAuth, ni de SCP, et ne permet donc pas d’authentifier correctement les NF. De plus, l’absence de mécanismes de \textit{heartbeat} rend possible la suppresion de NF légitime qui se reconnecteraient pourtant automatiquement en temps normal.
+Coldwell et al.~\cite{5gad} ainsi que CTD5G \cite{CTD5G} exploitent différentes NF de free5GC via des appels API malveillants qui incluent la manipulation de la gestion des NF, le scan et l'extraction de données utilisateurs. Ces attaques réussissent sur la version par défaut de free5GC, qui ne dispose ni de TLS, ni d’OAuth, ni de SCP, et ne permet donc pas d’authentifier correctement les NF. De plus, l’absence de mécanismes de \textit{heartbeat} rend possible la suppresion de NF légitimes qui se reconnecteraient automatiquement en temps normal.
 
 % PFCP Modif / Delete
 Amponis et al.~\cite{pfcp1} décrivent deux attaques basées sur PFCP ciblant la gestion des sessions entre le SMF et l'UPF. La première classe d’attaques tente de modifier ou supprimer des sessions, nécessitant la connaissance du SEID correspondant. Ces attaques ont été démontrées avec succès sur Open5GS, mais l'implémentation n’utilise que 12 bits sur 64 pour le SEID, rendant collisions et découvertes par force brute beaucoup plus faciles.
@@ -115,7 +114,7 @@ Amponis et al.~\cite{pfcp1} décrivent deux attaques basées sur PFCP ciblant la
 La seconde classe d’attaques proposée par Amponis et al.~\cite{pfcp1} vise à épuiser les ressources de l'UPF en établissant de manière répétée un grand nombre de sessions. Cette attaque n’est plausible que sur certaines implémentations, comme Open5GS, qui ne supportent pas les \textit{PFCP Session Report} et ne suppriment donc pas les sessions inutilisées.
 
 % GTP Redir
-ZDI‑CAN‑18522 \cite{spoof_gtp} décrit une vulnérabilité de réflexion de paquets permettant aux attaquants d’usurper l'identité d’un UE pour une communication uplink. L’attaquant peut créer des paquets avec l’IP de l’UE victime comme source et les envoyer via un tunnel utilisateur valide. L'UPF transmet alors ce trafic vers un hôte Internet arbitraire, créant un canal uplink falsifié au nom du dispositif. Cette attaque n'est possible qu'en l’absence d’authentification et d’intégrité et n’est donc pas possible sur une implémentation qui intègre IPSec conformément aux standards 3GPP.
+ZDI‑CAN‑18522 \cite{spoof_gtp} décrit une vulnérabilité de réflexion de paquets permettant aux attaquants d’usurper l'identité d’un UE pour une communication montante. L’attaquant peut créer des paquets avec l’IP de l’UE victime comme source et les envoyer via un tunnel utilisateur valide. L'UPF transmet alors ce trafic vers un hôte Internet arbitraire, créant un canal montant falsifié au nom du dispositif. Cette attaque n'est possible qu'en l’absence d’authentification et d’intégrité et n’est donc pas possible sur une implémentation qui intègre IPSec conformément aux standards 3GPP.
 
 % Replay de ngap mal formé
 Salazar et al.~\cite{5greplay} présentent deux attaques spécifiques aux implémentations. La première envoie des messages NGAP mal formés pour déclencher une vulnérabilité des parseurs de free5GC et Open5GS, provoquant un crash de l’AMF. La seconde consiste à connecter et déconnecter de manière répétée un grand nombre d’UE, surchargeant le réseau et ciblant des déploiements 5G mal dimensionnés incapables de gérer un grand nombre d’utilisateurs.
@@ -127,7 +126,7 @@ Les attaques décrites dans ces travaux dépendent de conditions très spécifiq
 
 Les spécifications 3GPP sont considérées comme exhaustives et couvrent de nombreux cas d’usage. Pourtant, plusieurs études ont identifié des vulnérabilités qui peuvent survenir même dans des déploiements respectant strictement les recommandations 3GPP. %Comme ces vulnérabilités ne résultent pas de l’absence de mécanismes au sein des plateformes, les entrées correspondantes dans le tableau~\ref{tab:attack_table_mitre_observed} sont grisées.
 
-Park et al.~\cite{pfcp_in_gtp} exploitent le fait que l’encapsulation de tout autre trafic que celui des utilisateurs par la couches GTP-U constitue une zone ambiguë des spécifications 3GPP (TS 29.281)\cite{ts_29281}. De fait, la plupart des UPF n’inspectent pas les en-têtes GTP imbriqués et considèrent le contenu comme une charge utile opaque, sans validation supplémentaire. Park et al. montrent ainsi que l’encapsulation de protocoles tels que PFCP, NGAP, ou même d’une autre couche GTP-U permet à un attaquant de transmettre des requêtes à des NF critiques du CN sans y avoir un accès direct. Ces attaques restent efficaces même lorsque IPSec est déployé car bien que ce dernier protège les communications entre acteurs légitimes mais n'est d'aucun secours si ces derniers sont compromis.
+Park et al.~\cite{pfcp_in_gtp} exploitent le fait que l’encapsulation de tout autre trafic que celui des utilisateurs par la couches GTP-U constitue une zone ambiguë des spécifications 3GPP (TS 29.281)\cite{ts_29281}. De fait, la plupart des UPF n’inspectent pas les en-têtes GTP-U imbriqués et considèrent le contenu comme une charge utile opaque, sans validation supplémentaire. Park et al. montrent ainsi que l’encapsulation de protocoles tels que PFCP, NGAP, ou même d’une autre couche GTP-U permet à un attaquant de transmettre des requêtes à des NF critiques du CN sans y avoir un accès direct. Ces attaques restent efficaces même lorsque IPSec est déployé car bien que ce dernier protège les communications entre acteurs légitimes, il n'est d'aucun secours si ces derniers sont compromis.
 
 Fan et al.~\cite{Fan2025} identifient deux vulnérabilités liées à des ambiguïtés de la spécification 5G. Lorsque le processus  échoue, l’UE réinitialise le compteur à zéro, mais la clé elle-même n’est pas nécessairement renouvelée selon la TS 33.501\cite{ts_33501}. Par conséquent, le même flux de clé peut être réutilisé, permettant à un attaquant de déchiffrer les messages de signalisation. De plus, selon la TS 24.501, le CN 5G peut faire primer la vérification d’identité sur celle d’intégrité, ce qui permet à un attaquant de forger certains paquets et de provoquer des DoS.
 
@@ -138,10 +137,11 @@ Hussain et al.~\cite{5Greasoner} introduisent 5GReasoner, un outil de vérificat
 Ces attaques illustrent des vulnérabilités systémiques qui ne dépendent pas d’un contexte particulier et sont donc beaucoup plus susceptibles d’être exploitées en pratique. C’est précisément ce type d’attaques qui présente le plus d’intérêt pour la recherche, car il contribue significativement au renforcement et à la maturation continue du standard 3GPP.
 
 \begin{table*}[htbp]
-    \centering
-    \caption{Catégorisation des attaques de l'état de l'art et positionnement relatif à la matrice MITRE FiGHT™}
-    \label{tab:attack_table_mitre_observed}
-    \small
+\centering
+\caption{Catégorisation des attaques de l'état de l'art et positionnement relatif à la matrice MITRE FiGHT™.}
+\label{tab:attack_table_mitre_observed}
+\small
+\resizebox{\textwidth}{!}{
     \begin{tabular}{|p{1.6cm}|p{2cm}|p{3cm}|p{2.0cm}|p{2.0cm}|p{1.4cm}|}
     \hline
     \multicolumn{2}{|c|}{\textbf{MITRE FiGHT™}} & \textbf{Procédure} & \textbf{Version de Plateforme} & \textbf{Mécanismes Manquants} & \textbf{Type de Faille} \\ \cline{1-2}
@@ -156,9 +156,9 @@ Ces attaques illustrent des vulnérabilités systémiques qui ne dépendent pas 
     Découverte & FGT5031 & Fuzzing de SEID \cite{CTD5G} (2025) & free5GC (v4.0) & IPSec, AAS & Implem. \\ \hline
     Impacte & FGT1499 & Suppression / Création de Session \cite{pfcp1} (2022) & Open5GS (v2.4) & IPSec, PSR & Implem. \\ \hline
     Impacte & \cellcolor{gray} & Modification de Session \cite{pfcp1} (2022) & Open5GS (v2.4) & IPSec, AAS & Implem. \\ \hline
-    Collection, Impacte & FGT5008 & Ecoute de traffic utilisateur \cite{pfcp1} (2022) & Open5GS (v2.4) & IPSec, AAS & Implem. \\ \hline
+    Collection, Impacte & FGT5008 & Ecoute de trafic utilisateur \cite{pfcp1} (2022) & Open5GS (v2.4) & IPSec, AAS & Implem. \\ \hline
     \multicolumn{6}{|c|}{\textit{\textbf{Attaques GTP-U}}} \\ \hline
-    Evasion & FGT1599.505 & Usurpation Uplink \cite{spoof_gtp} (2023) & Non spécifié & IPSec & Implem. \\ \hline
+    Evasion & FGT1599.505 & Usurpation de Trafic Montant \cite{spoof_gtp} (2023) & Non spécifié & IPSec & Implem. \\ \hline
     Evasion & FGT1599.505 & PFCP-in-GTP \cite{pfcp_in_gtp} (2021) & Spirent Landslide C100-M4 & \cellcolor{gray} & Standard \\ \hline
     \multicolumn{6}{|c|}{\textit{\textbf{Attaques NGAP}}} \\ \hline
     Impacte & FGT1498.503 & Injection de paquets malformés \cite{5greplay} (2021) & free5GC (v3.0) Open5GS (v2.3) & IPSec & Implem. \\ \hline
@@ -166,16 +166,17 @@ Ces attaques illustrent des vulnérabilités systémiques qui ne dépendent pas 
     Evasion & \cellcolor{gray} & Rejeu de NAS SMC \cite{5greplay} (2021) & free5GC (v3.0) Open5GS (v2.3) & RIC & Implem. \\ \hline
     Evasion & \cellcolor{gray} & Manipulation du flux de clé \cite{Fan2025} (2025) & srsRAN (v25.04) & \cellcolor{gray} & Standard \\ \hline
     Collection & FGT1040.501 & Récupération de SUCI \cite{Chlosta2021} (2021) & free5gc (v3.0.5) srsRAN (21.04) & \cellcolor{gray} & Standard \\ \hline
-    Impacte & \cellcolor{gray} & Desynchronization du compteur NAS\cite{5Greasoner} (2019) & Non spécifié & \cellcolor{gray} & Standard \\ \hline
+    Impacte & \cellcolor{gray} & Desynchronization du compteur NAS \cite{5Greasoner} (2019) & Non spécifié & \cellcolor{gray} & Standard \\ \hline
     \end{tabular}
-    \vspace{0.8em}
-    \par\noindent
-    \footnotesize
-    \textbf{Légende:}\\
-    NFHB=NF HeartBeat; 
-    PSR=Procédure de Session Report; \\
-    AAS=Allocation Aléatoire de SEID; 
-    RIC=Resilience Insuffisante à la Charge 
+}
+\vspace{0.8em}
+\par\noindent
+\footnotesize
+\textbf{Légende:}\\
+NFHB=NF HeartBeat; 
+PSR=Procédure de Session Report; \\
+AAS=Allocation Aléatoire de SEID; 
+RIC=Resilience Insuffisante à la Charge 
 \end{table*}
 
 \section{Limites du cadre FiGHT™ en tant que framework de catégorisation}
@@ -191,19 +192,19 @@ L'ambiguité au sujet de la portée des attaques provient d'un manque de caract�
     \item \textbf{Absence d'information sur les versions concernées :} Les spécifications et les implémentations évoluent continuellement. Il est donc important de mentionner explicitement les versions concernées, à l’image de ce qu'il se fait pour les CVEs, afin de pouvoir déterminer facilement si une procédure reste applicable ou non.
 \end{itemize}
 
-FiGHT™ est déjà largement reconnu, mais ses lacunes rendent la caractérisation des attaques floue et expliquent en partie pourquoi ce framework n’est jamais utilisé dans les travaux que nous avons analysés dans l’état de l’art. En renforçant le contenu existant pour combler ces limites, et en mettant en évidence l’intérêt d’une caractérisation rigoureuse ainsi que les problèmes liés à son absence, nous pensons que FiGHT™ pourra mieux évaluer la probabilité réelle et l’impact des attaques.
+FiGHT™ est déjà largement reconnu, mais ses lacunes rendent la caractérisation des attaques, de leur probabilité et de leurs impacts floue. Cela expliquerait en partie pourquoi ce framework n’est jamais utilisé dans les travaux que nous avons analysés dans l’état de l’art. En comblant les limites du framework tel que nous le proposons et en mettant en évidence l’intérêt d’une caractérisation rigoureuse, FiGHT™ pourrait devenir un outil précieux pour la communauté et permettrait d’améliorer la qualité des scénarios d’attaque présentés dans l’état de l’art.
 
 % \subsection{Statut incorrect des techniques}
 % Chaque technique de la matrice est associée à un statut reflétant le niveau de maturité de son exploitation documentée. Cependant, notre analyse de l’état de l’art révèle que 13 des 16 attaques que nous avons identifiées sont classées comme « Theoretical » ou « PoC », alors que des implémentations concrètes de procédures existent et devraient conduire à leur classification comme « Observed ». Selon MITRE, les mises à jour du contenu interviennent environ tous les six mois. Malgré cela, plusieurs attaques décrites dans des publications datant de plus d’un an ne sont toujours pas correctement reflétées dans la matrice, ce qui met en évidence un décalage entre les travaux de recherche publiés et leur prise en compte dans la matrice.
 
 %\subsection{Pourquoi et comment caractériser nos attaques}
-%L’existence de vulnérabilités d’implémentation mal caractérisées est susceptible de faire passer des attaques irréalistes comme des menaces critiques. Pour éviter ce type de confusion il est donc nécessaire de prendre collectivement conscience des limites intrinsèques des plateformes open source en tant qu’outils d’évaluation des attaques et d’adopter un cadre rigoureux ancré dans les spécifications du 3GPP. FiGHT™ s’impose déjà comme une référence pour la catégorisation des attaques 5G, mais présente un certain manque de cohérence dans la granularité de ses techniques. Il est également nécessaire de compléter ou de préciser certains critères de classification, tels que la mention explicite de la nature des attaques, des versions de plateformes et des standards concernés et l'introduction de références direct à la norme 3GPP.
+%L’existence de vulnérabilités d’implémentation mal caractérisées est susceptible de faire passer des attaques irréalistes comme des menaces critiques. Pour éviter ce type de confusion il est donc nécessaire de prendre collectivement conscience des limites intrinsèques des plateformes open-source en tant qu’outils d’évaluation des attaques et d’adopter un cadre rigoureux ancré dans les spécifications du 3GPP. FiGHT™ s’impose déjà comme une référence pour la catégorisation des attaques 5G, mais présente un certain manque de cohérence dans la granularité de ses techniques. Il est également nécessaire de compléter ou de préciser certains critères de classification, tels que la mention explicite de la nature des attaques, des versions de plateformes et des standards concernés et l'introduction de références direct à la norme 3GPP.
 
 \section{Nouvelle classification propre aux enjeux de détections}
 En analysant les attaques issues de l’état de l’art et en les confrontant aux besoins de détection propres aux environnements 5G, nous avons identifié une nouvelle classification structurée selon 3 dimensions : sémantiques, séquentielles et topologiques. Cette caractérisation constitue l'origine du travail de cette thèse, car elle soulève de nouvelles problématiques en matière de détection.
 
 \subsection{Dimension sémantique}
-La dimension sémantique correspondent à des anomalies où un paquet apparaît intrinsèquement anormal au regard de son contenu, en raison de combinaisons de paramètres inhabituelles ou incohérentes par rapport au trafic légitime. La nouveauté à l’origine de cette problématique réside principalement dans l’adoption des communications SBI ainsi que dans l’utilisation d’API REST qui introduisent un grand nombre de paramètres et de combinaisons possibles au sein des requêtes HTTP/2. Par exemple, certaines attaques de fuzzing, telles que celle représentée sur la figure \ref{fig:semantique}, consistent à faire varier de manière systématique les paramètres des requêtes HTTP/2 et profiter de vulnérabilités des parseurs de l'API. Un autre cas d’anomalie sémantique est lié aux interactions entre différents protocoles. Comme plusieurs couches protocolaires coexistent en 5G, on peut observer des combinaisons de protocoles qui ne sont pas censées se produire. C'est par exemple le cas de l'attaque \textit{PFCP-in-GTP} où on trouve un schéma d'encapsulation de protocoles qui n'est pas censé apparaître avec du trafic légitime.
+La dimension sémantique correspond à des anomalies où un paquet apparaît intrinsèquement anormal au regard de son contenu, en raison de combinaisons de paramètres inhabituelles ou incohérentes par rapport au trafic légitime. La nouveauté à l’origine de cette problématique réside principalement dans l’adoption des communications SBI ainsi que dans l’utilisation d’API REST qui introduisent un grand nombre de paramètres et de combinaisons possibles au sein des requêtes HTTP/2. Par exemple, certaines attaques de fuzzing, telles que celle représentée sur la figure \ref{fig:semantique}, consistent à faire varier de manière systématique les paramètres des requêtes HTTP/2 et profiter de vulnérabilités des parseurs de l'API. Un autre cas d’anomalie sémantique est lié aux interactions entre différents protocoles. Comme plusieurs couches protocolaires coexistent en 5G, on peut observer des combinaisons de protocoles qui ne sont pas censées se produire. C'est par exemple le cas de l'attaque \textit{PFCP-in-GTP} où on trouve un schéma d'encapsulation de protocoles qui n'est pas censé apparaître avec du trafic légitime.
 
 \begin{figure}[h]
 \centering
@@ -213,17 +214,17 @@ La dimension sémantique correspondent à des anomalies où un paquet apparaît 
 \end{figure}
 
 \subsection{Dimension topologique}
-Une anomalie sur la dimension topologique correspond aux situations où un paquet avec un contenu légitime devient suspect en raison des relations qu’il entretient avec d’autres paquets ou entités du réseau. Les valeurs de certains attributs, comme les adresses IP ou les identifiants d'instance de NF, n'ont pas d’intérêt intrinsèque, mais peuvent apporter des informations importantes quant au contexte d’un paquet. En analysant les relations entre des paquets partageant les mêmes paramètres, il est possible de mettre en évidence des schémas d’attaque qui ne seraient pas détectables en analysant les paquets indépendamment. La figure \ref{fig:topologique} présente un exemple de redirection de paquets résultant d'une attaque man-in-the-middle, où l’adresse de destination d’un premier paquet est réutilisée comme adresse source pour un second paquet contenant exactement le même appel d’API. Or il n’existe aucune situation  dans les réseaux 5G où ce type de redirection pourrait se produire de façon légitime. Pour détecter ce type d'anomalie il est donc nécessaire de prendre en compte le contexte topologique. Cette problématique existait déjà partiellement dans les réseaux antérieurs à la 5G, mais elle est aujourd’hui largement amplifiée par le caractère dynamique des entités réseau.
+Une anomalie sur la dimension topologique correspond aux situations où un paquet avec un contenu légitime devient suspect en raison des relations qu’il entretient avec d’autres paquets ou entités du réseau. Les valeurs de certains attributs, comme les adresses IP ou les identifiants d'instance de NF, n'ont pas d’intérêt intrinsèque, mais peuvent apporter des informations importantes quant au contexte d’un paquet. En analysant les relations entre des paquets partageant les mêmes paramètres, il est possible de mettre en évidence des schémas d’attaque qui ne seraient pas détectables en analysant les paquets indépendamment. La figure \ref{fig:topologique} présente un exemple de redirection de paquets résultant d'une attaque \gls{mitm}, où l’adresse de destination d’un premier paquet est réutilisée comme adresse source pour un second paquet contenant exactement le même appel d’API. Or il n’existe aucune situation  dans les réseaux 5G où ce type de redirection pourrait se produire de façon légitime. Pour détecter ce type d'anomalie il est donc nécessaire de prendre en compte le contexte topologique. Cette problématique existait déjà partiellement dans les réseaux antérieurs à la 5G, mais elle est aujourd’hui largement amplifiée par le caractère dynamique des entités réseau.
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.8\linewidth]{figures/chapter2/topologique.png}
-\caption{Example d'anomalie topologique : une redirection de paquets résultant d'une attaque man-in-the-middle.}
+\caption{Example d'anomalie topologique : une redirection de paquets résultant d'une attaque \gls{mitm}.}
 \label{fig:topologique}
 \end{figure}
 
 \subsection{Dimension temporelle}
-Le trafic du plan de contrôle 5G, tel que défini par la norme 3GPP, suit des modèles d’échanges séquentiels, et toute déviation par rapport à ces schémas représente une anomalie. Ces déviations peuvent correspondre à la répétition de plusieurs paquets identiques, tel que représenté sur la figure \ref{fig:sequentiel}, ou à l’ajout de paquets au sein d’une séquence donnée. Les attaques basées sur le domaine temporelle sont rarement spécifiques à la 5G mais comme les attaques n'appartiennent pas exclusivement à une seule famille, les anomalies temporelles 5G ont aussi souvent des dimensions topologiques ou sémantique. On peut avoir des attaques de plusieurs familles comme les DDoS qui sont évidemment des anomalies temporelles mais se différencient des DoS par leur aspect distribué et donc topologique. Cette complémentarité entre les différentes dimensions d’anomalies souligne la nécessité d’une approche de détection multi-dimensionnelle.
+Le trafic du plan de contrôle 5G, tel que défini par la norme 3GPP, suit des modèles d’échanges séquentiels, et toute déviation par rapport à ces séquences représente une anomalie. Ces déviations peuvent correspondre à la répétition de plusieurs paquets identiques, tel que représenté sur la figure \ref{fig:sequentiel}, ou à l’ajout de paquets au sein d’une séquence donnée. Les attaques basées sur la dimension temporelle sont rarement spécifiques à la 5G mais comme ces attaques n'appartiennent pas exclusivement à une seule famille, les anomalies temporelles 5G ont aussi souvent des dimensions topologiques ou sémantique. Un exemple est le DDoS qui est une anomalie temporelles mais se différencie des DoS classiques par son aspect distribué et donc topologique. Cette complémentarité entre les différentes dimensions d’anomalies souligne la nécessité d’une approche de détection multi-dimensionnelle.
 
 \begin{figure}[h]
 \centering
@@ -233,7 +234,7 @@ Le trafic du plan de contrôle 5G, tel que défini par la norme 3GPP, suit des m
 \end{figure}
 
 \section{Conclusion}
-En raison du manque de visibilité sur le fonctionnement réel des réseaux 5G déployés par les grands opérateurs nationaux et internationaux, les travaux de recherche reposent majoritairement sur des plateformes open source, qui constituent aujourd’hui les principaux outils disponibles pour l’expérimentation. Toutefois, ces plateformes restent encore insuffisamment matures pour permettre une évaluation pleinement réaliste des attaques. Dans ce contexte, en analysant l’état de l’art des attaques 5G, on constate que de nombreux travaux de recherche négligent les standards et se basent sur des vulnérabilités propres à ces environnements expérimentaux. De ce fait, de nombreuses attaques peu réalistes sont présentées comme des menaces critiques. Cette ambiguïté s'étend donc sur la définition de surface d’attaque réelle de la 5G et freine les avancées en matière de recherche en sécurité.
+En raison du manque de visibilité sur le fonctionnement réel des réseaux 5G déployés par les grands opérateurs nationaux et internationaux, les travaux de recherche reposent majoritairement sur des plateformes open-source, qui constituent aujourd’hui les principaux outils disponibles pour l’expérimentation. Toutefois, ces plateformes restent encore insuffisamment matures pour permettre une évaluation pleinement réaliste des attaques. Dans ce contexte, en analysant l’état de l’art des attaques 5G, on constate que de nombreux travaux de recherche négligent les standards et se basent sur des vulnérabilités propres à ces environnements expérimentaux. De ce fait, de nombreuses attaques peu réalistes sont présentées comme des menaces critiques. Cette ambiguïté s'étend donc sur la définition de surface d’attaque réelle de la 5G et freine les avancées en matière de recherche en sécurité.
 
 Pour remédier à cela, il serait nécessaire que les travaux de recherche s’accordent collectivement sur une meilleure caractérisation des attaques, par exemple en s’appuyant systématiquement sur un cadre commun tel que la matrice FIGHT, qui pourrait remplir efficacement ce rôle moyennant quelques ajustements. Enfin, ce besoin de caractérisation, combiné à l’analyse des attaques issues de l’état de l’art, nous a conduit à proposer une nouvelle catégorisation fondée sur les dimensions de détection, rendue nécessaire par les changements introduits par la 5G.
 

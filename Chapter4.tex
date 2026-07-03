@@ -10,14 +10,14 @@
 
 \begin{document}
 \dominitoc
-% \faketableofcontents
+\faketableofcontents
 \fi
 
 \chapter{Evaluation empirique des modèles}
 \minitoc
 
 % PB1: Manque de dataset dans l'état de l'art, c'est quoi un bon dataset et comment s'en assurer
-Les données constituent un élément central des approches d’apprentissage automatique. Pourtant, dans l’état de l’art appliqué à la 5G, aucun dataset ne semble aujourd’hui s’imposer comme référence commune. La majorité des travaux reposent sur des datasets construits localement par chaque équipe de recherche, souvent selon des méthodologies différentes et insuffisamment documentées. Cette absence de standardisation rend difficile la comparaison objective des modèles proposés dans la littérature. Dans ce contexte, la création d’un dataset de référence apparaît comme une opportunité importante pour la communauté scientifique. Toutefois, cette démarche soulève plusieurs questions fondamentales autour de la définition de la qualité d’un dataset, un sujet qui demeure aujourd’hui au cœur des discussions de la communauté plus large de l’intelligence artificielle. Nous proposons donc, dans cette thèse, la conception d’un dataset dédié, en portant une attention particulière à la reproductibilité de son processus de génération ainsi qu'à l'évaluation des données produites.
+Les données constituent un élément central des approches d’apprentissage automatique. Pourtant, dans l’état de l’art appliqué à la 5G, aucun dataset ne semble aujourd’hui s’imposer comme référence commune. La majorité des travaux reposent sur des datasets construits localement par des équipes de recherche, souvent avec des méthodologies différentes et insuffisamment documentées. Cette absence de standardisation rend difficile la comparaison objective des modèles proposés dans la littérature. Dans ce contexte, la création d’un dataset de référence apparaît comme une opportunité importante pour la communauté scientifique. Toutefois, cette démarche soulève plusieurs questions fondamentales autour de la définition de la qualité d’un dataset, un sujet qui demeure aujourd’hui au cœur des discussions de la communauté plus large de l’intelligence artificielle. Nous proposons donc, dans cette thèse, la conception d’un dataset dédié, en portant une attention particulière à la reproductibilité de son processus de génération ainsi qu'à l'évaluation des données produites.
 
 
 % PB2: Comment évaluer les résultats des modèles qu'on a défini précédemment en évitant le plus possible les biais 
@@ -28,9 +28,9 @@ Au moment de l’écriture de cette thèse, la recherche en apprentissage automa
 Dans cette section, nous commencerons par étudier les datasets existants ainsi que leurs limites, avant de présenter les principales recommandations et considérations méthodologiques relatives à la génération de datasets dans le domaine de l’apprentissage automatique.
 
 \subsection{Analyse des datasets 5G}
-Pour des raisons de confidentialité et de protection des données, les grands opérateurs de télécommunication partagent rarement les données issues de leurs réseaux opérationnels. À notre connaissance, il n’existe donc pas de dataset public contenant des données industrielles. Les travaux disponibles reposent ainsi principalement sur des données synthétiques.
+Pour des raisons de confidentialité et de protection des données, les grands opérateurs de télécommunication partagent rarement les données issues de leurs réseaux opérationnels. À notre connaissance, il n’existe donc pas de dataset public contenant des données provenant d'un réseau commercial. Les travaux disponibles reposent ainsi principalement sur des données synthétiques.
 
-À notre connaissance, seuls trois travaux se positionnent officiellement comme des datasets 5G publics dédiés à la détection d’anomalies. 5G-NIDD \cite{5g_nidd} considère principalement des attaques génériques au niveau réseau, sans prendre en compte les spécificités des réseaux 5G. PFCP Intrusion Detection Dataset \cite{amponis20235g} propose un large éventail d’attaques ciblant le plan de gestion de session, mais ne détaille pas la génération du trafic légitime. Enfin, 5GAD \cite{5gad} introduit plusieurs attaques visant les interfaces orientées services du CN, mais son trafic normal repose essentiellement sur des activités utilisateur telles que le streaming vidéo ou le téléchargement de fichiers. Ce trafic étant chiffré, il diffère fortement du trafic de contrôle utilisé pour les attaques.
+À notre connaissance, seuls trois travaux se positionnent à l'heure actuelle officiellement comme des datasets 5G publics dédiés à la détection d’anomalies. 5G-NIDD \cite{5g_nidd} considère principalement des attaques génériques au niveau réseau, sans prendre en compte les spécificités des réseaux 5G. PFCP Intrusion Detection Dataset \cite{amponis20235g} propose un large éventail d’attaques ciblant le plan de gestion de session, mais ne détaille pas la génération du trafic légitime. Enfin, 5GAD \cite{5gad} introduit plusieurs attaques visant les interfaces orientées services du CN, mais son trafic normal repose essentiellement sur des activités utilisateur telles que le streaming vidéo ou le téléchargement de fichiers. Ce trafic étant chiffré, il diffère fortement du trafic de contrôle utilisé pour les attaques.
 
 En l’absence de dataset public satisfaisant, les travaux sur la détection d’anomalies doivent généralement produire leurs propres données d’entraînement, souvent privées ou insuffisamment documentées. GSAD \cite{gsad} et ADSeq-5GCN \cite{adseq} proposent plusieurs procédures normales, telles que l’enregistrement d'UE ou l’établissement de session des UE mais ne couvrent cependant qu’un nombre limité d’attaques. PROV5GC \cite{prov5g} enrichit la diversité de trafic légitime avec les changements d’état des UE. Néanmoins, parmi les attaques qu'ils proposent, certaines concernent le slicing et le signalement SMS, pour lesquels il n’introduisent pas d’équivalents légitimes avec lesquels faire contraster leurs attaques. Enfin, 5GCGuard \cite{5GCGuard} est le seul travail à notre connaissance fournissant des outils permettant de reproduire la génération des données. Cependant, seule une version prétraitée de leur dataset généré est publiée, sans accès aux captures brutes originales.
 
@@ -48,17 +48,17 @@ En l’absence de dataset public satisfaisant, les travaux sur la détection d�
             \multicolumn{5}{c|}{\textbf{Procédures bénignes}} \\ \cline{4-8}
             &  &  & Enregistrement d'UE & Gestion de Session & Changement d'Etat & Gestion de NF & Transmission par UPF \\
             \hline
-            5GAD\cite{5gad} & \checkmark & \checkmark &  &  &  &  &  \\
+            5GAD \cite{5gad} & \checkmark & \checkmark &  &  &  &  &  \\
             \hline
-            PFCP IDD\cite{amponis20235g} & \checkmark &  &  &  &  &  &  \\
+            PFCP IDD \cite{amponis20235g} & \checkmark &  &  &  &  &  &  \\
             \hline
-            GSAD\cite{gsad} &  &  & \checkmark &  &  &  &  \\
+            GSAD \cite{gsad} &  &  & \checkmark &  &  &  &  \\
             \hline
-            AdSeq\cite{adseq} &  &  & \checkmark & \checkmark &  &  &  \\
+            AdSeq \cite{adseq} &  &  & \checkmark & \checkmark &  &  &  \\
             \hline
-            PROV5GC\cite{prov5g} &  &  & \checkmark & \checkmark & \checkmark &  &  \\
+            PROV5GC \cite{prov5g} &  &  & \checkmark & \checkmark & \checkmark &  &  \\
             \hline
-            5GCguard\cite{5GCGuard} &  & \checkmark & \checkmark & \checkmark &  &  &  \\
+            5GCguard \cite{5GCGuard} &  & \checkmark & \checkmark & \checkmark &  &  &  \\
             \hline
             Notre solution & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark \\
             \hline
@@ -71,9 +71,9 @@ En l’absence de dataset public satisfaisant, les travaux sur la détection d�
 Ainsi, le principal problème des travaux récents réside dans le manque important de ressources publiques ainsi que dans l’absence de cohérence entre les attaques à détecter et le trafic normal utilisé pour les contraster. Le tableau \ref{tab:dataset_comparison} présente une synthèse comparative des travaux de l’état de l’art proposant des datasets 5G ou générant leurs propres données pour la détection d’anomalies.
 
 \subsection{Limites dans l’évaluation de la qualité des données}
-Afin d’évaluer correctement les performances des modèles de détection, il est nécessaire de s’assurer en amont que les données utilisées sont fiables et représentatives. Le machine learning est utilisé depuis longtemps pour les NIDS, ce qui a conduit à la constitution de nombreux datasets. Cependant, plusieurs travaux ont déjà mis en évidence des lacunes importantes dans des datasets pourtant considérés comme des références. L’exemple le plus connu est CIC-IDS-2017 \cite{cicids}, qui fait souvent consensus pour des tâches de détection d’anomalies réseau. Néanmoins, des travaux ont mis en lumière des problèmes critiques dans son contenu, notamment des erreurs d’étiquetage ainsi que la duplication de paquets \cite{cicids_crit}. Cela montre que la problématique est loin d’être triviale et qu’elle constitue encore un sujet d’actualité.
+Afin d’évaluer correctement les performances des modèles de détection, il est nécessaire de s’assurer en amont que les données utilisées sont fiables et représentatives. Le machine learning est utilisé depuis longtemps pour les NIDS, ce qui a conduit à la constitution de nombreux datasets. Cependant, plusieurs travaux ont déjà mis en évidence des lacunes importantes dans des datasets pourtant considérés comme étant des références. L’exemple le plus connu est CIC-IDS-2017 \cite{cicids}, qui fait souvent consensus pour des tâches de détection d’anomalies réseau. Néanmoins, des travaux ont mis en lumière des problèmes critiques dans son contenu, notamment des erreurs d’étiquetage ainsi que la duplication de paquets \cite{cicids_crit}. Cela montre que la problématique est loin d’être triviale et qu’elle constitue encore un sujet d’actualité.
 
-Dans leur travaux, Gharib et al.~\cite{eval} ont proposé un ensemble de lignes directrices permettant d’évaluer les méthodologies de génération de datasets. Ces recommandations soulignent l’importance de la diversité des types de trafic, de l’anonymisation, ainsi que d’une documentation rigoureuse garantissant la reproductibilité. De leur côté, Flood et al.~\cite{badsmell} apportent des éléments complémentaires en mettant en évidence des biais concrets présents dans des datasets largement utilisés. Ils montrent que ces biais permettent la détection d’anomalies même à l’aide de modèles extrêmement simples, ce qui remet en question la validité des résultats d’évaluation obtenus sur de telles données. Bien que ces travaux fournissent des recommandations utiles, ils s’appliquent principalement à des systèmes NIDS basés sur l’analyse de flux, plutôt que sur des paquets individuels. 
+Dans leur travaux, Gharib et al.~\cite{eval} ont proposé un ensemble de lignes directrices permettant d’évaluer les méthodologies de génération de datasets. Ces recommandations soulignent l’importance de la diversité des types de trafic, de l’anonymisation, ainsi que d’une documentation rigoureuse garantissant la reproductibilité. De leur côté, Flood et al.~\cite{badsmell} apportent des éléments complémentaires en mettant en évidence des biais concrets présents dans des datasets populaires. Ils montrent que ces biais permettent la détection d’anomalies même à l’aide de modèles extrêmement simples, ce qui remet en question la validité des résultats d’évaluation obtenus sur de telles données. Bien que ces travaux fournissent des recommandations utiles, ils s’appliquent principalement à des systèmes NIDS basés sur l’analyse de flux, plutôt que sur des paquets individuels. 
 
 Par conséquent, certaines de ces lignes directrices ne sont pas directement transposables et doivent être réinterprétées dans notre contexte. En compilant les recommandations issues de l’état de l’art et en les adaptant à notre problématique, nous identifions les objectifs suivants comme essentiels à la constitution d’un datasets 5G de qualité.
 
@@ -100,7 +100,7 @@ Par conséquent, certaines de ces lignes directrices ne sont pas directement tra
 % Notre solution & \checkmark & \checkmark & \checkmark & \checkmark &  &  \\ \hline
 % \end{tabular}
 % }
-% \caption{Comparaison des jeux de données 5G selon les catégories d'attaques couvertes.}
+% \caption{Comparaison des datasets 5G selon les catégories d'attaques couvertes.}
 % \label{tab:dataset_attaques}
 % \end{table*}
 
@@ -109,19 +109,19 @@ Comme le montre le tableau \ref{tab:dataset_comparison}, la majorité des travau
 
 En revanche, deux aspects pourtant essentiels au fonctionnement d'un réseau 5G sont largement absents de la littérature. D'une part, aucun des datasets étudiés ne propose de scénario bénin mettant en œuvre l'encapsulation du trafic utilisateur. D'autre part, les mécanismes de gestion dynamique des NF, pourtant au cœur de la flexibilité introduite par la 5G, ne sont que très rarement représentés.
 
-Notre approche vise ainsi à proposer un jeu de données couvrant non seulement les surfaces les plus couramment utilisées dans les travaux existants, mais également ces deux nouvelles surfaces, que nous considérons indispensables pour obtenir une représentation plus complète du fonctionnement d'un réseau 5G.
+Notre approche vise ainsi à proposer un dataset couvrant non seulement les surfaces les plus couramment utilisées dans les travaux existants, mais également ces deux nouvelles surfaces, que nous considérons indispensables pour obtenir une représentation plus complète du fonctionnement d'un réseau 5G.
 
-% Pour les attaques on peut voir sur \ref{tab:dataset_attaques} que la plupart des travaux ont très peu de types d'attaques différents. y'a surtout 5GAD qui est relativement complet mais ils ne couvrent pas le GTP que nous on couvre. Le papier Prov5G propose des attaques que nous on a pas, notamment sur le slicing et le SMS message signaling. C'est des choses qu'on aimerait aussi ajouter dans le futur  
+% Pour les attaques on peut voir sur \ref{tab:dataset_attaques} que la plupart des travaux ont très peu de types d'attaques différents. y'a surtout 5GAD qui est relativement complet mais ils ne couvrent pas le GTP-U que nous on couvre. Le papier Prov5G propose des attaques que nous on a pas, notamment sur le slicing et le SMS message signaling. C'est des choses qu'on aimerait aussi ajouter dans le futur  
 
 \subsubsection{Définition du périmètre d’utilisation}
 Les biais peuvent apparaître très facilement dans un dataset et introduire des corrélations artificielles facilitant excessivement la détection. Par exemple, la prise en compte des adresses MAC par un utilisateur pourrait permettre de discriminer très facilement un attaquant. Afin de limiter ces biais autant que possible, il est important de distinguer clairement les surfaces constituant le véritable objectif du dataset de celles qui ne doivent pas être prises en compte lors de l’analyse.
 
 Notre dataset est donc conçu pour être utilisé au niveau paquet sur les protocoles correspondant aux surfaces considérées, à savoir GTP, PFCP et HTTP/2. Tout autre protocole doit être exclu des analyses afin d’éviter l’introduction de biais non souhaités. La seule exception concerne la couche IP, pour laquelle les adresses source et destination doivent être conservées et utilisées comme identifiants des NF afin de permettre la détection des attaques basées sur les interactions. 
 
-Un autre point important de notre dataset est l’absence de contrainte de temps réel, cet aspect n’ayant pas d’impact significatif sur les attaques considérées. Ainsi, l’utilisation de notre dataset suppose de prendre uniquement en compte de l’ordre d’arrivée des paquets, et d'ignorer leurs horodatages exacts.
+Un autre point important de notre dataset est l’absence de contrainte de temps réel, qui n'est pas pertinent dans notre cas d'utilisation. En effet seul l'ordre des paquets dans les séquence importe pour détecter les attaques que l'on considère. Ainsi, l’utilisation de notre dataset suppose de prendre uniquement en compte de l’ordre d’arrivée des paquets, et d'ignorer leurs horodatages exacts.
 
 \subsubsection{Réalisme des données synthétiques}
-En l’absence d’accès à du trafic 5G réel, la principale solution pour les travaux de recherche consiste à s’appuyer sur des données synthétiques, générées à partir d’implémentations open-source de réseaux 5G. Bien qu'elles soient synthétiques, les données générées sur ces implémentations ne sont pas pour autant irréalistes. En effet, la 5G est en partie conçue pour des \gls{mpn} et destiné aux entreprises souhaitant déployer leur propre infrastructures, notamment pour garantir une faible latence ou protéger des données sensibles. Dans ces situations, il est souvent excessif de redévelopper entièrement un cœur 5G, ce qui favorise l’adoption d’implémentations open-source telles. On observe également des cas d’acteurs industriels tels que Firecell \cite{firecell}, qui proposent des solutions prêtes à l’emploi intégrant des implémentations basées sur OAI\cite{oai}. Ainsi, même si notre dataset a été généré à partir d’une implémentation différente de celles des grands opérateurs de réseaux mobiles, il constitue une représentation réaliste d’un scénario possible de déploiement 5G privé et apparaît donc comme une solution légitime.
+En l’absence d’accès à du trafic 5G réel, la principale solution pour les travaux de recherche consiste à s’appuyer sur des données synthétiques, générées à partir d’implémentations open-source de réseaux 5G. Bien qu'elles soient synthétiques, les données générées sur ces implémentations ne sont pas pour autant irréalistes. En effet, la 5G est en partie conçue pour des \gls{mpn} et destinée aux entreprises souhaitant déployer leur propre infrastructures, notamment pour garantir une faible latence ou protéger des données sensibles. Dans ces situations, il est souvent excessif de redévelopper entièrement un cœur 5G, ce qui favorise l’adoption d’implémentations open-source telles que OAI \cite{oai}, free5GC \cite{free5GC} et Open5GS \cite{open5gs}. On observe également des cas d’acteurs industriels tels que Firecell \cite{firecell}, qui proposent des solutions prêtes à l’emploi intégrant des implémentations basées sur OAI \cite{oai}. Ainsi, même si notre dataset a été généré à partir d’une implémentation différente de celles des grands opérateurs de réseaux mobiles, il constitue une représentation réaliste d’un scénario possible de déploiement 5G privé et apparaît donc comme une solution légitime.
 
 \subsubsection{Trafic légitime de nature adaptée}
 La détection d’anomalies nécessite de disposer d’exemples représentatifs de trafic légitime servant de référence face aux attaques. Pourtant, peu de travaux proposent un trafic bénin réellement comparable aux attaques qu’ils cherchent à détecter. Pour chaque attaque incluse dans le datasets, il est donc essentiel d’identifier les messages légitimes pouvant servir de référence lors de la détection. Dans notre approche, chaque attaque intégrée au datasets est associée à au moins un type de message bénin auquel elle peut être comparée. Les résultats sont présentés dans le Tableau ~\ref{tab:malicious_table}.
@@ -134,20 +134,20 @@ Ainsi, pour chaque attaque incluse dans notre dataset, nous définissons explici
 \subsubsection{Caractéristiques fortement dépendantes}
 Une caractéristique fortement dépendante correspond à une propriété inattendue sur laquelle un modèle peut surapprendre durant l’entraînement. La définition du périmètre d'utilisation réduit déjà significativement le nombre de caractéristiques fortement dépendantes susceptibles d’apparaître. Toutefois, de telles caractéristiques peuvent encore émerger au sein des couches retenues. Nous définissons donc plusieurs critères visant à limiter leur apparition.
 
-Pour toute attaque ne reposant pas sur une dimension sémantique, la payload doit être strictement identique à celui d’un paquet bénin. Dans le cas des attaques basées sur la répétition, il est nécessaire de randomiser l’ordre d’exécution des procédures et d’insérer du trafic bénin comme bruit de fond durant les attaques. Enfin, pour les attaques basées sur les interactions, l’adresse IP de l’attaquant doit rester cohérente au sein d’une même instance d’attaque sans pour autant demeurer constante à l’échelle de l’ensemble du datasets.
+Pour toute attaque ne reposant pas sur une dimension sémantique, la payload doit être strictement identique à celle d’un paquet bénin. Dans le cas des attaques basées sur la répétition, il est nécessaire de randomiser l’ordre d’exécution des procédures et d’insérer du trafic bénin comme bruit de fond durant les attaques. Enfin, pour les attaques basées sur les interactions, l’adresse IP de l’attaquant doit rester cohérente au sein d’une même instance d’attaque sans pour autant demeurer constante à l’échelle de l’ensemble du datasets.
 
 \section{Génération d'un dataset}
 Cette section décrit le dataset généré dans le cadre de nos travaux. Nous présentons dans un premier temps les différents types de messages bénins et malveillants retenus. Nous détaillons ensuite les choix méthodologiques mis en œuvre afin de garantir que les données produites respectent les critères de qualité précédemment définis. Enfin, nous décrivons le processus technique de génération du dataset, de manière à en assurer la reproductibilité.
 
 \subsection{Trafic bénin}
-Parmi le trafic de contrôle 5G, les échanges entre entités s’organisent sous forme de séquences de messages appelées procédures. Certaines procédures se limitent à quelques messages échangés entre deux acteurs, tandis que d’autres peuvent impliquer de nombreuses interactions entre plusieurs NF. En effet, lorsqu’une NF doit exécuter une action nécessitant des informations ou des ressources externes, elle peut être amenée à solliciter d’autres NFs, conduisant à des procédures complexes comportant parfois plusieurs dizaines de messages. La plupart sont déclenchées à la suite d’une action initiée par un utilisateur. Toutefois, certaines peuvent également être lancées par une fonction réseau du CN, soit en réaction à un événement particulier, soit de manière périodique. 
+Parmi le trafic de contrôle 5G, les échanges entre entités s’organisent sous forme de séquences de messages appelées procédures. Certaines procédures se limitent à quelques messages échangés entre deux acteurs, tandis que d’autres peuvent impliquer de nombreuses interactions entre plusieurs NF. En effet, lorsqu’une NF doit exécuter une action nécessitant des informations ou des ressources externes, elle peut être amenée à solliciter d’autres NFs, conduisant à des procédures complexes comportant parfois plusieurs dizaines de messages. La plupart sont déclenchées à la suite d’une action initiée par un utilisateur. Toutefois, certaines peuvent également être lancées soit par une fonction réseau du CN, soit en réaction à un événement particulier, soit de manière périodique. 
 
-Toutes les procédures ne présentent pas la même fréquence d’utilisation et le standard 5G en définit un très grand nombre, souvent décliné en plusieurs variantes. L’ensemble des procédures présentées dans cette section est décrit dans la spécification 3GPP TS 23.502 \cite{spec_procedures}. En pratique, il est difficile de reproduire exhaustivement l’ensemble de ces comportements, d’autant plus que les implémentations open-source disponibles ne couvrent qu’une partie des fonctionnalités prévues par les spécifications. Nous nous concentrons donc sur un sous-ensemble de procédures sélectionnées en fonction de leur importance opérationnelle et de leur pertinence vis-à-vis des scénarios d’attaque considérés. L’objectif est de disposer d’un trafic légitime suffisamment diversifié tout en garantissant la présence de procédures pouvant être directement mises en contraste avec les attaques incluses dans le dataset.
+Le standard 5G définit un très grand nombre de procédures, souvent décliné en plusieurs variantes et sont décrites dans la spécification 3GPP TS 23.502 \cite{spec_procedures}. En pratique, il est difficile de reproduire exhaustivement l’ensemble de ces comportements, d’autant plus que les implémentations open-source disponibles ne couvrent qu’une partie des fonctionnalités prévues par les spécifications. Nous nous concentrons donc sur un sous-ensemble de procédures sélectionnées en fonction de leur importance opérationnelle et de leur pertinence vis-à-vis des scénarios d’attaque considérés. L’objectif est de disposer d’un trafic légitime suffisamment diversifié tout en garantissant la présence de procédures pouvant être directement mises en contraste avec les attaques incluses dans le dataset.
 
 \begin{figure}[!h]
 \centering
 \includegraphics[width=0.7\linewidth]{figures/chapter4/registration_3gpp.png}
-\caption{Procédure générale d'enregistrement tel que proposé dans la TS 23.502 de 3GPP\cite{spec_procedures}.}
+\caption{Procédure générale d'enregistrement tel que proposé dans la TS 23.502 de 3GPP \cite{spec_procedures}.}
 \label{fig:register}
 \end{figure}
 
@@ -158,12 +158,12 @@ Les procédures d’enregistrement des UEs sont celles les plus couramment utili
 Dans la même logique que les procédures d’enregistrement, PROV5GC \cite{prov5g} propose un trafic légitime fondé sur les transitions d’état des UEs. Lorsqu’un UE demeure inactif pendant une certaine durée, une procédure de \textit{Libération de contexte} est automatiquement déclenchée. Celle-ci génère une séquence de messages entre le RAN et le CN visant à modifier l’état de l’UE du point de vue du CN et ainsi économiser des ressources précédemment allouées. Dans notre cas, ces procédures sont déclenchées manuellement, en envoyant nous-mêmes le message de libération de contexte. Lorsqu’un UE inactif redevient actif, une procédure de \textit{requête de service} est initiée afin de rétablir son état actif. Elle peut être déclenchée soit par la réception d’un message à destination d’un UE inactif, soit, à l’inverse, par l’envoi d’un message depuis ce dernier. Qu’il s’agisse de la libération de contexte ou de la reprise d’activité, ces procédures correspondent à des comportements courants dans les réseaux opérationnels et contribuent à accroître la diversité des messages présents dans le dataset.
 
 \subsubsection{Création et libération de session}
-Plusieurs attaques décrites dans l’état de l’art ciblent l’interface N4 reliant le SMF et l’UPF, responsable de la gestion des sessions. Sur cette interface, les échanges reposent sur le protocole PFCP. Parmi les procédures bénignes figurent notamment les procédures de création, de modification et de libération de session. Les procédures d’établissement et de modification de session sont incluses dans la procédure d’enregistrement de l’UE. Toutefois, il est également possible de redémarrer des sessions actives alors que l’UE est déjà enregistré, ce qui permet de considérer cette opération comme une procédure à part entière.
+Plusieurs attaques décrites dans l’état de l’art ciblent l’interface N4 reliant le SMF et l’UPF, responsable de la gestion des sessions. Sur cette interface, les échanges reposent sur le protocole PFCPqui sont notamment utilisés par des messages de création, de modification et de libération de session qui sont inclues dans la procédure d’enregistrement de l’UE et de redémarrage des sessions actives d'UE.
 
 Certaines attaques \cite{pfcp1} ciblant spécifiquement les messages PFCP associés à la création ou à la suppression de sessions, il est indispensable d’inclure des exemples légitimes de ces mêmes procédures dans le dataset afin de garantir une couverture réaliste des comportements du réseau.
 
 \subsubsection{Gestion des NF}
-Nous proposons également d’enrichir le trafic légitime disponible dans l’état de l’art par l’ajout de procédures jusqu’alors absentes mais pourtant nécessaires à la détection de certaines attaques. Il s’agit ici de la gestion des NF, à travers la simulation de leur ajout et de leur suppression au sein du CN. Ces opérations se limitent généralement à une unique requête d’API et surviennent naturellement lors du démarrage ou de l’arrêt du réseau. Toutefois, l’architecture du CN 5G étant conçue pour s’adapter dynamiquement aux variations de charge, nous simulons également ces opérations en cours d’exécution tout en garantissant la continuité du service. La manipulation de l’architecture du CN étant exploitée par certaines attaques \cite{5gad}, la présence de trafic légitime associé à ces opérations constitue également une référence nécessaire à leur détection.
+L’architecture du cœur 5G étant conçue pour s’adapter dynamiquement aux variations de charge, il est nécessaire d'avoir à disposition des procédures légitimes d'ajout et de suppression de NF, pourtant absentes de l'état de l'art. Ces opérations se limitent généralement à une unique requête d’API et surviennent naturellement lors du démarrage ou de l’arrêt du réseau. Comme redémarrer le cœur empièterait sur la disponibilité du réseau, nous simulons ces procédures au cours de l'exécution, tout en garantissant la continuité du service. La manipulation de l’architecture du CN étant exploitée par certaines attaques \cite{5gad}, la présence de trafic légitime associé à ces opérations constitue une référence nécessaire à leur détection.
 
 \subsubsection{Transfert de données par l’UPF}
 Enfin, nous introduisons une seconde procédure absente des travaux de l’état de l’art en générant du trafic utilisateur entre l’UE et le RAN. Le contenu transporté dans le plan utilisateur n’est pas spécifique à la 5G et se situe donc en dehors du périmètre de cette étude. En revanche, son acheminement nécessite l’encapsulation des paquets entre le gNB et l’UPF. Cette encapsulation repose sur le protocole GTP, qui constitue une cible fréquente des attaques décrites dans la littérature \cite{spoof_gtp,pfcp_in_gtp}. L’inclusion de trafic utilisateur permet ainsi de générer des exemples légitimes d’utilisation de GTP, indispensables à la détection et à l’évaluation des attaques ciblant ce protocole.
@@ -175,7 +175,7 @@ Enfin, nous introduisons une seconde procédure absente des travaux de l’état
         \begin{tabular}{|l|l|l|l|l|}
             \hline
             \textbf{Attaque} & \textbf{Source} & \textbf{Surface} & \textbf{Bénins comparables} & \textbf{Dimensions} \\ \hline
-            Scan applicatif des NFs & 5GAD\cite{5gad} & CN & Découverte de NF & Sequentiel / Topologique \\ \hline
+            Scan applicatif des NFs & 5GAD \cite{5gad} & CN & Découverte de NF & Sequentiel / Topologique \\ \hline
             Fuzzing d'API & Originale & CN & Tout appel d'API & Sequentiel / Sémantique \\ \hline
             Man-in-the-Middle dans le CN & Originale & CN & Gestion de NF & Sequentiel / Topologique \\ \hline
             Inondation d'établissement de session & Amponis et al.\cite{amponis20235g} & SM & Création de session & Sequentiel \\ \hline
@@ -183,21 +183,21 @@ Enfin, nous introduisons une seconde procédure absente des travaux de l’état
             DoS des sessions par modification & Amponis et al.\cite{amponis20235g} & SM & Modification de session & Sequentiel / Sémantique \\ \hline
             Fuzzing du SEID & Originale & SM & Modification de session & Sequentiel \\ \hline
             PFCP dans GTP-U & Park et al.\cite{pfcp_in_gtp} & UP & Tout message GTP-U & Sémantique \\ \hline
-            Usurpation de trafic montant & Trend Micro\cite{spoof_gtp} & UP & Tout message GTP-U & Topologique \\ \hline
+            Usurpation de trafic montant & Trend Micro \cite{spoof_gtp} & UP & Tout message GTP-U & Topologique \\ \hline
         \end{tabular}
     }
     %\vspace{2mm}
-    \footnotesize \textit{Note} : CN = coeur de réseau; SM = gestion de session ; UP = plan utilisateur \\
-    \caption{Liste des attaques présentes dans le dataset ainsi que leurs caractéristiques}
+    \footnotesize \textit{Note} : CN = cœur de réseau; SM = gestion de session ; UP = plan utilisateur \\
+    \caption{Liste des attaques présentes dans le dataset ainsi que leurs caractéristiques.}
     \label{tab:malicious_table}
     \raggedright
 \end{table*}
 
 \subsection{Trafic anormal}
-La littérature recense un large éventail d’attaques ciblant les réseaux mobiles et les infrastructures 5G. Comme évoqué dans la section précédente, certaines de ces attaques exploitent des vulnérabilités spécifiques à des implémentations particulières et ne sont pas nécessairement réalistes dans le cas d’une entreprise disposant d’une implémentation robuste et conforme aux spécifications. Néanmoins, le réel enjeu ici est plutôt que les attaques restent distinguables du trafic normal selon des critères bien définis. Ainsi, en apprenant à détecter des anomalies sur une ou plusieurs des trois dimensions définies précédemment, un modèle peut ensuite être rendu utilisable dans un cadre opérationnel plus réaliste via un entraînement complémentaire sur des données réelles. Par ailleurs, étant donné que certaines implémentations open source sont utilisées dans des réseaux 5G privés, il est également possible que des vulnérabilités similaires et des attaques de ce type existent en pratique. Pour chaque attaque, nous avons identifié de manière explicite dans le Tableau~\ref{tab:malicious_table} ces dimensions, ainsi que les surfaces d’attaque concernées et les procédures bénignes permettant une comparaison pertinente.
+La littérature recense un large éventail d’attaques ciblant les réseaux mobiles et les infrastructures 5G. Comme évoqué dans le chapitre précédent, certaines de ces attaques exploitent des vulnérabilités spécifiques à des implémentations particulières et ne sont pas nécessairement réalistes dans le cas d’une entreprise disposant d’une implémentation robuste et conforme aux spécifications. Néanmoins, le réel enjeu ici est plutôt que les attaques restent distinguables du trafic normal selon des critères bien définis. Ainsi, en apprenant à détecter des anomalies sur une ou plusieurs des trois dimensions définies précédemment, un modèle peut ensuite être rendu utilisable dans un cadre opérationnel plus réaliste en s'entrainant sur des données réelles. Par ailleurs, étant donné que certaines implémentations open-source sont utilisées dans des réseaux 5G privés, il est également possible que des attaques aussi triviales existent tout de même en pratique. Pour chaque attaque, nous avons identifié de manière explicite dans le Tableau~\ref{tab:malicious_table} ses dimensions de détection, ainsi que les surfaces d’attaque concernées et les procédures bénignes permettant une comparaison pertinente.
 
 \subsubsection{Scan applicatif des NFs} 
-Dans les réseaux 5G, les NFs peuvent être instanciées et supprimées dynamiquement. Le NRF maintient un registre des instances actives ainsi que des métadonnées décrivant leurs capacités. Lorsqu’une NF nécessite un service particulier, elle interroge le NRF afin d’identifier les fournisseurs disponibles. 5GAD~\cite{5gad} souligne que, en l’absence de mécanismes d’authentification adéquats, ces requêtes de découverte peuvent être détournées par un attaquant afin de cartographier l’ensemble du CN. Nous implémentons ce scénario en générant une séquence de requêtes de découverte, chacune ciblant aléatoirement un type de NF différent. Ces messages, pris individuellement, sont entièrement bénins. Toutefois, c’est leur enchaînement ainsi que leur origine commune qui peuvent constituer un comportement anormal.
+Dans les réseaux 5G, les NFs peuvent être instanciées et supprimées dynamiquement. Le NRF maintient un registre des instances actives ainsi que des métadonnées décrivant leurs capacités. Lorsqu’une NF nécessite un service particulier, elle interroge le NRF afin d’identifier les fournisseurs disponibles. 5GAD ~\cite{5gad} souligne que, en l’absence de mécanismes d’authentification adéquats, ces requêtes de découverte peuvent être détournées par un attaquant afin de cartographier l’ensemble du CN. Nous implémentons ce scénario en générant une séquence de requêtes de découverte, chacune ciblant aléatoirement un type de NF différent. Ces messages, pris individuellement, sont entièrement bénins. Toutefois, c’est leur enchaînement ainsi que leur origine commune qui peuvent constituer un comportement anormal.
 
 \subsubsection{Fuzzing d’API}
 Les réseaux 5G étant conformes aux spécifications 3GPP, les schémas d’API sont publiquement accessibles. Un attaquant peut ainsi disposer d’une connaissance complète des requêtes possibles ainsi que des formats de paramètres d'entrée attendus. Cette accessibilité est renforcée par des travaux récents \cite{api} ayant automatisé l’extraction de ces spécifications et leur mise à disposition dans des formats facilement exploitables. Dans ce contexte, un attaquant peut automatiquement générer des requêtes syntaxiquement valides mais contenant des paramètres falsifiés, susceptibles de provoquer des comportements anormaux selon l'implémentation du parser d'API. Dans notre code, nous sélectionnons aléatoirement des services au sein de plusieurs NFs et faisons varier systématiquement les paramètres associés. Ces messages peuvent être détectés soit individuellement via l’analyse de valeurs incohérentes, soit de manière séquentielle via l’identification de séquences anormales.
@@ -221,7 +221,7 @@ Les attaques de libération et de DoS de sessions supposent l’existence d’un
 Park et al.~\cite{pfcp_in_gtp} présentent une vulnérabilité liée au processus de décapsulation de l’UPF. Lorsqu’un utilisateur envoie des données vers le réseau de données, celles-ci sont encapsulées dans un paquet GTP-U traversant l’UPF. Celui-ci décapsule le paquet et le redirige vers sa destination. Toutefois, certaines implémentations, telles que free5GC, ne vérifient pas la nature du protocole encapsulé et le traitent de manière transparente. Il devient alors possible d’injecter des messages PFCP dans un tunnel GTP-U. Dans notre cas, nous encapsulons un unique message de suppression de session PFCP dans un paquet GTP-U. Ce type d'encapsulation n’est pas prévu par les spécifications, ce qui rend l’anomalie détectable sur la dimension sémantique.
 
 \subsubsection{Usurpation d'utilisateur}
-Trend Micro met en évidence une vulnérabilité de type réflexion de paquets dans le protocole GTP-U~\cite{spoof_gtp}. En l’absence de validation appropriée, un attaquant ayant accès à l’UPF peut envoyer depuis ce dernier un paquet GTP-U encapsulant un paquet IP falsifié contenant celle d'un UE légitime. Une fois désencapsulé, ce paquet est relayé vers l’Internet, permettant à l’attaquant d’usurper l’identité de l’UE. Celui-ci peut alors émettre des requêtes en se faisant passer pour l’utilisateur légitime et réaliser des actions en son nom. Par exemple, un comportement malveillant répété pourrait conduire certains services à bloquer l’adresse IP associée à cet utilisateur, sans que celui-ci en soit responsable. Son identification repose principalement sur l’analyse de la dimension topologique, en mettant en évidence des incohérences dans les interactions observées entre les différentes entités du réseau.
+TrendMicro ~\cite{spoof_gtp} met en évidence une vulnérabilité de type réflexion de paquets dans le protocole GTP-U. En l’absence de validation appropriée, un attaquant ayant accès à l’UPF peut envoyer depuis ce dernier un paquet GTP-U encapsulant un paquet IP falsifié contenant l'adresse d'un UE légitime. Une fois désencapsulé, ce paquet est relayé vers l’Internet, permettant à l’attaquant d’usurper l’identité de l’UE. Celui-ci peut alors émettre des requêtes en se faisant passer pour l’utilisateur légitime et réaliser des actions en son nom. Par exemple, un comportement malveillant répété pourrait conduire certains services à bloquer l’adresse IP associée à cet utilisateur, sans que celui-ci en soit responsable. Son identification repose principalement sur l’analyse de la dimension topologique, en mettant en évidence des incohérences dans les interactions observées entre les différentes entités du réseau.
 
 \subsection{Méthodologie de génération}
 Afin de limiter les biais, nous présentons dans cette section les choix méthodologiques ainsi que les mesures mises en œuvre afin de garantir la qualité, la représentativité et la cohérence du dataset généré.
@@ -229,7 +229,7 @@ Afin de limiter les biais, nous présentons dans cette section les choix méthod
 \subsubsection{Longueur des attaques par répétition}
 Dans le trafic anormal, certaines attaques reposent sur l’émission d’un unique message malveillant, tandis que d’autres nécessitent la transmission d’un grand nombre de paquets successifs. Pour ces dernières, le nombre de répétitions a été fixé à 100 messages. En pratique, un attaquant pourrait facilement transmettre un nombre bien plus important de paquets lors d’une attaque par inondation. Toutefois, limiter chaque instance d’attaque à 100 messages permet d’éviter que les scénarios d’inondation ne dominent de manière disproportionnée le dataset, tout en conservant les caractéristiques essentielles de ce type d’attaque.
 
-Cette valeur est considérée comme suffisamment élevée, car dans des conditions normales d’utilisation d’un réseau 5G, des séquences de plus de trois ou quatre messages quasi identiques consécutifs sont très rares. Ainsi, un modèle capable de détecter le comportement anormal généré par 100 messages malveillants consécutifs devrait naturellement être en mesure de généraliser à des attaques par inondation de plus grande ampleur. Enfin, puisque ces traces d’attaque sont utilisées exclusivement pour l’évaluation, le fait de fixer ce nombre de répétitions ne peut pas introduire de biais dans l’apprentissage.
+Cette valeur est considérée comme suffisamment élevée, car dans des conditions normales d’utilisation d’un réseau 5G, des séquences de plus de trois ou quatre messages quasi identiques consécutifs sont très rares. Ainsi, un modèle capable de détecter le comportement anormal généré par 100 messages malveillants consécutifs devrait naturellement être en mesure de se généraliser à des attaques par inondation de plus grande ampleur. Enfin, puisque ces traces d’attaque sont utilisées exclusivement pour l’évaluation, le fait de fixer ce nombre de répétitions ne peut pas introduire de biais dans l’apprentissage.
 
 
 \subsubsection{Préservation du contexte temporel}
@@ -277,12 +277,12 @@ Ces marqueurs permettent de délimiter automatiquement les frontières temporell
             \hline
         \end{tabular}
     }
-    \caption{Nombre de procédures et de paquets pour les scénarios bénins et d’attaque, classés par volume de paquets}
+    \caption{Nombre de procédures et de paquets pour les scénarios bénins et d’attaque, classés par volume de paquets.}
     \label{table:traffic_counts}
 \end{table*}
 
 \subsection{Environnement et implémentation}
-Les implémentations commerciales de la 5G n’étant pas librement accessibles, nous nous appuyons sur des projets open source afin de simuler des déploiements réalistes. Plus précisément, nous utilisons \textit{free5GC} \cite{free5GC} pour émuler le CN, ainsi que \textit{UERANSIM} \cite{ueransim} pour simuler les UEs et les gNBs du réseau d’accès. Ces outils ont été retenus en raison de leur large adoption au sein de la communauté scientifique et de leur utilisation fréquente dans les travaux de génération de données 5G.
+Les implémentations commerciales de la 5G n’étant pas librement accessibles, nous nous appuyons sur des projets open-source afin de simuler des déploiements réalistes. Plus précisément, nous utilisons \textit{free5GC} \cite{free5GC} pour émuler le CN, ainsi que \textit{UERANSIM} \cite{ueransim} pour simuler les UEs et les gNBs du réseau d’accès. Ces outils ont été retenus en raison de leur large adoption au sein de la communauté scientifique et de leur utilisation fréquente dans les travaux de génération de données 5G.
 
 Bien que \textit{free5GC} et \textit{UERANSIM} puissent être exécutés directement sous forme de binaires, nous avons choisi de les déployer via Docker, au moyen du projet \textit{free5gc-compose} \cite{free5gc_compose}. L’utilisation de la conteneurisation permet de disposer d’environnements préconfigurés pour l’ensemble des composants, ce qui simplifie le déploiement et améliore la reproductibilité des expériences.
 
@@ -303,7 +303,7 @@ Nous avons présenté dans les sections précédentes les différents objectifs 
 \end{figure}
 
 \subsection{Caractérisation sémantique}
-Afin d’évaluer si les attaques sémantiques sont les seules susceptibles d’être détectées sur cette dimension, nous utilisons la distance de Jaccard. La distance de Jaccard est une métrique permettant de mesurer la similarité entre deux ensembles de caractéristiques. Elle est notamment utilisée dans l’analyse de similarité de contenus textuels, par exemple pour comparer des courriels de phishing\cite{jaccard}. Dans notre cas, nous l’utilisons afin d’évaluer si les attaques sémantiques sont les seules susceptibles d’être détectées sur cette dimension. Les champs protocolaires présents dans chaque paquet d’attaque sont représentés sous forme d’un ensemble de caractéristiques, puis comparés aux ensembles extraits des paquets bénins de nature comparable. Une distance nulle indique que les deux messages partagent exactement les mêmes champs protocolaires et sont donc considérés comme sémantiquement équivalents.
+Afin d’évaluer si les attaques sémantiques sont les seules susceptibles d’être détectées sur cette dimension, nous utilisons la distance de Jaccard. La distance de Jaccard est une métrique permettant de mesurer la similarité entre deux ensembles de caractéristiques. Elle est notamment utilisée dans l’analyse de similarité de contenus textuels, par exemple pour comparer des courriels de phishing \cite{jaccard}. Dans notre cas, nous l’utilisons afin d’évaluer si les attaques sémantiques sont les seules susceptibles d’être détectées sur cette dimension. Les champs protocolaires présents dans chaque paquet d’attaque sont représentés sous forme d’un ensemble de caractéristiques, puis comparés aux ensembles extraits des paquets bénins de nature comparable. Une distance nulle indique que les deux messages partagent exactement les mêmes champs protocolaires et sont donc considérés comme sémantiquement équivalents.
 
 Néanmoins, un même type de message bénin peut présenter plusieurs variations sémantiques. Par exemple, une requête légitime de découverte peut contenir plus ou moins d’informations selon le contexte dans lequel elle est émise. Ainsi, une attaque n’a pas nécessairement besoin d’être identique à l’ensemble du trafic bénin pour être considérée comme potentiellement connue par le modèle. Il suffit en effet qu’au moins un message bénin équivalent présente une distance de Jaccard nulle avec le message d’attaque pour que celui-ci ait pu être observé lors de l’apprentissage. Dans ce cas, il ne devrait pas être détecté sur la seule dimension sémantique.
 
@@ -343,28 +343,16 @@ Dans le cas du MITM, nous avons identifié un motif de redirection durant sa pha
 Pour l’attaque d'usurpation d'utilisateur, nous avons recherché une requête GTP-U dont l’adresse IP source dans l’en-tête IP externe diffère de l’adresse IP de destination de la réponse correspondante. Afin de garantir qu’il s’agit bien d’une réponse, nous vérifions également la cohérence des adresses IP internes. La recherche de ce motif ne permet d’identifier que 72 occurrences, soit 20 de moins que le nombre d’exécutions de la procédure de spoofing. Cet écart est attendu, dans la mesure où des pertes de paquets peuvent être observées lors des requêtes adressées au service web sollicité.
 
 \subsection{Synthèse}
-Nous avons vérifié dans cette section que, pour chacune des attaques de notre dataset, la discriminabilité n’est possible qu’au regard des dimensions que nous avons définies. Nous obtenons ainsi un dataset dans lequel le risque de biais a été autant que possible réduit et que nous pourront utiliser pendant l’entraînement et l’évaluation de nos modèles, dont les expérimentations sont détaillées dans la section suivante.
+Nous avons vérifié dans cette section que, pour chacune des attaques de notre dataset, la discriminabilité n’est possible qu’au regard des dimensions que nous avons définies. Nous obtenons ainsi un dataset dans lequel le risque de biais a été réduit autant que possible et que nous pourront utiliser pendant l’entraînement et l’évaluation de nos modèles, dont les expérimentations sont détaillées dans la section suivante.
 
 % EXPE
-\section{Expérimentation et résultats}
-Nous souhaitons comparer expérimentalement plusieurs modèles et options afin de vérifier l'efficacité de notre formalisme. Pour comparer de manière rigoureuse ces configurations, il est essentiel de disposer d'un cadre expérimental unifié pour éviter des biais liés aux choix d'implémentation. Pour cette raison, nous nous appuyons sur DyGLib, la bibliothèque proposée par Yu et al. \cite{dygformer} et qui fournit un environnement unifié et bien établi regroupant plusieurs des modèles de l'état de l'art présenté dans la section 3.4.2.2. Parmi ceux retenus figurent CAWN, DyGFormer, TCL et GraphMixer, qui couvrent différentes approches de \textit{temporal embedding}, ainsi que les modèles DyRep, JODIE et TGN qui représentent les approches basées de \textit{temporal neighborhood}.
+\section{Evaluation des modèles de détection}
+Nous souhaitons comparer expérimentalement plusieurs modèles et options afin de vérifier l'efficacité de notre formalisme. Pour comparer de manière rigoureuse ces configurations, il est essentiel de disposer d'un cadre expérimental unifié pour éviter des biais liés aux choix d'implémentation. Pour cette raison, nous nous appuyons sur DyGLib, la bibliothèque proposée par Yu et al. \cite{dygformer}, qui fournit un environnement unifié et bien établi regroupant plusieurs des modèles de l'état de l'art présenté dans la section 3.4.2.2. Parmi ceux retenus figurent CAWN, DyGFormer, TCL et GraphMixer, qui couvrent différentes approches légères d'encodage temporel, ainsi que les modèles DyRep, JODIE et TGN qui représentent les approches plus complexes de voisinnage temporel avec un module de mémoire.
 
 Comme présenté dans la section 3.4.5, notre problématique se distingue des scénarios classiquement considérés dans la littérature. Afin de mieux répondre à nos besoins, plusieurs adaptations ont été apportées à la bibliothèque. Ces modifications concernent notamment la prise en compte des informations temporelles associées aux événements ainsi que la gestion des parcours multi-sauts. Ces changements ont été implémentés sous la forme d'un fork de DyGLib, disponible à l'adresse indiquée dans \cite{dyglib_fork}.
 
-L'utilisation de DyGLib nous permet ainsi non seulement de comparer les différents modèles dans un cadre homogène, mais également d'évaluer leurs performances dans plusieurs configurations d'apprentissage, notamment en mode supervisé et non supervisé. Nous étudierons également l'impact des différentes variantes de NLP présentées précédemment. Les résultats de ces expérimentations sont présentés dans les sections suivantes. La comparaison des différentes approches d'apprentissage est présentée dans la figure \ref{fig:learning_pipelines}.
+L'utilisation de DyGLib nous permet ainsi non seulement de comparer la performance de notre formalisme dans différents modèles dans un cadre homogène, mais également d'évaluer leurs performances des méthodes supervisées et non supervisées. Nous étudierons également l'impact des différentes variantes de NLP présentées précédemment. Les résultats de ces expérimentations sont présentés dans les sections suivantes. %La comparaison des différentes approches d'apprentissage est présentée dans la figure \ref{fig:learning_pipelines}.
 
-
-\begin{figure}[!ht]
-\centering
-    \includegraphics[width=1\linewidth]{figures/chapter4/approches.png}
-    % \includegraphics[width=1\linewidth]{figures/chapter4/supervised_lp.png}
-    % \par\vspace{0.5cm}
-    % \includegraphics[width=1\linewidth]{figures/chapter4/unsupervised_lp.png}
-    % \par\vspace{0.5cm}
-    % \includegraphics[width=1\linewidth]{figures/chapter4/unsupervised_ae.png}
-\caption{Comparaison des différentes approches d'apprentissage : (a) approche supervisée avec des données annotées, (b) approche non supervisée basée sur la prédiction de liens, et (c) approche non supervisée basée sur un autoencodeur.}
-\label{fig:learning_pipelines}
-\end{figure}
 
 \subsection{Métriques d'évaluation}
 
@@ -394,9 +382,17 @@ Enfin, le \textbf{F1-score} correspond à la moyenne harmonique entre la précis
 Ces métriques sont complémentaires : l’accuracy fournit une vue globale des performances, tandis que la précision, le rappel et le F1-score permettent une analyse plus fine, notamment en présence de classes déséquilibrées.
 
 \subsection{Approche supervisée}
-La première approche considérée est l'apprentissage supervisé. L'objectif est d'entraîner le modèle à partir d'un ensemble de données d'apprentissage contenant à la fois des paquets bénins et malveillants, associés à leurs labels respectifs. Le modèle apprend ainsi à estimer la probabilité d'existence des arcs dans le graphe.
 
-Comme présenté dans la section 3.6, la principale limite de cette approche est qu'elle permet principalement de détecter des attaques déjà observées ou des variantes proches de celles présentes dans les données d'entraînement. Cependant, dans notre cas, la connaissance préalable des paramètres à analyser permet de sélectionner un sous-ensemble pertinent de caractéristiques et de les encoder à l'aide d'un one-hot encoder. Cette réduction de l'espace de représentation permet de diminuer la complexité du problème et d'obtenir de meilleures performances.
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=1\linewidth]{figures/chapter4/supervised_pipeline.png}
+\caption{Représentation du processus d'apprentissage supervisé.}
+\label{fig:pipeline_supervise}
+\end{figure}
+
+La première approche est l’apprentissage supervisé, dont l’objectif est d’entraîner le modèle à partir d’un ensemble de données d’apprentissage contenant à la fois des paquets bénins et malveillants, associés à leurs labels respectifs. Le modèle apprend ainsi à estimer la probabilité d’existence des arcs dans le graphe. Une représentation du processus d’apprentissage supervisé est présentée à la figure \ref{fig:pipeline_supervise}.
+
+Comme présenté dans la section 3.5.1, la principale limite de cette approche est qu'elle permet principalement de détecter des attaques déjà observées ou des variantes proches de celles présentes dans les données d'entraînement. Cependant, dans notre cas, la connaissance préalable des paramètres à analyser permet de sélectionner un sous-ensemble pertinent de caractéristiques et de les encoder à l'aide d'un one-hot encoder. Cette réduction de l'espace de représentation permet de diminuer la complexité du problème et d'obtenir de meilleures performances.
 
 Par ailleurs, la détection d'attaques connues reste une tâche pertinente dans un contexte opérationnel. Grâce au formalisme proposé, les décisions du modèle restent interprétables, ce qui facilite l'analyse des alertes générées. De plus, ce type de modèle peut être réentraîné régulièrement afin d'intégrer de nouveaux comportements malveillants ou des évolutions de l'infrastructure.
 
@@ -405,16 +401,15 @@ Par ailleurs, la détection d'attaques connues reste une tâche pertinente dans 
 \resizebox{\textwidth}{!}{
     \begin{tabular}{lccccccc}
         \hline
-        Métrique & JODIE & DyRep & CAWN & DyGFormer & TCL & GraphMixer & TGN \\
+        Métrique          & JODIE  & DyRep  & CAWN   & DyGFormer        & TCL    & GraphMixer & TGN \\
         \hline
-        Accuracy  & 0.7432 & 0.7581 & 0.7514 & 0.8386 & 0.8466 & 0.8361 & \underline{0.9497} \\
-        Precision & 0.7226 & 0.8112 & 0.9611 & 0.9224 & 0.8916 & 0.9041 & \underline{0.9509} \\
-        Recall    & 0.1954 & 0.3568 & 0.1548 & 0.4879 & 0.5404 & 0.4906 & \underline{0.8727} \\
-        F1 Score  & 0.3077 & 0.4956 & 0.2666 & 0.6383 & 0.6729 & 0.6360 & \underline{0.9102} \\
+        TVP (TPR)         & 0.1955 & 0.3568 & 0.1548 & 0.4879           & 0.5404 & 0.4906     & \underline{0.8730} \\
+        TFP (FPR)         & 0.0309 & 0.0415 & 0.0026 & 0.0169           & 0.0271 & 0.0215     & \underline{0.0186} \\
+        Temps/paquet (ms) & 28.90  & ?      & 18.92  & \underline{3.06} & 17.27  & 34.36      & 114.91 \\
         \hline
     \end{tabular}
 }
-\caption{Comparaison des performances des modèles supervisés}
+\caption{Taux de vrais positifs, taux de faux positifs et temps d'exécution par paquet pour les différents modèles étudiés.}
 \label{tab:supervise}
 \end{table}
 
@@ -425,9 +420,17 @@ Bien que l'accuracy obtenue soit élevée, cette métrique doit être interprét
 Ainsi, même si les performances actuelles ne sont pas encore suffisantes pour une utilisation opérationnelle directe, ces résultats montrent que le formalisme proposé et son exploitation par des modèles d'apprentissage supervisé sont pertinents. Des améliorations futures pourront notamment être envisagées à travers un ajustement plus fin des hyperparamètres, une optimisation de l'architecture ou des stratégies de fine-tuning adaptées au contexte industriel.
 
 \subsection{Approche non supervisée}
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=1\linewidth]{figures/chapter4/unsupervised_pipeline.png}
+\caption{Représentation du processus d'apprentissage non supervisé. La première ligne correspond à une tâche de prédiction de lien avec des arcs négatifs artificiels, tandis que la seconde ligne correspond à une tâche de reconstruction.}
+\label{fig:pipeline_unsupervise}
+\end{figure}
+
 Cette section s’intéresse aux approches non supervisées, dont l’objectif est de permettre au modèle d’exploiter des informations issues de l’ensemble des paramètres des paquets en entrée, sans recourir à des étiquettes préalablement définies.
 
-Comme présenté en section 3.4.2.3, deux principales familles de méthodes non supervisées sont considérées dans la littérature. La première repose sur la prédiction de liens, analogue à certaines approches supervisées, dans laquelle le modèle est exposé à un ensemble d’arcs considérés comme valides ainsi qu’à des arcs négatifs, qu’il doit apprendre à distinguer. Néanmoins, en l’absence d’exemples d’attaques dans les jeux d’entraînement, des liens artificiellement négatifs sont générés. Ceux-ci sont construits en reliant des attributs initialement non connectés, tout en respectant la structure bipartite du graphe. La seconde approche repose sur des méthodes de reconstruction, dans lesquelles un graphe est fourni en entrée et le modèle est entraîné à en reconstruire la structure ou les attributs associés.
+Comme présenté en section 3.4.2.3, deux principales familles de méthodes non supervisées sont considérées dans la littérature. La première repose sur la prédiction de liens, analogue à certaines approches supervisées, dans laquelle le modèle est exposé à un ensemble d’arcs considérés comme valides ainsi qu’à des arcs négatifs, qu’il doit apprendre à distinguer. Néanmoins, en l’absence d’exemples d’attaques dans les datasets d’entraînement, des liens artificiellement négatifs sont générés. Ceux-ci sont construits en reliant des attributs initialement non connectés, tout en respectant la structure bipartite du graphe. La seconde approche repose sur des méthodes de reconstruction, dans lesquelles un graphe est fourni en entrée et le modèle est entraîné à en reconstruire la structure ou les attributs associés. Ces deux différentes approches sont représentées sur la figure \ref{fig:pipeline_unsupervise}.
 
 Quelque soit l'approche, une étape d’encodage est nécessaire afin de transformer les différents paramètres disponibles en représentations vectorielles de dimension finie, en s’appuyant sur des techniques issues du NLP. Parmi les architectures étudiées dans la section 3.5.1 nous retenons les méthodes FastText et BERT qui permettent de capturer des informations contextuelles au sein des séquences textuelles. FastText offre une solution plus légère et rapide, tandis que BERT est généralement plus expressif et performant, au prix d’une complexité computationnelle plus élevée.
 
@@ -443,7 +446,7 @@ L’un des principaux avantages du formalisme proposé réside dans son caractè
     \includegraphics[width=0.6\linewidth]{figures/chapter4/expliq_temporel.png}
     \par\vspace{0.5cm}
     \includegraphics[width=0.6\linewidth]{figures/chapter4/expliq_topo.png}
-\caption{Représentaton des coefficients d'anomalies pour les dimensions (a) sémantique, (b) séquentielle, et (c) topologique. Les noeuds rouges représentent des paquets d'attaque tandis que les verts représentent des paquets bénins.}
+\caption{Représentaton des coefficients d'anomalies pour les dimensions (a) sémantique, (b) séquentielle, et (c) topologique. Les nœuds rouges représentent des paquets d'attaque tandis que les verts représentent des paquets bénins.}
 \label{fig:expliq_anomalies}
 \end{figure}
 
@@ -460,7 +463,7 @@ Cette représentation visuelle peut ainsi compléter un mécanisme de détection
 \label{fig:interpretable}
 \end{figure}
 
-Sur cette figure, des paquets légitimes issus de procédures de redémarrage de session (nœuds bleus) ainsi que des paquets associés à des attaques de type DoS de sessions et Fuzzing de SEID (nœuds rouges) sont représentés simultanément au sein d’un même graphe. On observe notamment que les arcs liés aux attaques ne sont pas tous directement classés comme fortement anormaux. Dans le cas des attaques de type DoS de sessions, les premiers paquets sont représentés en orange, traduisant une suspicion initiale modérée de sa sémantique. Les paquets d'attaques suivants constituent de surcroit une anomalie temporelle et renforcent la confiance du modèle quant à la présence d’une anomalie. À l’inverse, les paquets issus des attaques de Fuzzing de SEID sont immédiatement identifiés comme fortement anormaux. Cette distinction s’explique par le fait que ces paquets en particuliers doivent présenter des caractéristiques structurelles et sémantiques directement anormaux.
+Sur cette figure, des paquets légitimes issus de procédures de redémarrage de session (nœuds bleus) ainsi que des paquets associés à des attaques de type DoS de sessions et Fuzzing de SEID (nœuds rouges) sont représentés simultanément au sein d’un même graphe. On observe notamment que les arcs liés aux attaques ne sont pas tous directement classés comme fortement anormaux. Dans le cas des attaques de type DoS de sessions, les premiers paquets sont représentés en orange, traduisant une suspicion initiale modérée de sa sémantique. Les paquets d'attaques suivants constituent de surcroit une anomalie temporelle et renforcent la confiance du modèle quant à la présence d’une anomalie. À l’inverse, les paquets issus des attaques de Fuzzing de SEID sont immédiatement identifiés comme fortement anormaux. Cette distinction s’explique par le fait que ces paquets en particuliers doivent présenter des caractéristiques structurelles et sémantiques directement anormales.
 
 La principale limitation de cette représentation réside dans le fait qu’elle ne capture pas explicitement la dimension temporelle des échanges. Néanmoins, dans un contexte opérationnel, ce formalisme pourrait être étendu sous la forme d’une visualisation dynamique dans laquelle les paquets et les interactions apparaîtraient progressivement au cours du temps. Une telle approche permettrait de combiner l’interprétabilité structurelle du graphe avec une analyse temporelle plus fine des comportements observés.
 

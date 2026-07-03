@@ -2,16 +2,22 @@
 \else
 \documentclass[a4paper,11pt,twoside]{StyleThese}
 \include{formatAndDefs}
+\usepackage{makecell}
 \sloppy
+
+\usepackage[acronym,nogroupskip,nonumberlist]{glossaries}  % pour gérer les acronymes aussi
+\include{glossary}
+
 \begin{document}
+\dominitoc
+\faketableofcontents
 \fi
 
-
-\chapter*{Conclusion}
-\addstarredchapter{Conclusion} %Sinon cela n'apparait pas dans la table des matières
+\chapter{Conclusion}
+\minitoc
 Au cours de cette thèse, nous avons tâché d'étudier les évolutions introduites par la 5G, tant du point de vue des nouvelles surfaces d'attaque que de la nature des menaces auxquelles ces réseaux sont exposés. Cette analyse nous a permis de mettre en évidence que la notion d'attaque 5G demeure encore insuffisamment unifiée dans la littérature. Les travaux existants adoptent des définitions et des niveaux de réalisme très hétérogènes, rendant difficile la comparaison des approches proposées. Afin de répondre à cette limite, nous avons proposé une classification des attaques visant à fournir un cadre commun pour l'étude et l'évaluation des mécanismes de détection.
 
-Nous avons également montré que les spécificités des réseaux 5G nécessitent une analyse approfondie des paquets échangés, en prenant simultanément en compte trois dimensions complémentaires : la dimension sémantique, la dimension séquentielle et la dimension topologique. Pour répondre à cette problématique, nous avons proposé un nouveau formalisme reposant sur les graphes dynamiques continus, capable de représenter conjointement ces trois aspects tout en offrant un niveau d'interprétabilité élevé, indispensable dans le contexte de la cybersécurité.
+Nous avons également montré que les spécificités des réseaux 5G nécessitent une analyse approfondie des paquets échangés, en prenant simultanément en compte trois dimensions : sémantique, séquentielle et topologique. Nous avons ainsi proposé un nouveau formalisme reposant sur les graphes dynamiques continus, capable de représenter conjointement ces trois aspects tout en offrant un niveau d'interprétabilité élevé, indispensable dans le contexte de la cybersécurité.
 
 Par ailleurs, nos travaux ont mis en évidence le manque cruel de datasets publics, complets et reproductibles dans l'état de l'art pour évaluer les approches de détection dans des environnements 5G. Afin de pallier cette limitation, nous avons conçu notre propre dataset couvrant un ensemble étendu de procédures bénignes et de scénarios d'attaque, tout en veillant à garantir sa qualité et sa reproductibilité afin de faciliter la comparaison de futurs travaux.
 
@@ -19,12 +25,12 @@ Enfin, nous avons évalué plusieurs architectures de réseaux de neurones sur g
 
 \section{Contributions}
 
-Les principales contributions de cette thèse peuvent être résumées peuvent être résumées comme suit :
+Les principales contributions de cette thèse peuvent être résumées comme suit :
 
 \begin{itemize}
 \item \textbf{Analyse critique des attaques 5G et des cadres de catégorisation existants.} Nous mettons en évidence les limites des cadres de catégorisation existants et proposons une classification permettant de structurer les différentes familles d'attaques selon les surfaces du réseau 5G qu'elles ciblent.
 \item \textbf{Proposition d'un formalisme de graphes dynamiques continus.} Nous introduisons une représentation permettant de capturer simultanément les dimensions sémantique, temporelle et topologique des échanges au sein d'un réseau 5G, tout en conservant un haut niveau d'interprétabilité.
-\item \textbf{Conception d'un dataset de trafic de contrôle 5G.} Nous proposons un nouveau dataset couvrant un ensemble étendu de procédures bénignes et de scénarios d'attaque, afin de pallier le manque de jeux de données publics représentatifs des environnements 5G.
+\item \textbf{Conception d'un dataset de trafic de contrôle 5G.} Nous proposons un nouveau dataset couvrant un ensemble étendu de procédures bénignes et de scénarios d'attaque, afin de pallier le manque de datasets publics représentatifs des environnements 5G.
 \item \textbf{Evaluation comparative de modèles de détection d'anomalies} Nous comparons plusieurs architectures de l'état de l'art, dans des contextes supervisés et non supervisés, afin d'évaluer leur aptitude à exploiter le formalisme proposé pour la détection d'anomalies dans les réseaux 5G.
 \end{itemize}
 
@@ -42,19 +48,19 @@ Ces contraintes nous ont conduits à ne pas intégrer BERT dans les expérimenta
 \subsection{Mise en place d'un modèle spécialisé}
 Dans cette étude, nous avons principalement utilisé des modèles issus de l'état de l'art afin d'évaluer notre formalisme, avec seulement quelques adaptations mineures. Toutefois, ces architectures ne sont pas nécessairement optimisées pour répondre aux spécificités de notre problématique.
 
-Une perspective d'amélioration serait donc de concevoir une architecture dédiée, comme cela est fréquemment réalisé dans les travaux existants. Dans notre cas, une telle architecture pourrait notamment exploiter les particularités de notre représentation sous forme de graphe biparti, ainsi que le fait que l'information pertinente soit portée par les arcs plutôt que par les nœuds. Cette approche permettrait potentiellement d'obtenir un modèle mieux adapté à la structure des données et aux objectifs de détection considérés.
+Une perspective d'amélioration serait donc de concevoir une architecture dédiée, comme cela est fréquemment réalisé dans les travaux existants. Dans notre cas, une telle architecture pourrait notamment exploiter les particularités de notre représentation sous forme de graphe biparti, ainsi que le fait que l'information pertinente soit portée par les arcs plutôt que par les nœuds. Un modèle mieux adapté à la structure des données et aux objectifs de détection considérés permettrait ainsi d'améliorer les performances globales.
 
 \subsection{Extension du dataset CTD5G}
 Le dataset CTD5G couvre de manière satisfaisante les surfaces d'attaque définies dans le périmètre de cette étude et permet de détecter les attaques qui leur sont associées. Néanmoins, certaines surfaces n'ont pas pu être prises en compte.
 
 C'est notamment le cas de l'AN, pour lequel le dataset contient du trafic légitime mais aucun scénario d'attaque. Les procédures de \textit{handover} constituent également une piste d'extension, puisqu'elles mettent en jeu une pile protocolaire spécifique ainsi que des scénarios impliquant le changement de gNB par un UE au cours de son déplacement.
 
-Le \textit{slicing} représente une autre perspective intéressante. Plusieurs attaques ciblant ce mécanisme ont déjà été proposées dans la littérature \cite{slice2,slice3}. Toutefois, les implémentations open source actuelles offrent un support encore limité de cette fonctionnalité. En pratique, l'identifiant de slice est principalement utilisé comme un simple critère de filtrage, plutôt que comme un véritable mécanisme d'isolation logique entre les différentes tranches du réseau.
+Le \textit{slicing} représente une autre perspective intéressante. Plusieurs attaques ciblant ce mécanisme ont déjà été proposées dans la littérature \cite{slice2,slice3}. Toutefois, les implémentations open-source actuelles offrent un support encore limité de cette fonctionnalité. En pratique, l'identifiant de slice est principalement utilisé comme un simple critère de filtrage, plutôt que comme un véritable mécanisme d'isolation logique entre les différentes tranches du réseau.
 
 Bien que la couverture actuelle du dataset soit suffisante pour les surfaces d'attaque considérées dans le périmètre de cette étude, l'intégration de ces nouvelles surfaces permettrait d'améliorer davantage sa représentativité en regard des fonctionnalités avancées des réseaux 5G.
 
 \subsection{Intégration d'informations système}
-Les logs systèmes sont fréquemment utilisés pour la détection d'anomalies dans le domaine des systèmes distribués \cite{dist_log_trace}. Dans notre approche, nous avons choisi de ne pas les intégrer, car ils constituent une représentation indirecte et potentiellement partielle des événements réseau. 
+Les logs systèmes sont fréquemment utilisés pour la détection d'anomalies dans le domaine des systèmes distribués \cite{dist_log_trace}. Dans notre approche, nous avons choisi de ne pas les intégrer, car ils constituent une représentation indirecte et partielle des événements réseau. 
 
 Toutefois, plutôt que de s'appuyer sur la surcouche que constituent les logs, une approche alternative consisterait à surveiller directement les appels systèmes effectués par les machines hôtes afin d'intégrer des informations issues de l'environnement d'exécution. Ces données pourraient permettre d'identifier des comportements complémentaires, comme les phases d'une intrusion ainsi que les conséquences système des attaques réseau, telles que les surcharges ou les pertes de connectivité.
 

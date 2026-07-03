@@ -30,7 +30,7 @@ Parallèlement, ces améliorations contribuent à accroître considérablement l
 % 3) du coup chacun fait des datasets et des attaques de son coté mais très critiquable 
 Cette évolution architecturale remet en question les approches traditionnelles de détection d’intrusion. Les mécanismes développés pour les réseaux IP classiques reposent généralement sur l’analyse de flux ou sur des signatures connues, alors que les attaques de la littérature visant les réseaux 5G exploitent souvent des propriétés plus complexes liées à la logique des protocoles, aux séquences de messages ou aux interactions entre entités du cœur de réseau.
 
-L’étude de ces problématiques est également freinée par le manque de données publiques. Pour des raisons de confidentialité, les opérateurs partagent rarement les traces issues de leurs infrastructures. Les travaux de recherche doivent donc s’appuyer sur des datasets synthétiques générés à partir d’implémentations open source. Cette situation a conduit à l’émergence de nombreux datasets construits indépendamment les uns des autres, avec des méthodologies parfois peu documentées et des biais susceptibles de fausser l’évaluation des modèles. Il devient alors difficile de comparer objectivement les approches proposées dans la littérature ou d’évaluer leur capacité réelle de généralisation.
+L’étude de ces problématiques est également freinée par le manque de données publiques. Pour des raisons de confidentialité, les opérateurs partagent rarement les traces issues de leurs infrastructures. Les travaux de recherche doivent donc s’appuyer sur des datasets synthétiques générés à partir d’implémentations open-source. Cette situation a conduit à l’émergence de nombreux datasets construits indépendamment les uns des autres, avec des méthodologies parfois peu documentées et des biais susceptibles de fausser l’évaluation des modèles. Il devient alors difficile de comparer objectivement les approches proposées dans la littérature ou d’évaluer leur capacité réelle de généralisation.
 
 \section*{Approche Scientifique}
 % Proposition d’une nouvelle méthode de classification innovante 
@@ -56,9 +56,9 @@ Ces travaux ont également donné lieu aux présentations suivantes :
 \begin{itemize}
 \item \textbf{Conférence RESSI 2025} — Présentation du formalisme de graphes dynamiques continus.
 \item \textbf{Workshop « Supervision des Infrastructures Critiques », Journées TransNumériques 2026} — Présentation de l'analyse critique de la littérature sur les attaques 5G.
-\item \textbf{Workshop « Supervision des Infrastructures Critiques », Journées TransNumériques 2026} — Présentation des travaux relatifs à la conception du jeu de données.
+\item \textbf{Workshop « Supervision des Infrastructures Critiques », Journées TransNumériques 2026} — Présentation des travaux relatifs à la conception du dataset.
 \item \textbf{Conférence THCon 2026} —  Présentation du formalisme proposé et des modèles de détection étudiés.
-\item \textbf{Conseil Scientifique et Technologique} — Présentation du formalisme proposé et des modèles de détection étudiés.
+\item \textbf{Conseil Scientifique et Technologique du PEPR Réseaux du Futur} — Présentation du formalisme proposé et des modèles de détection étudiés.
 
 \end{itemize}
 \section*{Contexte au sein du PEPR Réseaux du futur}
@@ -70,7 +70,7 @@ Ces travaux ont également donné lieu aux présentations suivantes :
 \label{fig:pepr}
 \end{figure}
 
-Dans le cadre de son programme de recherche scientifique France 2030, le gouvernement français a lancé plusieurs programmes \gls{pepr} thématiques dans différents domaines scientifiques. L'un d'entre eux est consacré à la 5G et aux réseaux du futur. Au sein de ce programme, NF-HiSec vise à traiter les questions de sécurité des réseaux du futurn, en particulier la 5G. Le projet NF-HiSec cherche à relever les principaux défis en matière de sécurité en se concentrant sur cinq objectifs principaux :
+Dans le cadre de son programme de recherche scientifique France 2030, le gouvernement français a lancé plusieurs programmes \gls{pepr} thématiques dans différents domaines scientifiques. L'un d'entre eux est consacré à la 5G et aux réseaux du futur. Au sein de ce programme, le projet NF-HiSec vise à traiter les questions de sécurité des réseaux du futur, en particulier la 5G. Le projet NF-HiSec cherche à relever les principaux défis en matière de sécurité en se concentrant sur cinq objectifs principaux :
 
 \begin{itemize}
 \item \textbf{Détection et atténuation des attaques dans des environnements complexes :} Développer des techniques avancées pour identifier et atténuer les cyberattaques dans des réseaux dynamiques et en constante évolution.
@@ -85,16 +85,16 @@ Dans le cadre de cette large initiative, le projet NF-HiSec joue donc un rôle c
 Cette thèse est organisée en quatre chapitres, chacun abordant un aspect spécifique de la problématique étudiée et de l'approche proposée.
 
 \begin{itemize}
-\item \textbf{Chapitre 1 : Identification des surfaces d'attaque de la 5G}
+\item \textbf{Chapitre 1 : Identification des surfaces d'attaque de la 5G.}
 Ce premier chapitre présente le contexte général des réseaux 5G, en détaillant leur architecture ainsi que les principales technologies qui les composent. Nous identifions ensuite les différentes surfaces d'attaque susceptibles d'être exploitées par un adversaire et les surfaces à protéger. Cette analyse permet de délimiter précisément le périmètre d'étude retenu dans le cadre de cette thèse.
 
-\item \textbf{Chapitre 2 : État de l'art des attaques 5G}
-Une fois le cadre d'étude établi, nous analysons les travaux existants consacrés aux attaques visant les réseaux 5G. Nous montrons que la notion même d'attaque n'est pas toujours définie de manière uniforme dans la littérature, de nombreux travaux se concentrant principalement sur l'absence ou l'insuffisance de certains mécanismes de sécurité. Ce constat nous conduit à proposer une nouvelle classification des attaques, qui servira de fondement à l'approche de détection développée dans la suite de la thèse.
+\item \textbf{Chapitre 2 : État de l'art des attaques 5G.}
+Une fois le cadre d'étude établi, nous analysons les travaux existants consacrés aux attaques sur les réseaux 5G. Nous montrons que la notion même d'attaque n'est pas toujours définie de manière uniforme dans la littérature, de nombreux travaux se concentrant principalement sur l'absence ou l'insuffisance de certains mécanismes de sécurité. Ce constat nous conduit à proposer une nouvelle classification des attaques, qui servira de fondement à l'approche de détection développée dans la suite de la thèse.
 
-\item \textbf{Chapitre 3 : Vers une formalisation adaptée à la détection d'anomalies multi-domaines}
-Ce chapitre présente un état de l'art des méthodes de détection d'anomalies, aussi bien dans les réseaux 5G que dans les réseaux traditionnels. À partir de cette analyse, nous identifions les GNN dynamiques comme une approche particulièrement adaptée à notre problématique. Nous proposons alors une formalisation permettant de représenter finement les interactions observées dans un environnement 5G. Enfin, nous discutons plusieurs extensions permettant de prendre en compte l'encodage de paramètres de dimension non-fini.
+\item \textbf{Chapitre 3 : Vers une formalisation adaptée à la détection d'anomalies multi-domaines.}
+Ce chapitre présente un état de l'art des méthodes de détection d'anomalies, aussi bien dans les réseaux 5G que dans les réseaux traditionnels. À partir de cette analyse, nous identifions les GNN dynamiques comme une approche particulièrement adaptée à notre problématique. Nous proposons alors une formalisation permettant de représenter finement les interactions observées dans un environnement 5G. Enfin, nous discutons plusieurs extensions permettant de prendre en compte l'encodage de paramètres de dimension non-finie.
 
-\item \textbf{Chapitre 4 : Évaluation empirique des modèles}
+\item \textbf{Chapitre 4 : Évaluation empirique des modèles.}
 Le dernier chapitre est consacré à l'évaluation expérimentale du formalisme et des modèles développés. Nous présentons tout d'abord la conception d'un dataset visant à combler une lacune importante de la littérature actuelle. Nous comparons ensuite différentes architectures de modèles ainsi que plusieurs stratégies d'apprentissage afin d'évaluer leur capacité à détecter les anomalies dans les environnements 5G étudiés.
 
 \end{itemize}
