@@ -347,39 +347,36 @@ Nous avons vérifié dans cette section que, pour chacune des attaques de notre 
 
 % EXPE
 \section{Evaluation des modèles de détection}
-Nous souhaitons comparer expérimentalement plusieurs modèles et options afin de vérifier l'efficacité de notre formalisme. Pour comparer de manière rigoureuse ces configurations, il est essentiel de disposer d'un cadre expérimental unifié pour éviter des biais liés aux choix d'implémentation. Pour cette raison, nous nous appuyons sur DyGLib, la bibliothèque proposée par Yu et al. \cite{dygformer}, qui fournit un environnement unifié et bien établi regroupant plusieurs des modèles de l'état de l'art présenté dans la section 3.4.2.2. Parmi ceux retenus figurent CAWN, DyGFormer, TCL et GraphMixer, qui couvrent différentes approches légères d'encodage temporel, ainsi que les modèles DyRep, JODIE et TGN qui représentent les approches plus complexes de voisinnage temporel avec un module de mémoire.
+La contribution principale de cette thèse est de proposer un formalisme permettant de représenter de manière explicable les interactions au sein d'un réseau 5G et de détecter les nouvelles anomalies liées à sa nature fortement softwarisée. La conception de nouveaux modèles de GNN constitue un domaine de recherche à part entière et ne relève pas de l'objectif de cette thèse. Nous nous appuyons donc sur des modèles existants de l'état de l'art afin d'évaluer la pertinence du formalisme proposé et de vérifier qu'il permet d'obtenir des résultats encourageants. 
+
+Afin de comparer ces modèles de manière rigoureuse, il est nécessaire de les évaluer dans un cadre expérimental unifié, de manière à éviter les biais pouvant être introduits par des différences d'implémentation ou de protocole expérimental. Pour cette raison, nous nous appuyons sur DyGLib, la bibliothèque proposée par Yu et al. \cite{dygformer}, qui fournit un environnement unifié et bien établi regroupant plusieurs des modèles de l'état de l'art présenté dans la section 3.4.2.2. Parmi ceux retenus figurent CAWN, DyGFormer, TCL et GraphMixer, qui couvrent différentes approches légères d'encodage temporel, ainsi que les modèles DyRep, JODIE et TGN qui représentent les approches plus complexes de voisinnage temporel avec un module de mémoire.
 
 Comme présenté dans la section 3.4.5, notre problématique se distingue des scénarios classiquement considérés dans la littérature. Afin de mieux répondre à nos besoins, plusieurs adaptations ont été apportées à la bibliothèque. Ces modifications concernent notamment la prise en compte des informations temporelles associées aux événements ainsi que la gestion des parcours multi-sauts. Ces changements ont été implémentés sous la forme d'un fork de DyGLib, disponible à l'adresse indiquée dans \cite{dyglib_fork}.
 
 L'utilisation de DyGLib nous permet ainsi non seulement de comparer la performance de notre formalisme dans différents modèles dans un cadre homogène, mais également d'évaluer leurs performances des méthodes supervisées et non supervisées. Nous étudierons également l'impact des différentes variantes de NLP présentées précédemment. Les résultats de ces expérimentations sont présentés dans les sections suivantes. %La comparaison des différentes approches d'apprentissage est présentée dans la figure \ref{fig:learning_pipelines}.
 
-
 \subsection{Métriques d'évaluation}
 
-Afin d'évaluer les performances des modèles de classification, nous utilisons plusieurs métriques standards issues de l'apprentissage automatique, permettant de mesurer différents aspects de la qualité des prédictions.
+Afin d'évaluer les performances des modèles de détection, nous utilisons des métriques issues de la matrice de confusion, permettant de quantifier la capacité des modèles à distinguer les comportements normaux des anomalies.
 
-L’\textbf{accuracy} (ou taux de bonne classification) correspond à la proportion d’échantillons correctement classifiés parmi l’ensemble des échantillons. Elle est définie par :
+Le \textbf{taux de vrais positifs} (TVP) mesure la proportion de bénins correctement détectées parmi l’ensemble des instances réellement bénins :
 \[
-\text{Accuracy} = \frac{TP + TN}{TP + TN + FP + FN}
-\]
-où $TP$, $TN$, $FP$ et $FN$ désignent respectivement les vrais positifs, vrais négatifs, faux positifs et faux négatifs.
-
-La \textbf{precision} mesure la proportion de prédictions positives correctes parmi l’ensemble des prédictions positives effectuées par le modèle :
-\[
-\text{Precision} = \frac{TP}{TP + FP}
+\text{TVP} = \frac{Vrais Positifs}{Vrais Positifs + Faux Négatifs}
 \]
 
-Le \textbf{recall} (ou sensibilité) quantifie la capacité du modèle à identifier correctement les instances positives :
+Le \textbf{taux de faux positifs} (TFP) quantifie la proportion d'anomalies incorrectement classées comme bénins :
 \[
-\text{Recall} = \frac{TP}{TP + FN}
+\text{TFP} = \frac{Faux Positifs}{Faux Positifs + Vrais Négatifs}
 \]
 
-Enfin, le \textbf{F1-score} correspond à la moyenne harmonique entre la précision et le rappel, offrant un compromis entre ces deux mesures :
+Ces métriques sont directement liées à leurs contreparties, le \textbf{taux de faux négatifs} (TFN) qui correspond aux instances positives non détectées et le \textbf{taux de vrais négatifs} (TVN) qui mesure la proportion d’instances négatives correctement classées. On observe ainsi les relations complémentaires suivantes :
 \[
-\text{F1-score} = 2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}}
+\text{TVP} = 1 - \text{TFN}
+\qquad \text{et} \qquad
+\text{TVN} = 1 - \text{TFP}
 \]
 
-Ces métriques sont complémentaires : l’accuracy fournit une vue globale des performances, tandis que la précision, le rappel et le F1-score permettent une analyse plus fine, notamment en présence de classes déséquilibrées.
+Dans notre cas, l’objectif est de maximiser le TVP et de minimiser le TFP. Les autres métriques (TFN et TVN) étant complémentaires, elles ne sont pas utilisées directement dans l’analyse, puisque leurs valeurs peuvent être déduites respectivement à partir du TVP et du TFP.
 
 \subsection{Approche supervisée}
 
@@ -401,11 +398,11 @@ Par ailleurs, la détection d'attaques connues reste une tâche pertinente dans 
 \resizebox{\textwidth}{!}{
     \begin{tabular}{lccccccc}
         \hline
-        Métrique          & JODIE  & DyRep  & CAWN   & DyGFormer        & TCL    & GraphMixer & TGN \\
+        Métrique          & JODIE  & DyRep  & CAWN   & DyGFormer          & TCL    & GraphMixer & TGN \\
         \hline
-        TVP (TPR)         & 0.1955 & 0.3568 & 0.1548 & 0.4879           & 0.5404 & 0.4906     & \underline{0.8730} \\
-        TFP (FPR)         & 0.0309 & 0.0415 & 0.0026 & 0.0169           & 0.0271 & 0.0215     & \underline{0.0186} \\
-        Temps/paquet (ms) & 28.90  & ?      & 18.92  & \underline{3.06} & 17.27  & 34.36      & 114.91 \\
+        TVP               & 0.1955 & 0.3568 & 0.1548 & 0.4879             & 0.5404 & 0.4906     & \underline{0.8730} \\
+        TFP               & 0.0309 & 0.0415 & 0.0026 & 0.0169             & 0.0271 & 0.0215     & \underline{0.0186} \\
+        Paquets/s         & 90.63  & 41.20  & 138.43 & \underline{855.73} & 151.64 & 76.23      & 22.79 \\
         \hline
     \end{tabular}
 }
@@ -413,11 +410,11 @@ Par ailleurs, la détection d'attaques connues reste une tâche pertinente dans 
 \label{tab:supervise}
 \end{table}
 
-Le tableau \ref{tab:supervise} présente les résultats obtenus par les différents modèles. Parmi les approches évaluées, TGN obtient les meilleures performances avec une accuracy de 95\% et un score F1 de 91\%. Cependant, ce modèle repose sur un mécanisme de mémoire qui augmente significativement son coût computationnel et son temps d'entraînement par rapport à des approches plus légères comme GraphMixer.
+Le tableau \ref{tab:supervise} présente les résultats obtenus par les différents modèles. Parmi les approches évaluées, TGN obtient les meilleures performances avec un taux de vrais positifs de 87,3\% et un taux de faux positifs de 1,9\%. Ces métriques sont relativement bonnes mais doivent être interprétées avec précaution dans un contexte de détection d’attaques. En effet, sur un volume important de données, un faible taux de faux positifs peut tout de même générer un nombre conséquent d’alertes nécessitant une analyse humaine. De la même manière, le fait de ne pas détecter tous les vrais positifs représente un risque important puisqu’ils correspondent à des attaques non détectées pouvant avoir un impact sur l’infrastructure. Néanmoins, même si les performances actuelles ne sont pas encore suffisantes pour une utilisation opérationnelle directe, ces résultats montrent que le formalisme proposé et son exploitation par des modèles d’apprentissage supervisé sont pertinents.
 
-Bien que l'accuracy obtenue soit élevée, cette métrique doit être interprétée avec précaution dans un contexte de détection d'attaques. En effet, sur un volume important de données, un faible taux de faux positifs peut générer un nombre conséquent d'alertes nécessitant une analyse humaine. De la même manière, les faux négatifs représentent un risque important puisqu'ils correspondent à des attaques non détectées pouvant avoir un impact sur l'infrastructure.
+On observe également que TGN, le modèle le plus performant, est aussi celui présentant le temps d’exécution le plus élevé, avec environ 23 paquets par seconde, soit environ 40 fois moins que le modèle le plus rapide. Cependant, sur notre jeu de données de test, composé de 523 000 paquets générés en environ 5 heures, le flux moyen est d’environ 29 paquets par seconde. Dans ce contexte, TGN n’est donc pas encore capable de traiter le flux en temps réel, mais l’écart reste relativement limité. De plus, la principale cause de cette lenteur semble liée à l’implémentation, qui n’est pas optimisée. Il serait donc possible d’améliorer significativement le temps d’exécution, soit en optimisant le code, soit en simplifiant le modèle.
 
-Ainsi, même si les performances actuelles ne sont pas encore suffisantes pour une utilisation opérationnelle directe, ces résultats montrent que le formalisme proposé et son exploitation par des modèles d'apprentissage supervisé sont pertinents. Des améliorations futures pourront notamment être envisagées à travers un ajustement plus fin des hyperparamètres, une optimisation de l'architecture ou des stratégies de fine-tuning adaptées au contexte industriel.
+Pour résumer, les résultats de TGN sont très encourageants et pourront être améliorés dans le futur, tant au niveau de la vitesse d’exécution que des performances, par exemple via l’ajustement des hyperparamètres, des modifications d’architecture ou des optimisations d’implémentation.
 
 \subsection{Approche non supervisée}
 
@@ -463,7 +460,7 @@ Cette représentation visuelle peut ainsi compléter un mécanisme de détection
 \label{fig:interpretable}
 \end{figure}
 
-Sur cette figure, des paquets légitimes issus de procédures de redémarrage de session (nœuds bleus) ainsi que des paquets associés à des attaques de type DoS de sessions et Fuzzing de SEID (nœuds rouges) sont représentés simultanément au sein d’un même graphe. On observe notamment que les arcs liés aux attaques ne sont pas tous directement classés comme fortement anormaux. Dans le cas des attaques de type DoS de sessions, les premiers paquets sont représentés en orange, traduisant une suspicion initiale modérée de sa sémantique. Les paquets d'attaques suivants constituent de surcroit une anomalie temporelle et renforcent la confiance du modèle quant à la présence d’une anomalie. À l’inverse, les paquets issus des attaques de Fuzzing de SEID sont immédiatement identifiés comme fortement anormaux. Cette distinction s’explique par le fait que ces paquets en particuliers doivent présenter des caractéristiques structurelles et sémantiques directement anormales.
+Sur cette figure, des paquets légitimes issus de procédures de redémarrage de session (nœuds bleus) ainsi que des paquets associés à des attaques de type DoS de sessions et Fuzzing de SEID (nœuds rouges) sont représentés simultanément au sein d’un même graphe. On observe notamment que les arcs liés aux attaques ne sont pas tous directement classés comme fortement anormaux. Dans le cas des attaques Fuzzing de SEID, les premiers paquets sont représentés en orange, traduisant une sémantique initiale peu suspicieuse. Les paquets d'attaques suivants constituent de surcroit une anomalie temporelle et renforcent la confiance du modèle quant à la présence d’une anomalie. À l’inverse, les paquets issus des attaques de DoS de session sont immédiatement identifiés comme fortement anormaux. Cette distinction s’explique par le fait que ces paquets en particuliers doivent présenter des caractéristiques structurelles et sémantiques directement anormales.
 
 La principale limitation de cette représentation réside dans le fait qu’elle ne capture pas explicitement la dimension temporelle des échanges. Néanmoins, dans un contexte opérationnel, ce formalisme pourrait être étendu sous la forme d’une visualisation dynamique dans laquelle les paquets et les interactions apparaîtraient progressivement au cours du temps. Une telle approche permettrait de combiner l’interprétabilité structurelle du graphe avec une analyse temporelle plus fine des comportements observés.
 

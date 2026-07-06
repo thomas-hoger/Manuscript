@@ -19,7 +19,7 @@
 \faketableofcontents
 \fi
 
-\chapter{Vers une formalisation adaptée à la détection d’anomalie multi-domaines}
+\chapter{Vers une formalisation adaptée à la détection d’anomalie multi-dimensionnelles}
 \minitoc
 
 %PB1 : Les méthodes proposées actuellement pour la détection d’anomalie sont pas adaptés
@@ -600,7 +600,7 @@ Nous avons vu dans ce chapitre que les besoins en détection d'anomalies dans le
 
 Nous avons ensuite présenté de manière détaillée le domaine relativement récent des GNN, ainsi que ses variantes basées sur les graphes dynamiques discrets et continus. Nous avons également montré que les deux types d’apprentissage présentent chacun leurs avantages. L’apprentissage non supervisé permet de détecter des attaques zero-day, mais nécessite l’utilisation de techniques issues du NLP pour gérer la forte dimensionnalité de ses paramètres. L’apprentissage supervisé, quant à lui, en plus d’obtenir généralement de meilleures performances, se concentre sur un sous-ensemble d’attaques connues et permet ainsi de réduire la dimensionnalité des paramètres à considérer, limitant le recours à des techniques de NLP.
 
-Nous proposons dans le chapitre suivant une analyse empirique afin d’évaluer les performances des différents types d’apprentissage, des modèles de GNN ainsi que des différentes méthodes d’encodage discutées.
+Afin de vérifier que le formalisme proposé permet effectivement de détecter des anomalies et évaluer l'impacte des méthodes de NLP, nous présentons dans le chapitre suivant une analyse empirique. Nous y compareront différentes approches d'apprentissage, modèles de GNN et méthodes d'encodage présentés précédemment.
 
 \ifdefined\included
 \else
