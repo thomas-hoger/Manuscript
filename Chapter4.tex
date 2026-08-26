@@ -355,12 +355,12 @@ Comme présenté dans la section 3.4.5, notre problématique se distingue des sc
 
 L'utilisation de DyGLib nous permet ainsi non seulement de comparer la performance de notre formalisme dans différents modèles dans un cadre homogène, mais également d'évaluer leurs performances des méthodes supervisées et non supervisées. Nous étudierons également l'impact des différentes variantes de NLP présentées précédemment. Les résultats de ces expérimentations sont présentés dans les sections suivantes. %La comparaison des différentes approches d'apprentissage est présentée dans la figure \ref{fig:learning_pipelines}.
 
-\subsection{Métriques d'évaluation}
+\subsection{Métriques de classification}
+Afin d'évaluer les performances des modèles de détection, nous utilisons des métriques standards de classification permettant de quantifier leur capacité à distinguer les comportements normaux des comportements anormaux.
 
-Afin d'évaluer les performances des modèles de détection, nous utilisons des métriques standards de machine learning, permettant de quantifier la capacité des modèles à distinguer les comportements normaux des anomalies.
+Dans notre cas, une distinction doit être faite entre les deux types de modèles considérés. Les modèles de prédiction de liens produisent directement un score de probabilité compris entre 0 et 1. Les autoencodeurs produisent quant à eux un score d’anomalie non borné, que l’on transforme dans l’intervalle $[0,1]$ à l’aide d’une fonction sigmoïde. Dans les deux cas, une valeur proche de 0 correspond à un comportement bénin, tandis qu’une valeur proche de 1 correspond à un comportement anormal.
 
-\subsubsection{Métriques pour la classification binaires}
-Dans le cas des modèles qui produisent une probabilité comprise entre 0 (bénin) et 1 (anomalie), la décision est relativement simple car il suffit de fixer un seuil (généralement à 0.5) pour déterminer si une observation est considérée comme bénigne ou comme une anomalie. Cette approche est naturelle, car le modèle est entraîné à optimiser ses prédictions par rapport à ce seuil implicite. Une fois les prédictions comparées aux étiquettes réelles, il est alors possible de déterminer les cas où le modèle se trompe ou réussit, puis de calculer différentes métriques de classification.
+Les scores obtenus sont ensuite comparés au label de vérité afin de déterminer, pour un seuil de classification donné, les cas où le modèle effectue une prédiction correcte ou incorrecte. Ces résultats permettent de calculer différentes métriques de classification.
 
 Le \textbf{taux de vrais positifs} (TVP) mesure la proportion d'anomalies correctement détectées parmi l’ensemble des instances d'attaques :
 \[
@@ -381,10 +381,8 @@ Ces métriques sont directement liées à leurs contreparties, le \textbf{taux d
 
 Dans notre cas, l’objectif est de maximiser le TVP et de minimiser le TFP. Les autres métriques (TFN et TVN) étant complémentaires, elles ne sont pas utilisées directement dans l’analyse, puisque leurs valeurs peuvent être déduites respectivement à partir du TVP et du TFP.
 
-\subsubsection{Métriques pour la reconstruction}
-Dans le cas des modèles de type autoencodeur, l'évaluation est plus délicate. En effet, le modèle ne produit pas directement une probabilité d'appartenance à une classe, mais une erreur de reconstruction. Cette erreur n'est pas bornée entre 0 et 1 et dépend notamment des données et de l'architecture du modèle. Il n'est donc pas possible de choisir un seuil de décision universel de manière arbitraire.
-
-Pour évaluer ce type de modèle, on utilise une courbe \gls{roc}. Le principe consiste à faire varier progressivement le seuil appliqué à l'erreur de reconstruction. Pour chaque valeur de ce seuil, on calcule le TVP et le TFP, puis on représente le TVP en fonction du TFP. La figure~\ref{fig:roc} présente un exemple de courbe ROC.
+\subsection{Courbe ROC}
+Les taux présentés précédemment dépendent du seuil de classification choisi. Or, le choix d'un seuil arbitraire peut influencer directement les performances mesurées. Afin d'évaluer les capacités de discrimination d'un modèle indépendamment d'un seuil particulier, il est courant d'utiliser une courbe \gls{roc}. Cette courbe représente le TVP en fonction du TFP pour l'ensemble des seuils de classification possibles. Chaque point de la courbe correspond ainsi à un seuil donné et représente le compromis entre la capacité du modèle à détecter les anomalies et sa tendance à générer de fausses alertes.
 
 \begin{figure}[!ht]
   \centering
@@ -412,6 +410,15 @@ Comme présenté dans la section 3.5.1, la principale limite de cette approche e
 
 Par ailleurs, la détection d'attaques connues reste une tâche pertinente dans un contexte opérationnel. Grâce au formalisme proposé, les décisions du modèle restent interprétables, ce qui facilite l'analyse des alertes générées. De plus, ce type de modèle peut être réentraîné régulièrement afin d'intégrer de nouveaux comportements malveillants ou des évolutions de l'infrastructure.
 
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=1\linewidth]{figures/chapter4/roc_old_CTD5G_baseline_sl.png}
+\caption{Courbes ROC pour les différents modèles de prédiction de lien supervisés.}
+\label{fig:roc_sl}
+\end{figure}
+
+La figure \ref{fig:roc_sl} présente les résultats obtenus par les différents modèles. Parmi les approches évaluées, TGN obtient les meilleures performances avec une AUC de 0.95. Ces métriques sont relativement bonnes mais doivent être interprétées avec précaution dans un contexte de détection d’attaques. En effet, sur un volume important de données, un faible taux de faux positifs peut tout de même générer un nombre conséquent d’alertes nécessitant une analyse humaine. De la même manière, le fait de ne pas détecter tous les vrais positifs représente un risque important puisqu’ils correspondent à des attaques non détectées pouvant avoir un impact sur l’infrastructure. Néanmoins, même si les performances actuelles ne sont pas encore suffisantes pour une utilisation opérationnelle directe, ces résultats montrent que le formalisme proposé et son exploitation par des modèles d’apprentissage supervisé sont pertinents.
+
 \begin{table}[h]
 \centering
 \resizebox{\textwidth}{!}{
@@ -419,19 +426,16 @@ Par ailleurs, la détection d'attaques connues reste une tâche pertinente dans 
         \hline
         Métrique          & JODIE  & DyRep  & CAWN   & DyGFormer          & TCL    & GraphMixer & TGN \\
         \hline
-        TVP               & 0.1955 & 0.3568 & 0.1548 & 0.4879             & 0.5404 & 0.4906     & \underline{0.8730} \\
-        TFP               & 0.0309 & 0.0415 & 0.0026 & 0.0169             & 0.0271 & 0.0215     & \underline{0.0186} \\
+        AUC               & 0.5321 & 0.5299 & 0.6187 & 0.6741 & 0.5788 & 0.7411 & \underline{0.9517} \\
         Paquets/s         & 90.63  & 41.20  & 138.43 & \underline{855.73} & 151.64 & 76.23      & 22.79 \\
         \hline
     \end{tabular}
 }
-\caption{Taux de vrais positifs, taux de faux positifs et temps d'exécution par paquet pour les différents modèles étudiés.}
+\caption{Temps d'exécution par paquet et AUC pour les différents modèles étudiés.}
 \label{tab:supervise}
 \end{table}
 
-Le tableau \ref{tab:supervise} présente les résultats obtenus par les différents modèles. Parmi les approches évaluées, TGN obtient les meilleures performances avec un taux de vrais positifs de 87,3\% et un taux de faux positifs de 1,9\%. Ces métriques sont relativement bonnes mais doivent être interprétées avec précaution dans un contexte de détection d’attaques. En effet, sur un volume important de données, un faible taux de faux positifs peut tout de même générer un nombre conséquent d’alertes nécessitant une analyse humaine. De la même manière, le fait de ne pas détecter tous les vrais positifs représente un risque important puisqu’ils correspondent à des attaques non détectées pouvant avoir un impact sur l’infrastructure. Néanmoins, même si les performances actuelles ne sont pas encore suffisantes pour une utilisation opérationnelle directe, ces résultats montrent que le formalisme proposé et son exploitation par des modèles d’apprentissage supervisé sont pertinents.
-
-On observe également que TGN, le modèle le plus performant, est aussi celui présentant le temps d’exécution le plus élevé, avec environ 23 paquets par seconde, soit environ 40 fois moins que le modèle le plus rapide. Cependant, sur notre jeu de données de test, composé de 523 000 paquets générés en environ 5 heures, le flux moyen est d’environ 29 paquets par seconde. Dans ce contexte, TGN n’est donc pas encore capable de traiter le flux en temps réel, mais l’écart reste relativement limité. De plus, la principale cause de cette lenteur semble liée à l’implémentation, qui n’est pas optimisée. Il serait donc possible d’améliorer significativement le temps d’exécution, soit en optimisant le code, soit en simplifiant le modèle.
+Le tableau \ref{tab:supervise} compare les performances des différents modèles ainsi que leur temps d'exécution. On observe que TGN, qui présente les meilleures performances de détection, est également le modèle ayant le débit d'exécution le plus faible, avec environ 23 paquets par seconde, soit près de 38 fois moins que DyGFormer, le modèle le plus rapide. Cependant, sur notre jeu de données de test, composé de 523 000 paquets générés en 5 heures, le flux moyen est d’environ 29 paquets par seconde. Dans ce contexte, TGN n’est donc pas encore capable de traiter le flux en temps réel, mais l’écart reste relativement faible. De plus, la principale cause de cette lenteur semble liée à l’implémentation de la librairie DyGLib, qui n’est pas prévue pour être optimisée et réalise des allocations mémoire inefficaces. Il serait donc possible d’améliorer significativement le temps d’exécution, soit en optimisant le code, soit en simplifiant le modèle.
 
 Pour résumer, les résultats de TGN sont très encourageants et pourront être améliorés dans le futur, tant au niveau de la vitesse d’exécution que des performances, par exemple via l’ajustement des hyperparamètres, des modifications d’architecture ou des optimisations d’implémentation.
 
@@ -479,29 +483,19 @@ Compte tenu de ce surcoût temporel important, les approches basées sur BERT on
 \subsubsection{Prédiction de lien}
 Pour la prédiction de lien, l'approche suivie est similaire à celle utilisée dans le cadre non supervisé. Cependant, contrairement à l'apprentissage supervisé où le modèle est entraîné sur des données bénignes et des attaques explicitement labélisées, l'apprentissage repose uniquement sur des données bénignes ainsi que sur des arcs négatifs artificiellement générés. Lors de la phase d'évaluation, le modèle est ensuite confronté à la fois à des interactions bénignes et à des interactions issues d'attaques afin d'évaluer sa capacité à identifier des comportements malveillants à partir des écarts par rapport aux interactions normales apprises.
 
-\begin{table}[h]
+\begin{figure}[!ht]
 \centering
-\resizebox{\textwidth}{!}{
-    \begin{tabular}{lccccccc}
-        \hline
-        Métrique          & JODIE    & DyRep    & CAWN     & DyGFormer          & TCL      & GraphMixer & TGN \\
-        \hline
-        TVP               & 0.9591   & 0.9590   & 0.9993   & 1.0000 & 0.9997   & 0.9974     & 0.9970 \\
-        TFP               & 0.9225   & 0.9253   & 0.9974   & 1.0000 & 0.9990   & 0.9938     & 0.9988 \\
-        Paquets/s         & 17.31    & 2.60     & 47.87    & 368.44  & 60.17    & 32.32      & 2.37 \\
-        \hline
-    \end{tabular}
-}
-\caption{Taux de vrais positifs, taux de faux positifs et débit d'exécution pour les différents modèles étudiés.}
-\label{tab:unsupervise}
-\end{table}
+\includegraphics[width=1\linewidth]{figures/chapter4/roc_CTD5G_fasttext_retrain_fasttext_lp.png}
+\caption{Courbes ROC pour les différents modèles de prédiction de lien non supervisés.}
+\label{fig:roc_lp}
+\end{figure}
 
-Le tableau \ref{tab:unsupervise} présente les résultats obtenus par les différents modèles. On constate que, quel que soit le modèle considéré, les valeurs de TVP et de TFP sont proches de 1. Ces résultats indiquent que le modèle prédit presque systématiquement la classe bénigne, aussi bien pour les interactions normales que pour les interactions malveillantes. Par conséquent, les performances obtenues sont insuffisantes car le modèle ne parvient pas à discriminer efficacement les comportements anormaux.
+La figure \ref{fig:roc_lp} présente les résultats obtenus par les différents modèles. On constate que, quel que soit le modèle considéré, les valeurs du TVP et du TFP sont généralement proches de 0,5, ce qui correspond à des performances comparables à celles d'un classifieur aléatoire. Ces résultats suggèrent que les modèles n'ont pas appris de représentation permettant de distinguer efficacement les comportements normaux des comportements anormaux.
 
-Contrairement à l'apprentissage supervisé, le modèle bénéficie ici de beaucoup moins d'informations lors de la phase d'entraînement. Il est ainsi davantage exposé aux biais introduits par la construction des arcs négatifs, dont la sélection peut fortement influencer les performances. De plus, l'utilisation d'un encodage basé sur des techniques de NLP constitue une source d'incertitude supplémentaire, notamment si les représentations obtenues ne capturent pas correctement la sémantique des interactions étudiées.
+Contrairement à l'apprentissage supervisé, les modèles de prédiction de liens disposent ici de beaucoup moins d'informations lors de la phase d'entraînement. Ils sont ainsi davantage susceptibles d'être influencés par les biais introduits lors de la construction des arcs négatifs, dont la stratégie de sélection peut avoir un impact important sur les performances. De plus, l'utilisation d'un encodage fondé sur des techniques issues du NLP constitue une source d'incertitude supplémentaire, notamment lorsque les représentations obtenues ne capturent pas correctement la sémantique des interactions étudiées.
 
 \subsubsection{Reconstruction}
-Pour l'approche par reconstruction, la sortie du modèle est modifiée afin d'obtenir un vecteur de même dimension que celui fourni en entrée. Il devient alors possible de comparer directement le vecteur reconstruit au vecteur original et de calculer une erreur de reconstruction. Cette erreur est ensuite utilisée comme score d'anomalie et les observations présentant une erreur élevée sont considérées comme potentiellement anormales.
+Pour l'approche par reconstruction, on compare directement le vecteur reconstruit au vecteur original afin de calculer une erreur de reconstruction. Cette erreur est ensuite utilisée comme score d'anomalie et les observations présentant une erreur élevée sont considérées comme potentiellement anormales.
 
 Dans notre cas, nous utilisons l'erreur quadratique moyenne \gls{mse} comme métrique de reconstruction. Elle correspond à la moyenne des écarts quadratiques entre chaque dimension du vecteur d'entrée et sa reconstruction :
 
@@ -515,14 +509,18 @@ Les performances obtenues pour les différents modèles sont présentées sous f
 
 \begin{figure}[!ht]
 \centering
-\includegraphics[width=1\linewidth]{figures/chapter4/ae_rocs.png}
-\caption{Performances des différents modèles représentés sous forme de courbes ROC.}
+\includegraphics[width=1\linewidth]{figures/chapter4/roc_CTD5G_fasttext_retrain_fasttext_ae.png}
+\caption{Courbes ROC pour les différents modèles d'autoencodeurs non supervisés.}
 \label{fig:ae_roc}
 \end{figure}
 
-Les résultats obtenus sont cependant peu satisfaisants, avec des modèles présentant des valeurs d'AUC faibles, généralement proches voire inférieures à 0,5. Ces performances indiquent que l'erreur de reconstruction ne permet pas de distinguer efficacement les observations normales des anomalies dans notre configuration.
+Les résultats obtenus sont meilleurs que ceux observés pour la prédiction de liens, mais restent néanmoins perfectibles, avec des valeurs d'AUC généralement proches, voire inférieures, à 0,7. Ces résultats montrent que les modèles commencent à distinguer les observations normales des anomalies, mais que leur capacité de discrimination reste insuffisante pour une détection fiable. Cette performance est toutefois à mettre en perspective avec le caractère non supervisé de l'approche, qui dispose de moins d'informations lors de l'apprentissage que les modèles supervisés.
 
-Plusieurs hypothèses peuvent expliquer ces résultats. Premièrement, l'autoencodeur peut avoir appris une représentation trop générale des données, lui permettant de reconstruire correctement aussi bien les observations normales que les anomalies. Dans ce cas, l'erreur de reconstruction ne constitue plus un indicateur discriminant. Deuxièmement, la représentation vectorielle obtenues avec fasttext peut ne pas contenir suffisamment d'informations pertinentes pour permettre au modèle de différencier les deux classes. Enfin, le choix de l'architecture, des paramètres d'apprentissage ou de la fonction de coût peut également limiter la capacité du modèle à apprendre une représentation spécifique aux données normales.
+Plusieurs pistes pourraient être explorées afin d'améliorer ces résultats. Tout d'abord, l'encodage des données constitue un axe d'amélioration important. L'approche actuelle repose sur FastText, dont les représentations restent relativement simples. L'autoencodeur peut ainsi apprendre une représentation trop générale ou peu discriminante des données, lui permettant de reconstruire correctement aussi bien les observations normales que les anomalies. Une représentation plus riche pourrait donc permettre de mieux caractériser les comportements normaux et, par conséquent, d'augmenter l'erreur de reconstruction associée aux anomalies. Il serait cependant nécessaire de trouver un compromis entre la qualité des représentations produites et leur coût computationnel. Des modèles de NLP plus complexes, tels que BERT, ont notamment été écartés en raison de leur temps d'exécution trop important pour notre configuration.
+
+Par ailleurs, les modèles proposés par DyGLib n'étant pas initialement conçus pour être utilisés comme autoencodeurs, le choix de l'architecture et des paramètres d'apprentissage pourrait également limiter leurs performances. Le choix de la fonction de coût ainsi que la définition de la tâche de reconstruction pourraient notamment être étudiés afin de favoriser l'apprentissage d'une représentation davantage spécifique aux comportements normaux.
+
+Néanmoins, l'approche fondée sur la reconstruction semble plus prometteuse que la prédiction de liens dans le cadre d'une détection non supervisée. Elle constitue ainsi une piste intéressante à approfondir, notamment en améliorant les représentations utilisées et en adaptant davantage l'architecture et l'apprentissage des modèles à la tâche de détection d'anomalies.
 
 \section{Représentation interprétable de la détection}
 L’un des principaux avantages du formalisme proposé réside dans son caractère visuel ainsi que dans son niveau élevé de granularité, qui en font une représentation particulièrement interprétable. Qu’il soit utilisé dans un cadre d’apprentissage supervisé ou non supervisé, le modèle associe à chaque arc du graphe une probabilité reflétant son degré de légitimité. Ces probabilités peuvent ensuite être directement projetées sur la structure du graphe  afin de mettre en évidence les éléments ayant contribué à la décision du modèle.
