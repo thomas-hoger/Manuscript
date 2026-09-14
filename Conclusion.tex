@@ -21,7 +21,7 @@ Nous avons également montré que les spécificités des réseaux 5G nécessiten
 
 Par ailleurs, nos travaux ont mis en évidence le manque cruel de datasets publics, complets et reproductibles dans l'état de l'art pour évaluer les approches de détection dans des environnements 5G. Afin de pallier cette limitation, nous avons conçu notre propre dataset couvrant un ensemble étendu de procédures bénignes et de scénarios d'attaque, tout en veillant à garantir sa qualité et sa reproductibilité afin de faciliter la comparaison de futurs travaux.
 
-Enfin, nous avons évalué plusieurs architectures de réseaux de neurones sur graphes dynamiques afin d'étudier leur capacité à exploiter le formalisme proposé. Les résultats obtenus montrent que cette représentation est adaptée à la détection d'anomalies dans les réseaux 5G, en particulier dans un cadre supervisé, où les meilleurs modèles atteignent une accuracy d'environ 94\%. Ces résultats confirment l'intérêt des graphes dynamiques pour représenter les interactions complexes observées dans les infrastructures 5G et ouvrent la voie à de futurs travaux visant à améliorer encore leurs performances ainsi que leur capacité de généralisation à des environnements opérationnels.
+Enfin, nous avons évalué plusieurs architectures de réseaux de neurones sur graphes dynamiques afin d'étudier leur capacité à exploiter le formalisme proposé. Les résultats obtenus montrent que cette représentation est adaptée à la détection d'anomalies dans les réseaux 5G, en particulier dans un cadre supervisé, où les meilleurs modèles atteignent une AUC d'environ 0.95. Ces résultats confirment l'intérêt des graphes dynamiques pour représenter les interactions complexes observées dans les infrastructures 5G et ouvrent la voie à de futurs travaux visant à améliorer encore leurs performances ainsi que leur capacité de généralisation à des environnements opérationnels.
 
 \section{Contributions}
 
@@ -71,7 +71,7 @@ Au cours de cette thèse, nous avons étudié les approches existantes en détec
 
 La principale contribution de ce travail est la proposition d'un nouveau formalisme permettant de répondre à ces limites. Celui-ci permet de détecter des attaques couvrant les trois dimensions étudiées, tout en conservant une forte capacité d'explicabilité. Cette propriété le rend particulièrement adapté aux environnements nécessitant une validation humaine, comme les SOC.
 
-Les résultats obtenus sont encourageants, avec des performances atteignant jusqu'à 94\% d'accuracy. Ces performances pourraient encore être améliorées par des modèles plus spécialisés ou des étapes de \textit{fine-tuning}.
+Les résultats obtenus sont encourageants, avec des AUC d'environ 0.95. Ces performances pourraient encore être améliorées par des modèles plus spécialisés ou des étapes de \textit{fine-tuning}.
 
 % Enfin, plusieurs extensions sont envisageables, notamment l'intégration d'informations issues de l'environnement système afin de compléter l'analyse basée sur les données réseau.
 
