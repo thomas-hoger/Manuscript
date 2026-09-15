@@ -106,7 +106,7 @@ Plusieurs travaux récents ont analysé des vulnérabilités 5G à travers des a
 \subsection{Attaques spécifiques aux implémentations}
 
 % mTLS + Oauth + SCP
-Coldwell et al.~\cite{5gad} ainsi que CTD5G \cite{CTD5G} exploitent différentes NF de free5GC via des appels API malveillants qui incluent la manipulation de la gestion des NF, le scan et l'extraction de données utilisateurs. Ces attaques réussissent sur la version par défaut de free5GC, qui ne dispose ni de TLS, ni d’OAuth, ni de SCP, et ne permet donc pas d’authentifier correctement les NF. De plus, l’absence de mécanismes de \textit{heartbeat} rend possible la suppresion de NF légitimes qui se reconnecteraient automatiquement en temps normal.
+Coldwell et al.~\cite{5gad} ainsi que CTD5G \cite{CTD5G} exploitent différentes NF de free5GC via des appels API malveillants qui incluent la manipulation de la gestion des NF, le scan et l'extraction de données utilisateurs. Ces attaques réussissent sur la version par défaut de free5GC, qui ne dispose ni de TLS, ni d’OAuth, ni de SCP, et ne permet donc pas d’authentifier correctement les NF. De plus, l’absence de mécanismes de \textit{heartbeat} rend possible la suppression de NF légitimes qui se reconnecteraient automatiquement en temps normal.
 
 % PFCP Modif / Delete
 Amponis et al.~\cite{pfcp1} décrivent deux attaques basées sur PFCP ciblant la gestion des sessions entre le SMF et l'UPF. La première classe d’attaques tente de modifier ou supprimer des sessions, nécessitant la connaissance du SEID correspondant. Ces attaques ont été démontrées avec succès sur Open5GS, mais l'implémentation n’utilise que 12 bits sur 64 pour le SEID, rendant collisions et découvertes par force brute beaucoup plus faciles.
